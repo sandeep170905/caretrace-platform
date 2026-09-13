@@ -1,10 +1,13 @@
 import { Platform } from 'react-native';
 import { Donation, LedgerBlock, LedgerVerificationResult } from '@caretrace/shared';
 
-// Default to 10.0.2.2 for Android emulator, localhost for iOS simulator/web
-let currentApiBase = Platform.OS === 'android' 
+export const CLOUD_API_BASE = 'https://caretrace-sandeep-backend.onrender.com/api';
+export const LOCAL_DEV_API_BASE = Platform.OS === 'android' 
   ? 'http://10.0.2.2:5000/api' 
   : 'http://localhost:5000/api';
+
+// Default to local in dev, Render cloud in release/prod
+let currentApiBase = __DEV__ ? LOCAL_DEV_API_BASE : CLOUD_API_BASE;
 
 export function getApiBase(): string {
   return currentApiBase;

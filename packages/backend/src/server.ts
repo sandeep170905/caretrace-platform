@@ -42,6 +42,26 @@ if (db.getUsers().length === 0) {
   runSeed();
 }
 
+// Root health check (prevents 404 on direct browser hits)
+app.get('/', (req: Request, res: Response) => {
+  res.json({
+    status: 'ok',
+    service: 'CareTrace API',
+    version: '1.0.0',
+    endpoints: {
+      health: '/api/health',
+      events: '/api/events',
+      ledgerVerify: '/api/ledger/verify',
+      personas: '/api/auth/personas',
+      requirements: '/api/requirements',
+      donations: '/api/donations',
+      institutions: '/api/institutions'
+    },
+    ledgerBlocksCount: db.getLedgerBlocks().length,
+    timestamp: new Date().toISOString()
+  });
+});
+
 // Health check
 app.get('/api/health', (req: Request, res: Response) => {
   res.json({

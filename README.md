@@ -142,6 +142,24 @@ npx expo start --web --port 8081
 
 ---
 
+## 🌐 Live Cloud Deployment (Render)
+
+CareTrace backend is deployed on Render's cloud infrastructure:
+
+- **Live Backend URL**: `https://caretrace-sandeep-backend.onrender.com`
+- **Root Healthcheck**: `https://caretrace-sandeep-backend.onrender.com/` (returns JSON status `{ status: "ok", service: "CareTrace API" }`)
+- **Cryptographic Ledger Verification**: `https://caretrace-sandeep-backend.onrender.com/api/ledger/verify`
+- **Active SSE Event Stream**: `https://caretrace-sandeep-backend.onrender.com/api/events`
+
+### Deploying the Web Frontend to Render:
+1. Create a **Static Site** on Render pointing to this repository.
+2. Build Command: `npm install && npm run build:shared && npm run build:web`
+3. Publish Directory: `packages/web/dist`
+4. Environment Variable: `VITE_API_BASE_URL=https://caretrace-sandeep-backend.onrender.com/api`
+5. Rewrite Rule: `/*` &rarr; `/index.html`
+
+---
+
 ## 🎬 Project Review Presentation Demo Script
 
 Follow this 5-minute walkthrough scenario during project evaluation:

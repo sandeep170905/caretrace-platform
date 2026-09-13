@@ -128,7 +128,13 @@ export default function App() {
                 style={styles.presetBtn}
                 onPress={() => setServerUrlInput('http://10.0.2.2:5000/api')}
               >
-                <Text style={styles.presetBtnText}>Android Emulator</Text>
+                <Text style={styles.presetBtnText}>Android</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.presetBtn, { backgroundColor: '#0d9488' }]}
+                onPress={() => setServerUrlInput('https://caretrace-sandeep-backend.onrender.com/api')}
+              >
+                <Text style={[styles.presetBtnText, { color: '#ffffff', fontWeight: '700' }]}>Render Cloud</Text>
               </TouchableOpacity>
             </View>
 

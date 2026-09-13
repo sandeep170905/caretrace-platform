@@ -11,10 +11,9 @@ import {
   RiskFlag
 } from '@caretrace/shared';
 
-const envApiUrl = import.meta.env.VITE_API_BASE_URL;
-const API_BASE = envApiUrl
-  ? (envApiUrl.endsWith('/api') ? envApiUrl : `${envApiUrl.replace(/\/$/, '')}/api`)
-  : '/api';
+const DEFAULT_PROD_API_URL = 'https://caretrace-sandeep-backend.onrender.com/api';
+const envApiUrl = import.meta.env.VITE_API_BASE_URL || (import.meta.env.PROD ? DEFAULT_PROD_API_URL : '/api');
+const API_BASE = envApiUrl.endsWith('/api') ? envApiUrl : `${envApiUrl.replace(/\/$/, '')}/api`;
 const TOKEN_STORAGE_KEY = 'caretrace_jwt_token';
 
 /**

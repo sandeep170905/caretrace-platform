@@ -3,7 +3,7 @@ services:
   # CareTrace Core Backend API & Real-time SSE Service
   # -------------------------------------------------------------
   - type: web
-    name: caretrace-backend
+    name: caretrace-sandeep-backend
     runtime: node
     plan: free
     buildCommand: npm install && npm run build:shared && npm run build:backend
@@ -36,5 +36,5 @@ services:
       - key: VITE_API_BASE_URL
         fromService:
           type: web
-          name: caretrace-backend
+          name: caretrace-sandeep-backend
           property: host
