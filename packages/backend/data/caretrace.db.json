@@ -1,0 +1,598 @@
+{
+  "users": [
+    {
+      "id": "user-donor-ajith",
+      "name": "Ajith R",
+      "email": "ajith@caretrace.org",
+      "role": "DONOR",
+      "phone": "+91 98401 23456",
+      "avatar": "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=150&auto=format&fit=crop&q=80",
+      "passwordHash": "95407faf088c9ee047d94e7cb0263dda:c20b4e7cca75f1c57a19c811ca355691b379f4184fcbb8c5a872ea839495faf5ff0bb7e8981b35b5fa10a43e62741a323517185da95d06f4c74cda76f3dec2b2"
+    },
+    {
+      "id": "user-donor-akash",
+      "name": "Akash Kumar G",
+      "email": "akash@caretrace.org",
+      "role": "DONOR",
+      "phone": "+91 97908 11223",
+      "avatar": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80",
+      "passwordHash": "95407faf088c9ee047d94e7cb0263dda:c20b4e7cca75f1c57a19c811ca355691b379f4184fcbb8c5a872ea839495faf5ff0bb7e8981b35b5fa10a43e62741a323517185da95d06f4c74cda76f3dec2b2"
+    },
+    {
+      "id": "user-donor-karthik",
+      "name": "Karthik V",
+      "email": "karthik@caretrace.org",
+      "role": "DONOR",
+      "phone": "+91 99620 44556",
+      "avatar": "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=150&auto=format&fit=crop&q=80",
+      "passwordHash": "95407faf088c9ee047d94e7cb0263dda:c20b4e7cca75f1c57a19c811ca355691b379f4184fcbb8c5a872ea839495faf5ff0bb7e8981b35b5fa10a43e62741a323517185da95d06f4c74cda76f3dec2b2"
+    },
+    {
+      "id": "user-inst-lakshmi",
+      "name": "Lakshmi Narayanan",
+      "email": "director@karunaikarangal.org",
+      "role": "INSTITUTION",
+      "phone": "+91 98403 87654",
+      "institutionId": "inst-karunai",
+      "avatar": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80",
+      "passwordHash": "95407faf088c9ee047d94e7cb0263dda:c20b4e7cca75f1c57a19c811ca355691b379f4184fcbb8c5a872ea839495faf5ff0bb7e8981b35b5fa10a43e62741a323517185da95d06f4c74cda76f3dec2b2"
+    },
+    {
+      "id": "user-agent-sakthivel",
+      "name": "Sakthivel S",
+      "email": "agent.sakthivel@caretrace.org",
+      "role": "PICKUP_AGENT",
+      "phone": "+91 94441 56789",
+      "avatar": "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80",
+      "passwordHash": "95407faf088c9ee047d94e7cb0263dda:c20b4e7cca75f1c57a19c811ca355691b379f4184fcbb8c5a872ea839495faf5ff0bb7e8981b35b5fa10a43e62741a323517185da95d06f4c74cda76f3dec2b2"
+    },
+    {
+      "id": "user-admin-sandeep",
+      "name": "Sandeep R",
+      "email": "sandeep@caretrace.org",
+      "role": "ADMIN",
+      "phone": "+91 98840 99000",
+      "avatar": "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&auto=format&fit=crop&q=80",
+      "passwordHash": "95407faf088c9ee047d94e7cb0263dda:c20b4e7cca75f1c57a19c811ca355691b379f4184fcbb8c5a872ea839495faf5ff0bb7e8981b35b5fa10a43e62741a323517185da95d06f4c74cda76f3dec2b2"
+    }
+  ],
+  "institutions": [
+    {
+      "id": "inst-anbu",
+      "name": "Anbu Illam Children's Sanctuary",
+      "registrationNumber": "TN-CH-NGO-2018-4491",
+      "taxId": "12AA-TN-9923841",
+      "address": "42 MTH Road, Ambattur Industrial Estate",
+      "city": "Chennai",
+      "state": "Tamil Nadu",
+      "postalCode": "600058",
+      "latitude": 13.1143,
+      "longitude": 80.1548,
+      "capacity": 55,
+      "currentChildrenCount": 48,
+      "verified": true,
+      "verificationDate": "2025-01-15T09:00:00.000Z",
+      "trustScore": 96,
+      "contactEmail": "director@anbucare.org",
+      "contactPhone": "+91 98412 34567",
+      "description": "Accredited residential sanctuary caring for 48 orphaned, abandoned, and underprivileged children in Ambattur.",
+      "website": "https://anbuillamchennai.org"
+    },
+    {
+      "id": "inst-karunai",
+      "name": "Karunai Karangal Foster Sanctuary",
+      "registrationNumber": "TN-CH-NGO-2016-8823",
+      "taxId": "12AA-TN-7712903",
+      "address": "18 GST Road, Tambaram Sanatorium",
+      "city": "Chennai",
+      "state": "Tamil Nadu",
+      "postalCode": "600047",
+      "latitude": 12.9279,
+      "longitude": 80.1216,
+      "capacity": 80,
+      "currentChildrenCount": 72,
+      "verified": true,
+      "verificationDate": "2024-11-20T14:30:00.000Z",
+      "trustScore": 92,
+      "contactEmail": "director@karunaikarangal.org",
+      "contactPhone": "+91 98403 87654",
+      "description": "Comprehensive residential foster shelter and academic development sanctuary for 72 children in Tambaram.",
+      "website": "https://karunaikarangal.org"
+    },
+    {
+      "id": "inst-nanban",
+      "name": "Nanban Youth Emergency Shelter",
+      "registrationNumber": "TN-PROV-2026-089",
+      "taxId": "PENDING-TN-VERIF",
+      "address": "114 Poonamallee High Road, Poonamallee",
+      "city": "Chennai",
+      "state": "Tamil Nadu",
+      "postalCode": "600056",
+      "latitude": 13.0474,
+      "longitude": 80.0934,
+      "capacity": 40,
+      "currentChildrenCount": 36,
+      "verified": false,
+      "trustScore": 55,
+      "contactEmail": "contact@nanbanyouthshelter.org",
+      "contactPhone": "+91 97109 23456",
+      "description": "Provisional transit home providing emergency night shelter and nourishment for runaway and destitute youth.",
+      "website": "https://nanbanyouthshelter.org"
+    }
+  ],
+  "requirements": [
+    {
+      "id": "req-groceries-staples",
+      "institutionId": "inst-anbu",
+      "institutionName": "Anbu Illam Children's Sanctuary",
+      "category": "FOOD",
+      "title": "Monthly Staple Groceries (Ponni Boiled Rice Bags & Toor Dal)",
+      "description": "Fortified Ponni boiled rice (25kg sacks) and unpolished toor dal for monthly kitchen nutrition for 48 resident children.",
+      "targetQuantity": 100,
+      "unit": "bags",
+      "fulfilledQuantity": 90,
+      "urgency": "HIGH",
+      "status": "VERIFIED",
+      "authenticityScore": 95,
+      "riskFlags": [],
+      "documents": [
+        {
+          "id": "doc-1",
+          "name": "Dietary_Sanction_Certificate_Ambattur_2026.pdf",
+          "url": "https://caretrace.org/docs/dietary_manifest.pdf",
+          "type": "application/pdf",
+          "uploadedAt": "2026-02-01T10:00:00.000Z"
+        }
+      ],
+      "createdAt": "2026-02-01T10:00:00.000Z",
+      "updatedAt": "2026-02-05T14:00:00.000Z"
+    },
+    {
+      "id": "req-bedsheets-mosquito-nets",
+      "institutionId": "inst-karunai",
+      "institutionName": "Karunai Karangal Foster Sanctuary",
+      "category": "CLOTHING",
+      "title": "Pure Cotton Bedsheets & High-Density Mosquito Nets",
+      "description": "Breathable pure cotton bedsheets and anti-dengue mosquito nets tailored for Chennai tropical weather.",
+      "targetQuantity": 80,
+      "unit": "sets",
+      "fulfilledQuantity": 80,
+      "urgency": "HIGH",
+      "status": "FULFILLED",
+      "authenticityScore": 92,
+      "riskFlags": [],
+      "documents": [],
+      "createdAt": "2026-01-20T08:30:00.000Z",
+      "updatedAt": "2026-02-02T16:00:00.000Z"
+    },
+    {
+      "id": "req-firstaid-supplies",
+      "institutionId": "inst-anbu",
+      "institutionName": "Anbu Illam Children's Sanctuary",
+      "category": "MEDICINE",
+      "title": "First-Aid, ORS Electrolytes & Basic Pediatric Healthcare Packs",
+      "description": "Essential clinic supplies: Paracetamol pediatric syrup, ORS rehydration sachets, antiseptic lotions, and sterile cotton bandages.",
+      "targetQuantity": 40,
+      "unit": "kits",
+      "fulfilledQuantity": 20,
+      "urgency": "HIGH",
+      "status": "VERIFIED",
+      "authenticityScore": 88,
+      "riskFlags": [],
+      "documents": [
+        {
+          "id": "doc-2",
+          "name": "District_Health_Inspection_License.pdf",
+          "url": "https://caretrace.org/docs/clinic_license.pdf",
+          "type": "application/pdf",
+          "uploadedAt": "2026-02-10T11:20:00.000Z"
+        }
+      ],
+      "createdAt": "2026-02-10T11:20:00.000Z",
+      "updatedAt": "2026-02-10T11:20:00.000Z"
+    },
+    {
+      "id": "req-school-uniforms-stationery",
+      "institutionId": "inst-karunai",
+      "institutionName": "Karunai Karangal Foster Sanctuary",
+      "category": "EDUCATION",
+      "title": "School Uniform Sets & Academic Notebook Stationery Bundles",
+      "description": "Tailored uniform pairs (Sizes 26-36) and 192-page ruled long notebooks with geometry stationery sets for academic term.",
+      "targetQuantity": 60,
+      "unit": "sets",
+      "fulfilledQuantity": 30,
+      "urgency": "MEDIUM",
+      "status": "VERIFIED",
+      "authenticityScore": 94,
+      "riskFlags": [],
+      "documents": [],
+      "createdAt": "2026-02-12T09:00:00.000Z",
+      "updatedAt": "2026-02-14T15:30:00.000Z"
+    },
+    {
+      "id": "req-nanban-rice-anomaly",
+      "institutionId": "inst-nanban",
+      "institutionName": "Nanban Youth Emergency Shelter",
+      "category": "FOOD",
+      "title": "500 Bags Premium Ponni Boiled Rice (25kg Bulk Bags)",
+      "description": "Emergency bulk procurement requisition of 500 rice bags (12,500 kg) for provisional storage.",
+      "targetQuantity": 500,
+      "unit": "bags",
+      "fulfilledQuantity": 0,
+      "urgency": "HIGH",
+      "status": "PENDING",
+      "authenticityScore": 35,
+      "riskFlags": [
+        {
+          "ruleId": "RULE-INST-UNVERIFIED",
+          "ruleName": "Unverified Institution",
+          "severity": "HIGH",
+          "message": "Institution \"Nanban Youth Emergency Shelter\" has not completed mandatory legal identity verification.",
+          "triggeredAt": "2026-02-14T12:00:00.000Z"
+        },
+        {
+          "ruleId": "RULE-CAPACITY-EXCESS-FOOD",
+          "ruleName": "Capacity Over-Claim (Food & Groceries)",
+          "severity": "MEDIUM",
+          "message": "Requested 500 units for 36 registered children (13.9 per child), exceeding 4x quota.",
+          "triggeredAt": "2026-02-14T12:00:00.000Z"
+        }
+      ],
+      "documents": [],
+      "createdAt": "2026-02-14T12:00:00.000Z",
+      "updatedAt": "2026-02-14T12:00:00.000Z"
+    }
+  ],
+  "donations": [
+    {
+      "id": "CT-2026-8801",
+      "donorId": "user-donor-ajith",
+      "donorName": "Ajith R",
+      "donorEmail": "ajith@caretrace.org",
+      "requirementId": "req-bedsheets-mosquito-nets",
+      "requirementTitle": "Pure Cotton Bedsheets & High-Density Mosquito Nets",
+      "institutionId": "inst-karunai",
+      "institutionName": "Karunai Karangal Foster Sanctuary",
+      "type": "PHYSICAL_GOODS",
+      "items": [
+        {
+          "name": "Pure Cotton Bedsheets (Double-Stitched)",
+          "quantity": 40,
+          "unit": "sets",
+          "estimatedValueInr": 28000
+        },
+        {
+          "name": "High-Density Anti-Dengue Mosquito Nets",
+          "quantity": 40,
+          "unit": "sets",
+          "estimatedValueInr": 22000
+        }
+      ],
+      "status": "CONFIRMED",
+      "pickupAgentId": "user-agent-sakthivel",
+      "pickupAgentName": "Sakthivel S",
+      "pickupAddress": "Anna Nagar West Logistics Hub, 2nd Avenue, Anna Nagar, Chennai 600040",
+      "destinationAddress": "18 GST Road, Tambaram Sanatorium, Chennai, Tamil Nadu",
+      "pickupCoordinates": {
+        "latitude": 13.085,
+        "longitude": 80.2101
+      },
+      "destinationCoordinates": {
+        "latitude": 12.9279,
+        "longitude": 80.1216
+      },
+      "currentCoordinates": {
+        "latitude": 12.9279,
+        "longitude": 80.1216
+      },
+      "qrCodePayload": "{\"donationId\":\"CT-2026-8801\",\"donorId\":\"user-donor-ajith\",\"institutionId\":\"inst-karunai\",\"issuedAt\":\"2026-09-13T08:29:48.073Z\",\"signature\":\"689cdf60b3d82cc7\"}",
+      "pickupTimestamp": "2026-02-02T10:15:00.000Z",
+      "deliveryTimestamp": "2026-02-02T14:45:00.000Z",
+      "confirmationNotes": "Lakshmi Narayanan (Director) - Received 80 pristine bedsheet and net sets. Inspected and distributed to dormitories.",
+      "recipientSignature": "DIGITAL_SIG:LAKSHMI_NARAYANAN_KARUNAI_TAMBARAM_2026",
+      "proofPhotoUrl": "https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?w=600&auto=format&fit=crop&q=80",
+      "createdAt": "2026-02-01T15:00:00.000Z",
+      "updatedAt": "2026-02-02T14:45:00.000Z",
+      "ledgerBlockHash": "b3a076e2f45f8f15f75340e0713251139227de4fcb48f561ea21b54fe8ff545e"
+    },
+    {
+      "id": "CT-2026-9042",
+      "donorId": "user-donor-ajith",
+      "donorName": "Ajith R",
+      "donorEmail": "ajith@caretrace.org",
+      "requirementId": "req-school-uniforms-stationery",
+      "requirementTitle": "School Uniform Sets & Academic Notebook Stationery Bundles",
+      "institutionId": "inst-karunai",
+      "institutionName": "Karunai Karangal Foster Sanctuary",
+      "type": "PHYSICAL_GOODS",
+      "items": [
+        {
+          "name": "Stitched School Uniform Pairs & Notebook Bundles",
+          "quantity": 30,
+          "unit": "sets",
+          "estimatedValueInr": 35000
+        }
+      ],
+      "status": "IN_TRANSIT",
+      "pickupAgentId": "user-agent-sakthivel",
+      "pickupAgentName": "Sakthivel S",
+      "pickupAddress": "T. Nagar Wholesale Hub, Usman Road, T. Nagar, Chennai 600017",
+      "destinationAddress": "18 GST Road, Tambaram Sanatorium, Chennai, Tamil Nadu",
+      "pickupCoordinates": {
+        "latitude": 13.0418,
+        "longitude": 80.2341
+      },
+      "destinationCoordinates": {
+        "latitude": 12.9279,
+        "longitude": 80.1216
+      },
+      "currentCoordinates": {
+        "latitude": 12.984,
+        "longitude": 80.178
+      },
+      "qrCodePayload": "{\"donationId\":\"CT-2026-9042\",\"donorId\":\"user-donor-ajith\",\"institutionId\":\"inst-karunai\",\"issuedAt\":\"2026-09-13T08:29:48.086Z\",\"signature\":\"565b0587471e8e6b\"}",
+      "pickupTimestamp": "2026-09-13T07:54:48.086Z",
+      "createdAt": "2026-09-13T06:29:48.086Z",
+      "updatedAt": "2026-09-13T08:29:48.086Z",
+      "ledgerBlockHash": "839bdfdf03dc477e609f4edac97ffbb53f33147e341ffaed8c8c2f5d84569753"
+    },
+    {
+      "id": "CT-2026-8712",
+      "donorId": "user-donor-akash",
+      "donorName": "Akash Kumar G",
+      "donorEmail": "akash@caretrace.org",
+      "requirementId": "req-firstaid-supplies",
+      "requirementTitle": "First-Aid, ORS Electrolytes & Basic Pediatric Healthcare Packs",
+      "institutionId": "inst-anbu",
+      "institutionName": "Anbu Illam Children's Sanctuary",
+      "type": "PHYSICAL_GOODS",
+      "items": [
+        {
+          "name": "Pediatric First-Aid & ORS Electrolyte Kits",
+          "quantity": 20,
+          "unit": "kits",
+          "estimatedValueInr": 16000
+        }
+      ],
+      "status": "CONFIRMED",
+      "pickupAgentId": "user-agent-sakthivel",
+      "pickupAgentName": "Sakthivel S",
+      "pickupAddress": "Kilpauk Medical Wholesale Depot, Chennai 600010",
+      "destinationAddress": "42 MTH Road, Ambattur Industrial Estate, Chennai, Tamil Nadu",
+      "pickupCoordinates": {
+        "latitude": 13.0784,
+        "longitude": 80.2412
+      },
+      "destinationCoordinates": {
+        "latitude": 13.1143,
+        "longitude": 80.1548
+      },
+      "currentCoordinates": {
+        "latitude": 13.1143,
+        "longitude": 80.1548
+      },
+      "qrCodePayload": "{\"donationId\":\"CT-2026-8712\",\"donorId\":\"user-donor-akash\",\"institutionId\":\"inst-anbu\",\"issuedAt\":\"2026-09-13T08:29:48.094Z\",\"signature\":\"e5a2800e0ff8f0c1\"}",
+      "pickupTimestamp": "2026-02-08T09:30:00.000Z",
+      "deliveryTimestamp": "2026-02-08T13:15:00.000Z",
+      "confirmationNotes": "Sister V. Shanthi (Director) - First-aid and ORS supplies verified in sterile packaging.",
+      "recipientSignature": "DIGITAL_SIG:SISTER_SHANTHI_ANBU_CARE_2026",
+      "createdAt": "2026-02-07T11:00:00.000Z",
+      "updatedAt": "2026-02-08T13:15:00.000Z",
+      "ledgerBlockHash": "db73262b4669748ed968c7590b56284f3f940a55b747aae9da1b371f2621ae18"
+    },
+    {
+      "id": "CT-2026-8650",
+      "donorId": "user-donor-karthik",
+      "donorName": "Karthik V",
+      "donorEmail": "karthik@caretrace.org",
+      "requirementId": "req-groceries-staples",
+      "requirementTitle": "Monthly Staple Groceries (Ponni Boiled Rice Bags & Toor Dal)",
+      "institutionId": "inst-anbu",
+      "institutionName": "Anbu Illam Children's Sanctuary",
+      "type": "PHYSICAL_GOODS",
+      "items": [
+        {
+          "name": "Ponni Boiled Rice Bags (25kg Sacks)",
+          "quantity": 30,
+          "unit": "bags",
+          "estimatedValueInr": 45000
+        }
+      ],
+      "status": "CONFIRMED",
+      "pickupAgentId": "user-agent-sakthivel",
+      "pickupAgentName": "Sakthivel S",
+      "pickupAddress": "Koyambedu Wholesale Market, Chennai 600107",
+      "destinationAddress": "42 MTH Road, Ambattur Industrial Estate, Chennai, Tamil Nadu",
+      "pickupCoordinates": {
+        "latitude": 13.0694,
+        "longitude": 80.1948
+      },
+      "destinationCoordinates": {
+        "latitude": 13.1143,
+        "longitude": 80.1548
+      },
+      "currentCoordinates": {
+        "latitude": 13.1143,
+        "longitude": 80.1548
+      },
+      "qrCodePayload": "{\"donationId\":\"CT-2026-8650\",\"donorId\":\"user-donor-karthik\",\"institutionId\":\"inst-anbu\",\"issuedAt\":\"2026-09-13T08:29:48.099Z\",\"signature\":\"f5b5f8282e484d14\"}",
+      "pickupTimestamp": "2026-02-04T08:00:00.000Z",
+      "deliveryTimestamp": "2026-02-04T12:30:00.000Z",
+      "confirmationNotes": "Sister V. Shanthi (Director) - 30 sacks of Ponni rice received and stocked in pantry.",
+      "recipientSignature": "DIGITAL_SIG:SISTER_SHANTHI_ANBU_CARE_2026",
+      "createdAt": "2026-02-03T16:00:00.000Z",
+      "updatedAt": "2026-02-04T12:30:00.000Z",
+      "ledgerBlockHash": "53a5ec38d03092f15ff23a4f76902d31616280425c74377044405a060713cd1b"
+    }
+  ],
+  "ledgerBlocks": [
+    {
+      "index": 0,
+      "timestamp": "2026-09-13T08:29:48.073Z",
+      "donationId": "CT-2026-8801",
+      "eventType": "DONATION_MATCHED",
+      "actorId": "user-donor-ajith",
+      "actorRole": "DONOR",
+      "actorName": "Ajith R",
+      "details": "Ajith R pledged 80 cotton bedsheets & mosquito net sets to Karunai Karangal Foster Sanctuary.",
+      "payloadHash": "6e3edffa8f3edeb81fcbf8f02651a937d2b8e0a3bb4ae3036846ea3b0d978f90",
+      "previousHash": "0000000000000000000000000000000000000000000000000000000000000000",
+      "blockHash": "d063abb1e424d6bd77ce392226deebc582ac7c625432ee0fef05a4e30663dadf",
+      "nonce": 0
+    },
+    {
+      "index": 1,
+      "timestamp": "2026-09-13T08:29:48.075Z",
+      "donationId": "CT-2026-8801",
+      "eventType": "PICKUP_VERIFIED",
+      "actorId": "user-agent-sakthivel",
+      "actorRole": "PICKUP_AGENT",
+      "actorName": "Sakthivel S",
+      "details": "Pickup verified and sealed at Anna Nagar West logistics hub by Courier Sakthivel S.",
+      "payloadHash": "cb92102ac6b6de23bb05f30af5884f0b9c2e7f594aa083f88081f886d51d613b",
+      "previousHash": "d063abb1e424d6bd77ce392226deebc582ac7c625432ee0fef05a4e30663dadf",
+      "blockHash": "89033203cfb4fb6b0206186106fa10d7af1915d4a07ee7feec1eb74653e8e318",
+      "nonce": 0
+    },
+    {
+      "index": 2,
+      "timestamp": "2026-09-13T08:29:48.081Z",
+      "donationId": "CT-2026-8801",
+      "eventType": "IN_TRANSIT_CHECKPOINT",
+      "actorId": "system-iot",
+      "actorRole": "SYSTEM",
+      "actorName": "CareTrace Route Telemetry Engine",
+      "details": "In transit corridor verified. Crossing Guindy / Kathipara flyover towards Tambaram corridor.",
+      "payloadHash": "6eac906ad3f244ecde5f2366eb8abc1f5aaf0083e8d70270482b11ad7e58075b",
+      "previousHash": "89033203cfb4fb6b0206186106fa10d7af1915d4a07ee7feec1eb74653e8e318",
+      "blockHash": "d5dd4790f87b5e99b6cb28188f1b3f5064a7b8843cda27a662415da9383db1b8",
+      "nonce": 0
+    },
+    {
+      "index": 3,
+      "timestamp": "2026-09-13T08:29:48.084Z",
+      "donationId": "CT-2026-8801",
+      "eventType": "DELIVERY_CONFIRMED",
+      "actorId": "user-inst-lakshmi",
+      "actorRole": "INSTITUTION",
+      "actorName": "Lakshmi Narayanan",
+      "details": "Consignment received and authenticated via delivery QR scan by Lakshmi Narayanan (Director, Karunai Karangal).",
+      "payloadHash": "3a6535e84880f5cdd6200b9ee3d5e8df9c82f47314e1f3b063a10b6d03db2810",
+      "previousHash": "d5dd4790f87b5e99b6cb28188f1b3f5064a7b8843cda27a662415da9383db1b8",
+      "blockHash": "b3a076e2f45f8f15f75340e0713251139227de4fcb48f561ea21b54fe8ff545e",
+      "nonce": 0
+    },
+    {
+      "index": 4,
+      "timestamp": "2026-09-13T08:29:48.086Z",
+      "donationId": "CT-2026-9042",
+      "eventType": "DONATION_MATCHED",
+      "actorId": "user-donor-ajith",
+      "actorRole": "DONOR",
+      "actorName": "Ajith R",
+      "details": "Ajith R pledged 30 stitched school uniform & notebook sets to Karunai Karangal Sanctuary.",
+      "payloadHash": "e14915f2d514e3beb3f8eef1855fd3d75d639e8b86edcb29d2a5a9570f6242bd",
+      "previousHash": "b3a076e2f45f8f15f75340e0713251139227de4fcb48f561ea21b54fe8ff545e",
+      "blockHash": "ccc34d23e618a90d63285cfdec0defb2a11c7cc4731ba0550e45631760028ebc",
+      "nonce": 0
+    },
+    {
+      "index": 5,
+      "timestamp": "2026-09-13T08:29:48.088Z",
+      "donationId": "CT-2026-9042",
+      "eventType": "PICKUP_VERIFIED",
+      "actorId": "user-agent-sakthivel",
+      "actorRole": "PICKUP_AGENT",
+      "actorName": "Sakthivel S",
+      "details": "Pickup verified and scanned by Sakthivel S at T. Nagar Wholesale Hub. Consignment en route via GST Road.",
+      "payloadHash": "259eaacb85869d7b22bc2596130ab87532cdc625bf84b6e2d488de6e663c005e",
+      "previousHash": "ccc34d23e618a90d63285cfdec0defb2a11c7cc4731ba0550e45631760028ebc",
+      "blockHash": "839bdfdf03dc477e609f4edac97ffbb53f33147e341ffaed8c8c2f5d84569753",
+      "nonce": 0
+    },
+    {
+      "index": 6,
+      "timestamp": "2026-09-13T08:29:48.095Z",
+      "donationId": "CT-2026-8712",
+      "eventType": "DONATION_MATCHED",
+      "actorId": "user-donor-akash",
+      "actorRole": "DONOR",
+      "actorName": "Akash Kumar G",
+      "details": "Akash Kumar G matched 20 medical kits to Anbu Illam Sanctuary.",
+      "payloadHash": "622a28374aa9348ba1e65fd853f9141cc73905f290ddeba3dfa13d7b4273241e",
+      "previousHash": "839bdfdf03dc477e609f4edac97ffbb53f33147e341ffaed8c8c2f5d84569753",
+      "blockHash": "d5e4baee43259ea93cb0c6f799b6b037d060cfc3e3637d0ebf55a8db28b6c3af",
+      "nonce": 0
+    },
+    {
+      "index": 7,
+      "timestamp": "2026-09-13T08:29:48.098Z",
+      "donationId": "CT-2026-8712",
+      "eventType": "DELIVERY_CONFIRMED",
+      "actorId": "user-inst-shanthi",
+      "actorRole": "INSTITUTION",
+      "actorName": "Sister V. Shanthi (Director)",
+      "details": "Delivery verified by Director Sister V. Shanthi at Ambattur facility.",
+      "payloadHash": "7fae80e70d2d6f7b4e70d7fc7fea06c96eab6be8b5c4563d3102f9677a53c57e",
+      "previousHash": "d5e4baee43259ea93cb0c6f799b6b037d060cfc3e3637d0ebf55a8db28b6c3af",
+      "blockHash": "db73262b4669748ed968c7590b56284f3f940a55b747aae9da1b371f2621ae18",
+      "nonce": 0
+    },
+    {
+      "index": 8,
+      "timestamp": "2026-09-13T08:29:48.100Z",
+      "donationId": "CT-2026-8650",
+      "eventType": "DONATION_MATCHED",
+      "actorId": "user-donor-karthik",
+      "actorRole": "DONOR",
+      "actorName": "Karthik V",
+      "details": "Karthik V matched 30 rice bags to Anbu Illam kitchen.",
+      "payloadHash": "5b90bcf2e34284ad46baef841f1bf6718eae35da8bde13ac48b3e41e601b985f",
+      "previousHash": "db73262b4669748ed968c7590b56284f3f940a55b747aae9da1b371f2621ae18",
+      "blockHash": "3abebcf63a61e499fe9fec226ec81bd847b6736d6ee0a26e459acf8a803ac16c",
+      "nonce": 0
+    },
+    {
+      "index": 9,
+      "timestamp": "2026-09-13T08:29:48.108Z",
+      "donationId": "CT-2026-8650",
+      "eventType": "DELIVERY_CONFIRMED",
+      "actorId": "user-inst-shanthi",
+      "actorRole": "INSTITUTION",
+      "actorName": "Sister V. Shanthi (Director)",
+      "details": "Rice sacks verified by Director Sister V. Shanthi at Ambattur facility.",
+      "payloadHash": "7fae80e70d2d6f7b4e70d7fc7fea06c96eab6be8b5c4563d3102f9677a53c57e",
+      "previousHash": "3abebcf63a61e499fe9fec226ec81bd847b6736d6ee0a26e459acf8a803ac16c",
+      "blockHash": "53a5ec38d03092f15ff23a4f76902d31616280425c74377044405a060713cd1b",
+      "nonce": 0
+    }
+  ],
+  "riskAuditLogs": [
+    {
+      "ruleId": "RULE-CAPACITY-EXCESS-FOOD",
+      "ruleName": "Capacity Over-Claim (Food & Groceries)",
+      "severity": "MEDIUM",
+      "message": "Requested 500 units for 36 registered children (13.9 per child), exceeding 4x quota.",
+      "triggeredAt": "2026-02-14T12:00:00.000Z"
+    },
+    {
+      "ruleId": "RULE-INST-UNVERIFIED",
+      "ruleName": "Unverified Institution",
+      "severity": "HIGH",
+      "message": "Institution \"Nanban Youth Emergency Shelter\" has not completed mandatory legal identity verification.",
+      "triggeredAt": "2026-02-14T12:00:00.000Z"
+    }
+  ],
+  "transitTelemetry": {
+    "CT-2026-9042": {
+      "donationId": "CT-2026-9042",
+      "latitude": 12.984,
+      "longitude": 80.178,
+      "currentAddress": "In Transit: GST Road near Kathipara / Guindy Corridor towards Tambaram",
+      "speedKmh": 42,
+      "estimatedArrivalMinutes": 16,
+      "progressPercentage": 55,
+      "lastUpdated": "2026-09-13T08:29:48.094Z"
+    }
+  }
+}

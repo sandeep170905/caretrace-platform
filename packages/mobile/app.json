@@ -1,0 +1,28 @@
+{
+  "expo": {
+    "name": "CareTrace Mobile",
+    "slug": "caretrace-mobile",
+    "version": "1.0.0",
+    "sdkVersion": "57.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "resizeMode": "contain",
+      "backgroundColor": "#0f172a"
+    },
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "permissions": ["CAMERA"]
+    },
+    "plugins": [
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Allow CareTrace to access camera for verifying consignment QR codes."
+        }
+      ]
+    ]
+  }
+}

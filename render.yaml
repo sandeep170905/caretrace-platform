@@ -1,0 +1,40 @@
+services:
+  # -------------------------------------------------------------
+  # CareTrace Core Backend API & Real-time SSE Service
+  # -------------------------------------------------------------
+  - type: web
+    name: caretrace-backend
+    runtime: node
+    plan: free
+    buildCommand: npm install && npm run build:shared && npm run build:backend
+    startCommand: npm run start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_VERSION
+        value: 20.18.0
+      - key: PORT
+        value: 5000
+      - key: JWT_SECRET
+        generateValue: true
+      - key: CORS_ORIGIN
+        value: "*"
+
+  # -------------------------------------------------------------
+  # CareTrace Web Operations Portal & Public Needs Board
+  # -------------------------------------------------------------
+  - type: web
+    name: caretrace-web
+    runtime: static
+    plan: free
+    buildCommand: npm install && npm run build:shared && npm run build:web
+    staticPublishPath: packages/web/dist
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    envVars:
+      - key: VITE_API_BASE_URL
+        fromService:
+          type: web
+          name: caretrace-backend
+          property: host

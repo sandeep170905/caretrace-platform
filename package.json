@@ -1,0 +1,23 @@
+{
+  "name": "caretrace-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "npm run build:shared && npm run build:backend && npm run build:web",
+    "build:shared": "npm --workspace=packages/shared run build",
+    "build:backend": "npm --workspace=packages/backend run build",
+    "build:web": "npm --workspace=packages/web run build",
+    "start": "npm --workspace=packages/backend run start",
+    "dev:backend": "npm --workspace=packages/backend run dev",
+    "dev:web": "npm --workspace=packages/web run dev",
+    "dev:mobile": "npm --workspace=packages/mobile run start",
+    "seed": "npm --workspace=packages/backend run seed",
+    "test:backend": "npm --workspace=packages/backend run test"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}
