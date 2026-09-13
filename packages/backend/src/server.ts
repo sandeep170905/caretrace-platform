@@ -19,19 +19,35 @@ const PORT = process.env.PORT || 5000;
 const allowedOriginsEnv = process.env.CORS_ORIGIN;
 const allowedOrigins = allowedOriginsEnv
   ? allowedOriginsEnv.split(',').map(o => o.trim())
-  : '*';
+  : ['*'];
 
 app.use(cors({
   origin: (origin, callback) => {
-    // Allow requests with no origin (like mobile apps, curl, server-to-server)
-    if (!origin || allowedOrigins === '*' || allowedOrigins.includes('*') || allowedOrigins.includes(origin)) {
+    // 1. Allow non-browser requests with no origin (mobile app, curl, server-to-server)
+    if (!origin) {
+      return callback(null, true);
+    }
+    // 2. Allow wildcard if configured
+    if (allowedOrigins.includes('*')) {
+      return callback(null, true);
+    }
+    // 3. Allow any localhost development origin
+    if (/^https?:\/\/localhost(:\d+)?$/.test(origin)) {
+      return callback(null, true);
+    }
+    // 4. Allow any Render static site or web service (*.onrender.com)
+    if (/^https:\/\/.*\.onrender\.com$/.test(origin)) {
+      return callback(null, true);
+    }
+    // 5. Allow any explicitly listed origins in CORS_ORIGIN env var
+    if (allowedOrigins.includes(origin)) {
       return callback(null, true);
     }
     return callback(new Error(`CORS policy: origin ${origin} is not allowed`));
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  allowedHeaders: ['Content-Type', 'Authorization', 'Cache-Control', 'Accept']
 }));
 
 app.options('*', cors());

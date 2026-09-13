@@ -144,19 +144,25 @@ npx expo start --web --port 8081
 
 ## 🌐 Live Cloud Deployment (Render)
 
-CareTrace backend is deployed on Render's cloud infrastructure:
+### Backend API (Render Web Service)
+- **Live Backend URL**: `https://caretrace-sandeep-backend.onrender.com` *(or `https://caretrace-backend-fluw.onrender.com`)*
+- **Root Healthcheck**: `GET /` &rarr; returns `{ "status": "ok", "service": "CareTrace API", "version": "1.0.0" }`
+- **Ledger Verification**: `GET /api/ledger/verify` &rarr; returns `{ "isValid": true, "totalBlocks": 10, ... }`
+- **SSE Stream**: `GET /api/events` &rarr; real-time event notifications
 
-- **Live Backend URL**: `https://caretrace-sandeep-backend.onrender.com`
-- **Root Healthcheck**: `https://caretrace-sandeep-backend.onrender.com/` (returns JSON status `{ status: "ok", service: "CareTrace API" }`)
-- **Cryptographic Ledger Verification**: `https://caretrace-sandeep-backend.onrender.com/api/ledger/verify`
-- **Active SSE Event Stream**: `https://caretrace-sandeep-backend.onrender.com/api/events`
+> [!NOTE]
+> **Render Free-Tier Spin-Up Time:**  
+> Render puts free-tier web services into sleep mode after 15 minutes of inactivity. When accessed for the first time, the service may take approximately **~50 seconds to cold-start**. Once awake, all subsequent requests and real-time SSE event streams respond instantly.
 
-### Deploying the Web Frontend to Render:
-1. Create a **Static Site** on Render pointing to this repository.
-2. Build Command: `npm install && npm run build:shared && npm run build:web`
-3. Publish Directory: `packages/web/dist`
-4. Environment Variable: `VITE_API_BASE_URL=https://caretrace-sandeep-backend.onrender.com/api`
-5. Rewrite Rule: `/*` &rarr; `/index.html`
+### Web Frontend (Render Static Site)
+- **Live Frontend URL**: `https://caretrace-web.onrender.com` *(or your assigned Render static site URL)*
+- **Build Settings**:
+  - **Type**: Static Site
+  - **Root Directory**: *(leave blank / empty)*
+  - **Build Command**: `npm install && npm run build:shared && npm run build:web`
+  - **Publish Directory**: `packages/web/dist`
+  - **Environment Variables**: `VITE_API_BASE_URL=https://caretrace-sandeep-backend.onrender.com/api` *(or your active backend URL)*
+  - **Redirects / Rewrites**: Type: `Rewrite`, Source: `/*`, Destination: `/index.html`
 
 ---
 
