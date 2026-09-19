@@ -7,11 +7,14 @@ import {
   LedgerBlock,
   LedgerVerificationResult,
   ProofOfDeliveryCertificate,
+  TaxExemptionReceipt,
   TransitTelemetry,
-  RiskFlag
+  RiskFlag,
+  Announcement,
+  AnnouncementUrgency
 } from '@caretrace/shared';
 
-const DEFAULT_PROD_API_URL = 'https://caretrace-sandeep-backend.onrender.com/api';
+const DEFAULT_PROD_API_URL = 'https://caretrace-backend-fluw.onrender.com/api';
 const envApiUrl = import.meta.env.VITE_API_BASE_URL || (import.meta.env.PROD ? DEFAULT_PROD_API_URL : '/api');
 const API_BASE = envApiUrl.endsWith('/api') ? envApiUrl : `${envApiUrl.replace(/\/$/, '')}/api`;
 const TOKEN_STORAGE_KEY = 'caretrace_jwt_token';
@@ -210,6 +213,35 @@ export async function createDonation(payload: any): Promise<{ success: boolean; 
   });
 }
 
+export async function createMonetaryDonation(payload: {
+  donorId: string;
+  requirementId: string;
+  amountInr: number;
+  paymentNote?: string;
+}): Promise<{
+  success: boolean;
+  donation: Donation;
+  ledgerBlock: LedgerBlock;
+  receipt: TaxExemptionReceipt;
+  qrDataUrl: string;
+  fictionalVpa: string;
+}> {
+  return apiFetch('/donations/monetary', {
+    method: 'POST',
+    body: JSON.stringify(payload)
+  });
+}
+
+export async function fetchMonetaryReceipt(donationId: string): Promise<TaxExemptionReceipt | null> {
+  try {
+    const data = await apiFetch(`/donations/${donationId}/receipt`);
+    return data.receipt || null;
+  } catch {
+    return null;
+  }
+}
+
+
 export async function scanPickup(qrPayload: string, agentId: string, notes?: string): Promise<any> {
   return apiFetch('/pickup/scan', {
     method: 'POST',
@@ -313,6 +345,46 @@ export async function resetDatabase(): Promise<any> {
   return res.json();
 }
 
+// ---------------- ANNOUNCEMENTS ----------------
+
+export async function fetchActiveAnnouncements(): Promise<Announcement[]> {
+  try {
+    const res = await apiFetch('/announcements');
+    return res.announcements || [];
+  } catch (err) {
+    console.warn('Failed to fetch active announcements:', err);
+    return [];
+  }
+}
+
+export async function fetchAdminAnnouncements(): Promise<Announcement[]> {
+  try {
+    const res = await apiFetch('/admin/announcements');
+    return res.announcements || [];
+  } catch (err) {
+    console.warn('Failed to fetch admin announcements:', err);
+    return [];
+  }
+}
+
+export async function createAnnouncement(data: {
+  title: string;
+  message: string;
+  urgency: AnnouncementUrgency;
+  expiresAt?: string;
+}): Promise<{ success: boolean; announcement: Announcement; message?: string }> {
+  return apiFetch('/admin/announcements', {
+    method: 'POST',
+    body: JSON.stringify(data)
+  });
+}
+
+export async function dismissAnnouncement(id: string): Promise<{ success: boolean; message?: string }> {
+  return apiFetch(`/admin/announcements/${id}/dismiss`, {
+    method: 'PATCH'
+  });
+}
+
 // ---------------- REAL-TIME SSE STREAM ----------------
 
 export function useRealTimeEvents(onEvent?: (event: { type: string; data: any }) => void) {
@@ -352,6 +424,8 @@ export function useRealTimeEvents(onEvent?: (event: { type: string; data: any })
     eventSource.addEventListener('INSTITUTION_REGISTERED', (e) => handleMessage('INSTITUTION_REGISTERED', e));
     eventSource.addEventListener('INSTITUTION_VERIFIED', (e) => handleMessage('INSTITUTION_VERIFIED', e));
     eventSource.addEventListener('DATABASE_RESEEDED', (e) => handleMessage('DATABASE_RESEEDED', e));
+    eventSource.addEventListener('ANNOUNCEMENT_CREATED', (e) => handleMessage('ANNOUNCEMENT_CREATED', e));
+    eventSource.addEventListener('ANNOUNCEMENT_DISMISSED', (e) => handleMessage('ANNOUNCEMENT_DISMISSED', e));
 
     return () => {
       eventSource.close();
@@ -360,3 +434,4 @@ export function useRealTimeEvents(onEvent?: (event: { type: string; data: any })
 
   return { connected, lastEvent };
 }
+

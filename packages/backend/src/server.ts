@@ -103,6 +103,12 @@ app.get('/api/events', (req: Request, res: Response) => {
   });
 });
 
+// Public active announcements endpoint (no auth required)
+app.get('/api/announcements', (req: Request, res: Response) => {
+  const active = db.getActiveAnnouncements();
+  res.json({ success: true, count: active.length, announcements: active });
+});
+
 // Re-seed endpoint for easy live demo resets
 app.post('/api/seed/reset', (req: Request, res: Response) => {
   runSeed();

@@ -16,7 +16,10 @@ import {
   Users,
   Edit3,
   XCircle,
-  Check
+  Check,
+  Camera,
+  Upload,
+  Trash2
 } from 'lucide-react';
 import {
   fetchInstitutions,
@@ -30,11 +33,68 @@ import {
 } from '../api/client';
 import { TactileQRScanner } from '../components/TactileQRScanner';
 import { ProofOfDeliveryModal } from '../components/ProofOfDeliveryModal';
+import { AnnouncementBanner } from '../components/AnnouncementBanner';
 
 interface InstitutionDashboardProps {
   user: User;
   refreshKey?: number;
 }
+
+const generateSamplePhoto = (id: string): string => {
+  const canvas = document.createElement('canvas');
+  canvas.width = 640;
+  canvas.height = 440;
+  const ctx = canvas.getContext('2d');
+  if (ctx) {
+    const grad = ctx.createLinearGradient(0, 0, 640, 440);
+    grad.addColorStop(0, '#064e3b');
+    grad.addColorStop(0.6, '#047857');
+    grad.addColorStop(1, '#0f172a');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, 640, 440);
+
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.08)';
+    ctx.lineWidth = 1;
+    for (let i = 0; i < 640; i += 40) {
+      ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, 440); ctx.stroke();
+    }
+    for (let j = 0; j < 440; j += 40) {
+      ctx.beginPath(); ctx.moveTo(0, j); ctx.lineTo(640, j); ctx.stroke();
+    }
+
+    ctx.fillStyle = '#10b981';
+    ctx.font = 'bold 18px monospace';
+    ctx.fillText('CARETRACE OFFICIAL PROOF OF HANDOVER', 32, 44);
+
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.12)';
+    ctx.strokeStyle = '#34d399';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(40, 70, 560, 300);
+    ctx.fillRect(40, 70, 560, 300);
+
+    ctx.fillStyle = '#ffffff';
+    ctx.font = 'bold 22px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('📦 Consignment Inspected & Accepted', 320, 150);
+
+    ctx.font = '16px monospace';
+    ctx.fillStyle = '#a7f3d0';
+    ctx.fillText(`Consignment ID: ${id}`, 320, 190);
+
+    ctx.font = '14px sans-serif';
+    ctx.fillStyle = '#ecfdf5';
+    ctx.fillText(`Handover Date: ${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}`, 320, 230);
+    ctx.fillText('Recipient: Accredited Sanctuary Staff', 320, 260);
+
+    ctx.textAlign = 'left';
+    ctx.font = '11px monospace';
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+    ctx.fillText('CRYPTOGRAPHIC PROOF ATTACHED • ANCHORED TO SHA-256 LEDGER BLOCK', 40, 410);
+
+    return canvas.toDataURL('image/jpeg', 0.85);
+  }
+  return '';
+};
 
 export const InstitutionDashboard: React.FC<InstitutionDashboardProps> = ({ user, refreshKey }) => {
   const [institution, setInstitution] = useState<Institution | null>(null);
@@ -43,6 +103,7 @@ export const InstitutionDashboard: React.FC<InstitutionDashboardProps> = ({ user
   const [completedDonations, setCompletedDonations] = useState<Donation[]>([]);
   const [isScannerOpen, setIsScannerOpen] = useState<boolean>(false);
   const [selectedCertificate, setSelectedCertificate] = useState<ProofOfDeliveryCertificate | null>(null);
+  const [activeTab, setActiveTab] = useState<'DELIVERIES' | 'REQUIREMENTS' | 'CERTIFICATES'>('DELIVERIES');
 
   // New Requirement Form State
   const [isNewReqOpen, setIsNewReqOpen] = useState<boolean>(false);
@@ -59,6 +120,7 @@ export const InstitutionDashboard: React.FC<InstitutionDashboardProps> = ({ user
   const [pendingHandoverDonationId, setPendingHandoverDonationId] = useState<string | null>(null);
   const [handoverRecipientName, setHandoverRecipientName] = useState(user.name);
   const [handoverNotes, setHandoverNotes] = useState('Physical consignment inspected and approved in full.');
+  const [handoverPhoto, setHandoverPhoto] = useState<string | null>(null);
   const [isConfirmingHandover, setIsConfirmingHandover] = useState(false);
   const [handoverSuccessBanner, setHandoverSuccessBanner] = useState<string | null>(null);
 
@@ -194,6 +256,7 @@ export const InstitutionDashboard: React.FC<InstitutionDashboardProps> = ({ user
     } catch (e) {}
 
     setPendingHandoverDonationId(donationId);
+    setHandoverPhoto(null);
   };
 
   const handleConfirmDelivery = async () => {
@@ -206,12 +269,14 @@ export const InstitutionDashboard: React.FC<InstitutionDashboardProps> = ({ user
         recipientName: handoverRecipientName,
         signature: `DIGITAL_SIG:${handoverRecipientName.toUpperCase().replace(/\s+/g, '_')}_AUTHENTICATED`,
         notes: handoverNotes,
+        photoUrl: handoverPhoto || undefined,
         actorId: user.id
       });
 
       if (res.success) {
         setHandoverSuccessBanner(`Donation ${pendingHandoverDonationId} sealed on ledger! Proof of delivery certificate minted.`);
         setPendingHandoverDonationId(null);
+        setHandoverPhoto(null);
         await loadData();
         if (res.certificate) {
           setSelectedCertificate(res.certificate);
@@ -231,6 +296,9 @@ export const InstitutionDashboard: React.FC<InstitutionDashboardProps> = ({ user
 
   return (
     <div className="space-y-8 animate-fade-in">
+      {/* Broadcast Announcements Banner */}
+      <AnnouncementBanner refreshKey={refreshKey} />
+
       {/* Institution Banner */}
       <div className="bg-gradient-to-br from-emerald-800 via-teal-900 to-slate-900 rounded-3xl p-6 sm:p-8 text-white shadow-xl relative overflow-hidden">
         <div className="relative z-10 max-w-2xl">
@@ -294,27 +362,110 @@ export const InstitutionDashboard: React.FC<InstitutionDashboardProps> = ({ user
         </div>
       )}
 
-      {/* Section 1: Incoming Consignments & Handover QR Scan */}
-      <div className="bg-white rounded-2xl p-6 border border-[#E7E8E2] shadow-sm space-y-4">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100">
-          <div>
-            <h2 className="text-base font-bold text-slate-900 flex items-center space-x-2">
-              <ArrowDownLeft className="w-5 h-5 text-teal-700" />
-              <span>Incoming Deliveries Awaiting Handover Confirmation</span>
-            </h2>
-            <p className="text-xs text-slate-500 mt-0.5">
-              Inspect incoming courier shipments and authenticate arrival via QR scan
-            </p>
-          </div>
+      {/* Navigation Sub-Tabs & Action Bar */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-200 pb-2">
+        <div className="flex items-center space-x-2 bg-slate-100/90 p-1 rounded-2xl border border-slate-200">
+          <button
+            onClick={() => setActiveTab('DELIVERIES')}
+            className={`px-4 py-2 rounded-xl text-xs font-semibold transition-all flex items-center space-x-2 ${
+              activeTab === 'DELIVERIES'
+                ? 'bg-white text-teal-900 shadow-sm'
+                : 'text-slate-600 hover:text-slate-900'
+            }`}
+          >
+            <ArrowDownLeft className="w-3.5 h-3.5 text-teal-700" />
+            <span>Active Deliveries & Handover</span>
+            <span className={`text-[10px] font-mono px-1.5 py-0.2 rounded-full font-bold ${
+              incomingDonations.length > 0
+                ? 'bg-amber-100 text-amber-900 border border-amber-300'
+                : 'bg-slate-200 text-slate-700'
+            }`}>
+              {incomingDonations.length}
+            </span>
+          </button>
 
           <button
+            onClick={() => setActiveTab('REQUIREMENTS')}
+            className={`px-4 py-2 rounded-xl text-xs font-semibold transition-all flex items-center space-x-2 ${
+              activeTab === 'REQUIREMENTS'
+                ? 'bg-white text-teal-900 shadow-sm'
+                : 'text-slate-600 hover:text-slate-900'
+            }`}
+          >
+            <Package className="w-3.5 h-3.5 text-teal-700" />
+            <span>Requirements & Needs</span>
+            <span className="text-[10px] font-mono px-1.5 py-0.2 rounded-full bg-teal-50 text-teal-700 font-bold border border-teal-200">
+              {requirements.length}
+            </span>
+          </button>
+
+          <button
+            onClick={() => setActiveTab('CERTIFICATES')}
+            className={`px-4 py-2 rounded-xl text-xs font-semibold transition-all flex items-center space-x-2 ${
+              activeTab === 'CERTIFICATES'
+                ? 'bg-white text-teal-900 shadow-sm'
+                : 'text-slate-600 hover:text-slate-900'
+            }`}
+          >
+            <Award className="w-3.5 h-3.5 text-teal-700" />
+            <span>Verified Certificates</span>
+            <span className="text-[10px] font-mono px-1.5 py-0.2 rounded-full bg-slate-200 text-slate-700 font-bold">
+              {completedDonations.length}
+            </span>
+          </button>
+        </div>
+
+        {/* Dynamic Contextual Action Button */}
+        {activeTab === 'DELIVERIES' && (
+          <button
             onClick={() => setIsScannerOpen(true)}
-            className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-teal-700 to-teal-800 hover:from-teal-800 hover:to-teal-900 text-white rounded-xl text-xs font-bold shadow-sm transition-all"
+            className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-teal-700 to-teal-800 hover:from-teal-800 hover:to-teal-900 text-white rounded-xl text-xs font-bold shadow-sm transition-all self-start sm:self-center"
           >
             <QrCode className="w-4 h-4" />
             <span>Scan Handover QR</span>
           </button>
-        </div>
+        )}
+
+        {activeTab === 'REQUIREMENTS' && (
+          <button
+            onClick={() => {
+              if (institution?.verified) setIsNewReqOpen(true);
+            }}
+            disabled={!institution?.verified}
+            className={`flex items-center space-x-2 px-4 py-2 rounded-xl text-xs font-bold shadow-sm transition-all self-start sm:self-center ${
+              institution?.verified
+                ? 'bg-gradient-to-r from-teal-700 to-teal-800 hover:from-teal-800 hover:to-teal-900 text-white cursor-pointer'
+                : 'bg-slate-100 text-slate-400 cursor-not-allowed border border-slate-200'
+            }`}
+          >
+            <Plus className="w-4 h-4" />
+            <span>{!institution?.verified ? 'Posting Locked' : 'Post New Requirement'}</span>
+          </button>
+        )}
+      </div>
+
+      {/* Section 1: Incoming Consignments & Handover QR Scan */}
+      {activeTab === 'DELIVERIES' && (
+        <div className="bg-white rounded-2xl p-6 border border-[#E7E8E2] shadow-sm space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100">
+            <div>
+              <h2 className="text-base font-bold text-slate-900 flex items-center space-x-2">
+                <ArrowDownLeft className="w-5 h-5 text-teal-700" />
+                <span>Incoming Deliveries Awaiting Handover Confirmation</span>
+              </h2>
+              <p className="text-xs text-slate-500 mt-0.5">
+                Inspect incoming courier shipments and authenticate arrival via QR scan
+              </p>
+            </div>
+
+            <button
+              onClick={() => setIsScannerOpen(true)}
+              className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-teal-700 to-teal-800 hover:from-teal-800 hover:to-teal-900 text-white rounded-xl text-xs font-bold shadow-sm transition-all"
+            >
+              <QrCode className="w-4 h-4" />
+              <span>Scan Handover QR</span>
+            </button>
+          </div>
 
         {incomingDonations.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -369,9 +520,11 @@ export const InstitutionDashboard: React.FC<InstitutionDashboardProps> = ({ user
           </div>
         )}
       </div>
+      )}
 
       {/* Section 2: Posted Institutional Requirements */}
-      <div className="bg-white rounded-2xl p-6 border border-[#E7E8E2] shadow-sm space-y-4">
+      {activeTab === 'REQUIREMENTS' && (
+        <div className="bg-white rounded-2xl p-6 border border-[#E7E8E2] shadow-sm space-y-4">
         {institution && !institution.verified && (
           <div className="p-4 bg-amber-50 border border-amber-300 text-amber-950 rounded-2xl flex items-start space-x-3 shadow-sm">
             <AlertTriangle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
@@ -504,38 +657,41 @@ export const InstitutionDashboard: React.FC<InstitutionDashboardProps> = ({ user
           })}
         </div>
       </div>
+      )}
 
       {/* Section 3: Completed Receipts & Delivery Proofs */}
-      <div className="bg-white rounded-2xl p-6 border border-[#E7E8E2] shadow-sm space-y-4">
-        <h2 className="text-base font-bold text-slate-900 flex items-center space-x-2">
-          <Award className="w-5 h-5 text-teal-700" />
-          <span>Ledger-Confirmed Handover Proofs</span>
-        </h2>
+      {activeTab === 'CERTIFICATES' && (
+        <div className="bg-white rounded-2xl p-6 border border-[#E7E8E2] shadow-sm space-y-4">
+          <h2 className="text-base font-bold text-slate-900 flex items-center space-x-2">
+            <Award className="w-5 h-5 text-teal-700" />
+            <span>Ledger-Confirmed Handover Proofs</span>
+          </h2>
 
-        <div className="divide-y divide-slate-100">
-          {completedDonations.map((d) => (
-            <div key={d.id} className="py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-              <div>
-                <div className="flex items-center space-x-2">
-                  <span className="font-mono text-xs font-bold text-slate-900">{d.id}</span>
-                  <span className="text-xs text-slate-600 font-semibold">{d.requirementTitle}</span>
+          <div className="divide-y divide-slate-100">
+            {completedDonations.map((d) => (
+              <div key={d.id} className="py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                <div>
+                  <div className="flex items-center space-x-2">
+                    <span className="font-mono text-xs font-bold text-slate-900">{d.id}</span>
+                    <span className="text-xs text-slate-600 font-semibold">{d.requirementTitle}</span>
+                  </div>
+                  <p className="text-xs text-slate-500 mt-0.5">
+                    Delivered on {new Date(d.deliveryTimestamp || d.updatedAt).toLocaleDateString()} • Signature: <span className="font-mono">{d.recipientSignature}</span>
+                  </p>
                 </div>
-                <p className="text-xs text-slate-500 mt-0.5">
-                  Delivered on {new Date(d.deliveryTimestamp || d.updatedAt).toLocaleDateString()} • Signature: <span className="font-mono">{d.recipientSignature}</span>
-                </p>
-              </div>
 
-              <button
-                onClick={() => handleViewCert(d.id)}
-                className="self-start sm:self-auto px-3 py-1.5 bg-teal-50 hover:bg-teal-100 text-teal-800 rounded-lg text-xs font-semibold border border-teal-200 flex items-center space-x-1"
-              >
-                <Award className="w-3.5 h-3.5" />
-                <span>View Certificate</span>
-              </button>
-            </div>
-          ))}
+                <button
+                  onClick={() => handleViewCert(d.id)}
+                  className="self-start sm:self-auto px-3 py-1.5 bg-teal-50 hover:bg-teal-100 text-teal-800 rounded-lg text-xs font-semibold border border-teal-200 flex items-center space-x-1"
+                >
+                  <Award className="w-3.5 h-3.5" />
+                  <span>View Certificate</span>
+                </button>
+              </div>
+            ))}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Post New Requirement Modal */}
       {isNewReqOpen && (
@@ -809,13 +965,87 @@ export const InstitutionDashboard: React.FC<InstitutionDashboardProps> = ({ user
               </div>
 
               <div>
-                <label className="block text-slate-700 font-medium mb-1">Inspection Inspection Notes:</label>
+                <label className="block text-slate-700 font-medium mb-1">Inspection Notes:</label>
                 <textarea
                   rows={2}
                   value={handoverNotes}
                   onChange={(e) => setHandoverNotes(e.target.value)}
                   className="w-full px-3 py-2 border border-slate-300 rounded-xl focus:outline-none focus:border-teal-600"
                 />
+              </div>
+
+              {/* Optional Photo Proof Upload */}
+              <div className="p-3 bg-slate-50 rounded-xl border border-slate-200">
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="block text-slate-800 font-semibold flex items-center space-x-1.5 text-xs">
+                    <Camera className="w-3.5 h-3.5 text-teal-700" />
+                    <span>Handover Photo Proof (Optional)</span>
+                  </label>
+                  <span className="text-[10px] text-slate-500 font-medium">Optional</span>
+                </div>
+                <p className="text-[11px] text-slate-500 mb-2">
+                  Attach photo evidence of received consignment to anchor on the immutable delivery ledger block.
+                </p>
+
+                {handoverPhoto ? (
+                  <div className="relative rounded-xl overflow-hidden border border-emerald-300 bg-slate-900">
+                    <img
+                      src={handoverPhoto}
+                      alt="Handover Preview"
+                      className="w-full h-32 object-cover"
+                    />
+                    <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent p-2 flex justify-between items-center text-white text-[11px]">
+                      <span className="font-semibold flex items-center space-x-1 text-emerald-300">
+                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                        <span>Photo Attached</span>
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => setHandoverPhoto(null)}
+                        className="px-2 py-0.5 bg-red-600/90 hover:bg-red-700 rounded text-white text-[10px] flex items-center space-x-1 font-semibold"
+                      >
+                        <Trash2 className="w-3 h-3" />
+                        <span>Remove</span>
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex flex-col sm:flex-row gap-2">
+                    <label className="flex-1 flex items-center justify-center space-x-2 px-3 py-2 border border-dashed border-slate-300 hover:border-teal-600 rounded-xl cursor-pointer text-slate-600 hover:text-teal-800 transition-colors bg-white">
+                      <Upload className="w-3.5 h-3.5 text-slate-400" />
+                      <span className="text-xs font-medium">Upload Local Photo</span>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) {
+                            const reader = new FileReader();
+                            reader.onload = () => {
+                              if (typeof reader.result === 'string') {
+                                setHandoverPhoto(reader.result);
+                              }
+                            };
+                            reader.readAsDataURL(file);
+                          }
+                        }}
+                      />
+                    </label>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const sample = generateSamplePhoto(pendingHandoverDonationId);
+                        setHandoverPhoto(sample);
+                      }}
+                      className="px-3 py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 rounded-xl text-xs font-semibold flex items-center justify-center space-x-1.5 transition-colors"
+                    >
+                      <Camera className="w-3.5 h-3.5 text-emerald-600" />
+                      <span>Use Sample Photo</span>
+                    </button>
+                  </div>
+                )}
               </div>
 
               <div className="p-3 bg-emerald-50 rounded-xl text-[11px] text-emerald-900 space-y-1">
@@ -828,7 +1058,10 @@ export const InstitutionDashboard: React.FC<InstitutionDashboardProps> = ({ user
 
             <div className="mt-6 flex justify-end space-x-2">
               <button
-                onClick={() => setPendingHandoverDonationId(null)}
+                onClick={() => {
+                  setPendingHandoverDonationId(null);
+                  setHandoverPhoto(null);
+                }}
                 className="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-xl"
               >
                 Cancel

@@ -56,17 +56,21 @@ deliveryRouter.post('/scan', (req: Request, res: Response) => {
   donation.updatedAt = now;
   db.upsertDonation(donation);
 
+  const hasPhoto = Boolean(photoUrl);
+
   // 5. Mine Final Immutable Proof-of-Delivery Block on Ledger
   const ledgerBlock = LedgerService.recordCheckpoint(
     donation.id,
     'DELIVERY_CONFIRMED',
     { id: actor.id, role: actor.role as any, name: actor.name },
-    `Delivery verified and accepted at ${donation.institutionName}. Proof of delivery authenticated.`,
+    `Delivery verified and accepted at ${donation.institutionName}. Proof of delivery authenticated${hasPhoto ? ' with attached handover photo proof.' : '.'}`,
     {
       recipient: recipientName || actor.name,
       signature: donation.recipientSignature,
       notes: donation.confirmationNotes,
-      itemsConfirmedCount: donation.items.length
+      itemsConfirmedCount: donation.items.length,
+      hasPhotoProof: hasPhoto,
+      photoAttached: hasPhoto
     }
   );
 

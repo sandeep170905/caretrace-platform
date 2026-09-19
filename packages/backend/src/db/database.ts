@@ -7,7 +7,8 @@ import {
   Donation,
   LedgerBlock,
   RiskFlag,
-  TransitTelemetry
+  TransitTelemetry,
+  Announcement
 } from '@caretrace/shared';
 
 export interface DatabaseSchema {
@@ -18,6 +19,7 @@ export interface DatabaseSchema {
   ledgerBlocks: LedgerBlock[];
   riskAuditLogs: RiskFlag[];
   transitTelemetry: Record<string, TransitTelemetry>;
+  announcements?: Announcement[];
 }
 
 const DATA_DIR = path.resolve(__dirname, '../../data');
@@ -31,7 +33,8 @@ class Database {
     donations: [],
     ledgerBlocks: [],
     riskAuditLogs: [],
-    transitTelemetry: {}
+    transitTelemetry: {},
+    announcements: []
   };
 
   constructor() {
@@ -50,6 +53,9 @@ class Database {
       if (fs.existsSync(DB_FILE)) {
         const raw = fs.readFileSync(DB_FILE, 'utf-8');
         this.data = JSON.parse(raw);
+        if (!this.data.announcements) {
+          this.data.announcements = [];
+        }
       } else {
         this.save();
       }
@@ -212,8 +218,41 @@ class Database {
       donations: [],
       ledgerBlocks: [],
       riskAuditLogs: [],
-      transitTelemetry: {}
+      transitTelemetry: {},
+      announcements: []
     };
+    this.save();
+  }
+
+  // Announcements
+  public getAnnouncements(): Announcement[] {
+    return this.data.announcements || [];
+  }
+
+  public getActiveAnnouncements(): Announcement[] {
+    const all = this.data.announcements || [];
+    const now = new Date();
+    return all.filter(a => {
+      if (a.active === false) return false;
+      if (a.expiresAt && new Date(a.expiresAt) <= now) return false;
+      return true;
+    });
+  }
+
+  public getAnnouncementById(id: string): Announcement | undefined {
+    return (this.data.announcements || []).find(a => a.id === id);
+  }
+
+  public upsertAnnouncement(ann: Announcement) {
+    if (!this.data.announcements) {
+      this.data.announcements = [];
+    }
+    const idx = this.data.announcements.findIndex(a => a.id === ann.id);
+    if (idx >= 0) {
+      this.data.announcements[idx] = ann;
+    } else {
+      this.data.announcements.unshift(ann); // newest first
+    }
     this.save();
   }
 }

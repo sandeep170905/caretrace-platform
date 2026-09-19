@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Requirement, Institution, User } from '@caretrace/shared';
+import { Requirement, Institution, User, TaxExemptionReceipt } from '@caretrace/shared';
 import { fetchRequirements, fetchInstitutions, createDonation } from '../api/client';
+import { AnnouncementBanner } from '../components/AnnouncementBanner';
+import { SimulatedUpiModal } from '../components/SimulatedUpiModal';
+import { TaxExemptionReceiptModal } from '../components/TaxExemptionReceiptModal';
 import {
   Search,
   Filter,
@@ -20,6 +23,7 @@ interface PublicRequestBoardProps {
   currentUser: User | null;
   onRequireAuth: (req: Requirement) => void;
   onPledgedSuccess?: (donationId: string) => void;
+  onNavigateToVerify?: (donationId?: string) => void;
   refreshKey?: number;
 }
 
@@ -27,6 +31,7 @@ export const PublicRequestBoard: React.FC<PublicRequestBoardProps> = ({
   currentUser,
   onRequireAuth,
   onPledgedSuccess,
+  onNavigateToVerify,
   refreshKey
 }) => {
   const [requirements, setRequirements] = useState<Requirement[]>([]);
@@ -45,6 +50,25 @@ export const PublicRequestBoard: React.FC<PublicRequestBoardProps> = ({
   const [pickupAddress, setPickupAddress] = useState<string>('Anna Nagar West Logistics Hub, Chennai 600040');
   const [isSubmittingPledge, setIsSubmittingPledge] = useState<boolean>(false);
   const [pledgeSuccessId, setPledgeSuccessId] = useState<string | null>(null);
+
+  // Simulated UPI payment state
+  const [upiRequirement, setUpiRequirement] = useState<Requirement | null>(null);
+  const [activeReceipt, setActiveReceipt] = useState<TaxExemptionReceipt | null>(null);
+
+  const handleUpiClick = (req: Requirement) => {
+    if (currentUser && currentUser.role === 'DONOR') {
+      setUpiRequirement(req);
+    } else {
+      onRequireAuth(req);
+    }
+  };
+
+  const handlePaymentSuccess = async (receipt: TaxExemptionReceipt) => {
+    setUpiRequirement(null);
+    setActiveReceipt(receipt);
+    if (onPledgedSuccess) onPledgedSuccess(receipt.donationId);
+    await loadData();
+  };
 
   const loadData = async () => {
     setIsLoading(true);
@@ -161,6 +185,9 @@ export const PublicRequestBoard: React.FC<PublicRequestBoardProps> = ({
 
   return (
     <div className="space-y-8 animate-fade-in pb-12">
+      {/* Broadcast Announcements Banner */}
+      <AnnouncementBanner refreshKey={refreshKey} />
+
       {/* Public Hero Banner */}
       <div className="bg-gradient-to-br from-teal-900 via-teal-800 to-slate-900 rounded-3xl p-6 sm:p-10 text-white shadow-xl relative overflow-hidden">
         <div className="relative z-10 max-w-2xl">
@@ -174,6 +201,19 @@ export const PublicRequestBoard: React.FC<PublicRequestBoardProps> = ({
           <p className="text-sm text-teal-100/90 mt-2.5 leading-relaxed">
             Every listed item is legally vetted, scored for demand authenticity, and cryptographically tracked from donor depot to verified child institution handover.
           </p>
+
+          {onNavigateToVerify && (
+            <div className="mt-5 flex items-center space-x-3">
+              <button
+                type="button"
+                onClick={() => onNavigateToVerify()}
+                className="flex items-center space-x-2 px-4 py-2 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs rounded-xl transition-all shadow-md"
+              >
+                <ShieldCheck className="w-4 h-4 text-slate-950" />
+                <span>Verify a Donation on Public Ledger &rarr;</span>
+              </button>
+            </div>
+          )}
         </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mt-8 pt-6 border-t border-teal-700/60 relative z-10">
@@ -362,18 +402,28 @@ export const PublicRequestBoard: React.FC<PublicRequestBoardProps> = ({
                   </div>
                 </div>
 
-                {/* Donate CTA Button */}
-                <div className="mt-5 pt-4 border-t border-slate-100 flex items-center justify-between">
-                  <span className="text-[11px] text-slate-400 font-mono">
-                    Audited ID: {req.id.slice(0, 14)}
+                {/* Donate CTA Buttons: UPI & Goods */}
+                <div className="mt-5 pt-4 border-t border-slate-100 flex items-center justify-between gap-2">
+                  <span className="text-[11px] text-slate-400 font-mono truncate max-w-[100px]">
+                    {req.id.slice(0, 14)}
                   </span>
-                  <button
-                    onClick={() => handleDonateClick(req)}
-                    className="flex items-center space-x-1.5 px-4 py-2 bg-teal-800 hover:bg-teal-900 text-white rounded-xl text-xs font-bold shadow-sm hover:shadow transition-all active:scale-95"
-                  >
-                    <HeartHandshake className="w-4 h-4" />
-                    <span>Donate This</span>
-                  </button>
+                  <div className="flex items-center space-x-1.5 shrink-0">
+                    <button
+                      onClick={() => handleUpiClick(req)}
+                      className="px-2.5 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 rounded-xl text-xs font-semibold shadow-xs transition-colors flex items-center space-x-1"
+                      title="Donate Funds via Simulated UPI"
+                    >
+                      <span className="font-bold">₹</span>
+                      <span>Donate UPI</span>
+                    </button>
+                    <button
+                      onClick={() => handleDonateClick(req)}
+                      className="flex items-center space-x-1.5 px-3 py-1.5 bg-teal-800 hover:bg-teal-900 text-white rounded-xl text-xs font-semibold shadow-xs hover:shadow transition-all active:scale-95"
+                    >
+                      <HeartHandshake className="w-3.5 h-3.5" />
+                      <span>Pledge Goods</span>
+                    </button>
+                  </div>
                 </div>
               </div>
             );
@@ -480,6 +530,24 @@ export const PublicRequestBoard: React.FC<PublicRequestBoardProps> = ({
             )}
           </div>
         </div>
+      )}
+
+      {/* Simulated UPI Payment Modal */}
+      {upiRequirement && currentUser && (
+        <SimulatedUpiModal
+          donorId={currentUser.id}
+          requirement={upiRequirement}
+          onClose={() => setUpiRequirement(null)}
+          onSuccess={handlePaymentSuccess}
+        />
+      )}
+
+      {/* Section 80G Tax Exemption Receipt Modal */}
+      {activeReceipt && (
+        <TaxExemptionReceiptModal
+          receipt={activeReceipt}
+          onClose={() => setActiveReceipt(null)}
+        />
       )}
     </div>
   );

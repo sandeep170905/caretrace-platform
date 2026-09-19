@@ -23,8 +23,8 @@ interface NavbarProps {
   sseConnected: boolean;
   onResetDatabase: () => void;
   isResetting: boolean;
-  activeNavTab: 'PUBLIC_BOARD' | 'PORTAL';
-  onSelectNavTab: (tab: 'PUBLIC_BOARD' | 'PORTAL') => void;
+  activeNavTab: 'PUBLIC_BOARD' | 'PORTAL' | 'VERIFY';
+  onSelectNavTab: (tab: 'PUBLIC_BOARD' | 'PORTAL' | 'VERIFY') => void;
   onOpenAuthModal: (mode?: 'DONOR_LOGIN' | 'DONOR_REGISTER' | 'INSTITUTION_REGISTER') => void;
   onLogout: () => void;
   isAuthenticated: boolean;
@@ -93,7 +93,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             </div>
           </div>
 
-          {/* Primary View Switcher: Public Board vs Platform Portal */}
+          {/* Primary View Switcher: Public Board vs Verify a Donation vs Platform Portal */}
           <div className="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200 text-xs font-semibold">
             <button
               onClick={() => onSelectNavTab('PUBLIC_BOARD')}
@@ -105,6 +105,17 @@ export const Navbar: React.FC<NavbarProps> = ({
             >
               <Globe className="w-3.5 h-3.5 text-teal-700" />
               <span>Public Needs Board</span>
+            </button>
+            <button
+              onClick={() => onSelectNavTab('VERIFY')}
+              className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-lg transition-all ${
+                activeNavTab === 'VERIFY'
+                  ? 'bg-white text-teal-900 shadow-sm font-bold'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              <ShieldCheck className="w-3.5 h-3.5 text-teal-700" />
+              <span>Verify a Donation</span>
             </button>
             <button
               onClick={() => onSelectNavTab('PORTAL')}

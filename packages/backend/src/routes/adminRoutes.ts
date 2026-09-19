@@ -1,6 +1,7 @@
 import { Router, Request, Response } from 'express';
 import { db } from '../db/database';
 import { LedgerService } from '../services/ledgerService';
+import { Announcement } from '@caretrace/shared';
 
 export const adminRouter = Router();
 
@@ -125,4 +126,84 @@ adminRouter.post('/auto-assign-all', (req: Request, res: Response) => {
     message: `Successfully dispatched ${pending.length} consignments to courier ${defaultAgent.name}`
   });
 });
+
+// Re-seed demo database cleanly
+adminRouter.post('/reset-seed', (req: Request, res: Response) => {
+  const { runSeed } = require('../db/seed');
+  runSeed();
+  res.json({ success: true, message: 'Database reset and re-seeded successfully with localized Chennai records.' });
+});
+
+// ---------------- BROADCAST ANNOUNCEMENTS ----------------
+
+// Get all announcements (for Admin overview)
+adminRouter.get('/announcements', (req: Request, res: Response) => {
+  const announcements = db.getAnnouncements();
+  res.json({ success: true, count: announcements.length, announcements });
+});
+
+// Post a new broadcast announcement
+adminRouter.post('/announcements', (req: Request, res: Response) => {
+  const { title, message, urgency, expiresAt, createdBy } = req.body;
+
+  if (!title || !title.trim()) {
+    return res.status(400).json({ success: false, error: 'Announcement title is required' });
+  }
+
+  if (!message || !message.trim()) {
+    return res.status(400).json({ success: false, error: 'Announcement message is required' });
+  }
+
+  const announcementId = `ann-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`;
+  const announcement: Announcement = {
+    id: announcementId,
+    title: title.trim(),
+    message: message.trim(),
+    urgency: urgency === 'URGENT' ? 'URGENT' : 'GENERAL',
+    createdAt: new Date().toISOString(),
+    expiresAt: expiresAt ? new Date(expiresAt).toISOString() : undefined,
+    active: true,
+    createdBy: createdBy || 'Sandeep R (Platform Admin)'
+  };
+
+  db.upsertAnnouncement(announcement);
+
+  // Broadcast live to all connected clients via SSE stream
+  const { NotificationService } = require('../services/notificationService');
+  NotificationService.broadcast('ANNOUNCEMENT_CREATED', announcement);
+
+  res.status(201).json({
+    success: true,
+    announcement,
+    message: `Announcement broadcast successfully across CareTrace platform.`
+  });
+});
+
+// Dismiss/deactivate an announcement early
+adminRouter.patch('/announcements/:id/dismiss', (req: Request, res: Response) => {
+  const { id } = req.params;
+  const announcement = db.getAnnouncementById(id);
+
+  if (!announcement) {
+    return res.status(404).json({ success: false, error: 'Announcement not found' });
+  }
+
+  announcement.active = false;
+  db.upsertAnnouncement(announcement);
+
+  // Broadcast dismissal event
+  const { NotificationService } = require('../services/notificationService');
+  NotificationService.broadcast('ANNOUNCEMENT_DISMISSED', {
+    id: announcement.id,
+    title: announcement.title,
+    message: `Announcement was dismissed early by Admin.`
+  });
+
+  res.json({
+    success: true,
+    announcement,
+    message: `Announcement ${id} dismissed early.`
+  });
+});
+
 

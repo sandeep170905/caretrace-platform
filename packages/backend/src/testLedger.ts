@@ -2,7 +2,7 @@ import { db } from './db/database';
 import { runSeed } from './db/seed';
 import { LedgerService } from './services/ledgerService';
 import { FraudScoringService } from './services/fraudScoringService';
-import { Requirement } from '@caretrace/shared';
+import { Requirement, formatIndianCurrency, numberToIndianWords } from '@caretrace/shared';
 
 async function runTests() {
   console.log('🧪 Starting CareTrace Backend Automated Verification...\n');
@@ -68,6 +68,52 @@ async function runTests() {
   const restoredVerify = LedgerService.verifyChain();
   console.assert(restoredVerify.isValid === true, 'Expected valid chain after restore');
   console.log('   ✅ Database restored to valid state.\n');
+
+  // Test 5: Simulated Monetary UPI Donation Flow (Stage A)
+  console.log('5️⃣ Testing Simulated Monetary UPI Donation & 80G Receipt (Stage A)...');
+  const testAmount = 125000; // ₹1,25,000 (over ₹1,00,000 to test lakhs formatting)
+  const formattedCurrency = formatIndianCurrency(testAmount);
+  const wordsRepresentation = numberToIndianWords(testAmount);
+
+  console.log(`   Amount: ${formattedCurrency}`);
+  console.log(`   Amount in Words: "${wordsRepresentation}"`);
+  console.assert(formattedCurrency === '₹1,25,000', `Expected ₹1,25,000, got ${formattedCurrency}`);
+  console.assert(wordsRepresentation === 'One Lakh Twenty Five Thousand Rupees Only', `Expected 'One Lakh Twenty Five Thousand Rupees Only', got '${wordsRepresentation}'`);
+
+  // Create simulated monetary donation
+  const monetaryDonationId = 'CT-2026-9999';
+  const fictionalVpa = 'caretrace.demo@sandboxbank';
+  const testDonor = users[0]; // Ajith R
+  const testRequirement = requirements[0];
+  const testInstitution = institutions.find(i => i.id === testRequirement.institutionId)!;
+
+  const monetaryBlock = LedgerService.recordCheckpoint(
+    monetaryDonationId,
+    'MONETARY_DONATION_CONFIRMED',
+    { id: testDonor.id, role: 'DONOR', name: testDonor.name },
+    `Simulated UPI donation of ${formattedCurrency} confirmed for ${testInstitution.name}`,
+    {
+      amountInr: testAmount,
+      donorId: testDonor.id,
+      donorName: testDonor.name,
+      institutionId: testInstitution.id,
+      institutionName: testInstitution.name,
+      vpa: fictionalVpa
+    }
+  );
+
+  console.assert(monetaryBlock.eventType === 'MONETARY_DONATION_CONFIRMED', 'Expected MONETARY_DONATION_CONFIRMED event type');
+  console.log(`   Mined Ledger Block #${monetaryBlock.index} (${monetaryBlock.eventType})`);
+  console.log(`   Block Hash: ${monetaryBlock.blockHash}`);
+
+  const postMonetaryVerify = LedgerService.verifyChain();
+  console.log(`   Total Blocks: ${postMonetaryVerify.totalBlocks}, Chain Valid? ${postMonetaryVerify.isValid}`);
+  console.assert(postMonetaryVerify.isValid === true, 'Expected valid ledger chain after monetary donation block');
+
+  const donationSpecificVerify = LedgerService.verifyChain(monetaryDonationId);
+  console.log(`   Donation ${monetaryDonationId} Blocks: ${donationSpecificVerify.totalBlocks}, Valid? ${donationSpecificVerify.isValid}`);
+  console.assert(donationSpecificVerify.isValid === true, 'Expected donation-specific chain to validate');
+  console.log('   ✅ Monetary UPI donation and 80G ledger block PASSED.\n');
 
   console.log('🎉 ALL BACKEND VERIFICATIONS PASSED SUCCESSFULLY!');
 }

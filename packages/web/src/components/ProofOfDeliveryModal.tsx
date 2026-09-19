@@ -1,6 +1,6 @@
 import React from 'react';
 import { ProofOfDeliveryCertificate } from '@caretrace/shared';
-import { Award, ShieldCheck, X, CheckCircle2, Hash, FileCheck, Printer } from 'lucide-react';
+import { Award, ShieldCheck, X, CheckCircle2, Hash, FileCheck, Printer, Camera, ExternalLink } from 'lucide-react';
 
 interface ProofOfDeliveryModalProps {
   certificate: ProofOfDeliveryCertificate;
@@ -90,6 +90,43 @@ export const ProofOfDeliveryModal: React.FC<ProofOfDeliveryModalProps> = ({ cert
               </span>
             </div>
           </div>
+
+          {/* Photographic Proof of Handover (if attached) */}
+          {certificate.proofPhotoUrl && (
+            <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-slate-800 text-xs font-semibold flex items-center space-x-1.5">
+                  <Camera className="w-3.5 h-3.5 text-emerald-600" />
+                  <span>Photographic Proof of Handover</span>
+                </span>
+                <span className="text-[10px] bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded-full border border-emerald-200 flex items-center space-x-1">
+                  <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+                  <span>Anchored On-Chain</span>
+                </span>
+              </div>
+              <div className="relative rounded-xl overflow-hidden border border-slate-200 bg-slate-900 group">
+                <img
+                  src={certificate.proofPhotoUrl}
+                  alt="Delivery handover evidence"
+                  className="w-full max-h-44 object-cover cursor-pointer hover:opacity-95 transition-opacity"
+                  onClick={() => window.open(certificate.proofPhotoUrl, '_blank')}
+                  title="Click to view full image in new tab"
+                />
+                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-2 flex items-center justify-between text-white text-[10px]">
+                  <span className="truncate">Inspection & Handover Verification</span>
+                  <a
+                    href={certificate.proofPhotoUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="underline text-emerald-300 flex items-center space-x-0.5 flex-shrink-0"
+                  >
+                    <span>Enlarge</span>
+                    <ExternalLink className="w-2.5 h-2.5" />
+                  </a>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Cryptographic Ledger Hashes */}
           <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-2">

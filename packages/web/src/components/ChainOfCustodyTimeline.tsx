@@ -14,7 +14,8 @@ import {
   Hash,
   Clock,
   User,
-  ShieldCheck
+  ShieldCheck,
+  Camera
 } from 'lucide-react';
 
 interface ChainOfCustodyTimelineProps {
@@ -76,22 +77,54 @@ const TIMELINE_STEPS: StepDefinition[] = [
   }
 ];
 
+const MONETARY_STEPS: StepDefinition[] = [
+  {
+    id: 'REQUIREMENT_VERIFIED',
+    title: 'Requirement Verified',
+    subtitle: 'Audited requirement & verified sanctuary account',
+    eventType: 'REQUIREMENT_AUTHENTICATED',
+    icon: FileCheck2
+  },
+  {
+    id: 'MONETARY_CONFIRMED',
+    title: 'Simulated UPI Settled',
+    subtitle: 'Direct digital fund settlement via sandbox VPA',
+    eventType: 'MONETARY_DONATION_CONFIRMED',
+    icon: HeartHandshake
+  },
+  {
+    id: 'RECEIPT_SEALED',
+    title: '80G Receipt Sealed',
+    subtitle: 'Cryptographic SHA-256 block anchored on immutable ledger',
+    eventType: 'MONETARY_DONATION_CONFIRMED',
+    icon: Award
+  }
+];
+
 export const ChainOfCustodyTimeline: React.FC<ChainOfCustodyTimelineProps> = ({
   donation,
   blocks = [],
   onInspectCertificate
 }) => {
   const [selectedBlock, setSelectedBlock] = useState<LedgerBlock | null>(null);
+  const [selectedPhoto, setSelectedPhoto] = useState<string | null>(null);
 
-  // Compute status index: 0 to 6
+  const isMonetary = donation.type === 'FUNDS' || Boolean(donation.monetaryAmountInr);
+  const steps = isMonetary ? MONETARY_STEPS : TIMELINE_STEPS;
+
+  // Compute status index
   const getStepStatus = (stepIndex: number): 'COMPLETED' | 'ACTIVE' | 'PENDING' => {
+    if (isMonetary) {
+      return 'COMPLETED'; // Monetary donations are settled & sealed on confirmation
+    }
+
     let currentActiveIdx = 1; // Default matched
     if (donation.status === 'MATCHED') currentActiveIdx = 1;
     else if (donation.status === 'PICKUP_SCHEDULED') currentActiveIdx = 2;
     else if (donation.status === 'PICKED_UP') currentActiveIdx = 3;
     else if (donation.status === 'IN_TRANSIT') currentActiveIdx = 3;
     else if (donation.status === 'DELIVERED') currentActiveIdx = 4;
-    else if (donation.status === 'CONFIRMED') currentActiveIdx = 6; // All 6 completed!
+    else if (donation.status === 'CONFIRMED') currentActiveIdx = 6;
 
     if (donation.status === 'CONFIRMED') return 'COMPLETED';
     if (stepIndex < currentActiveIdx) return 'COMPLETED';
@@ -101,6 +134,10 @@ export const ChainOfCustodyTimeline: React.FC<ChainOfCustodyTimelineProps> = ({
 
   // Find corresponding ledger block for a step
   const getBlockForStep = (stepIndex: number): LedgerBlock | undefined => {
+    if (isMonetary) {
+      if (stepIndex === 0) return blocks[0];
+      return blocks.find(b => b.eventType === 'MONETARY_DONATION_CONFIRMED') || blocks[blocks.length - 1];
+    }
     if (stepIndex === 0) return blocks[0]; // Genesis / req
     if (stepIndex === 1) return blocks.find(b => b.eventType === 'DONATION_MATCHED') || blocks[0];
     if (stepIndex === 2) return blocks.find(b => b.eventType === 'PICKUP_VERIFIED');
@@ -112,6 +149,10 @@ export const ChainOfCustodyTimeline: React.FC<ChainOfCustodyTimelineProps> = ({
   const getStepActor = (stepIndex: number): string | null => {
     const block = getBlockForStep(stepIndex);
     if (block) return block.actorName;
+    if (isMonetary) {
+      if (stepIndex === 0) return 'Compliance Engine';
+      return donation.donorName;
+    }
     if (stepIndex === 0) return 'Compliance Engine';
     if (stepIndex === 1) return donation.donorName;
     if (stepIndex === 2) return donation.pickupAgentName || 'Sakthivel S';
@@ -165,11 +206,11 @@ export const ChainOfCustodyTimeline: React.FC<ChainOfCustodyTimelineProps> = ({
 
       {/* Horizontal on Desktop, Vertical on Mobile */}
       <div className="relative">
-        <div className="hidden lg:grid lg:grid-cols-6 gap-2 relative">
+        <div className={`hidden lg:grid ${isMonetary ? 'lg:grid-cols-3' : 'lg:grid-cols-6'} gap-2 relative`}>
           {/* Connector Line Background */}
           <div className="absolute top-5 left-8 right-8 h-1 bg-slate-200 -z-0" />
 
-          {TIMELINE_STEPS.map((step, idx) => {
+          {steps.map((step, idx) => {
             const status = getStepStatus(idx);
             const block = getBlockForStep(idx);
             const actor = getStepActor(idx);
@@ -234,6 +275,21 @@ export const ChainOfCustodyTimeline: React.FC<ChainOfCustodyTimelineProps> = ({
                       <ExternalLink className="w-2.5 h-2.5" />
                     </span>
                   )}
+
+                  {donation.proofPhotoUrl && (step.id === 'DELIVERED' || step.id === 'CONFIRMED') && (
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setSelectedPhoto(donation.proofPhotoUrl!);
+                      }}
+                      className="mt-1.5 flex items-center space-x-1 px-1.5 py-0.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 rounded border border-emerald-200 text-[9px] font-semibold mx-auto transition-colors"
+                      title="Inspect handover photo proof"
+                    >
+                      <Camera className="w-2.5 h-2.5 text-emerald-600" />
+                      <span>Photo Proof</span>
+                    </button>
+                  )}
                 </div>
               </div>
             );
@@ -244,7 +300,7 @@ export const ChainOfCustodyTimeline: React.FC<ChainOfCustodyTimelineProps> = ({
         <div className="lg:hidden space-y-6 relative pl-4">
           <div className="absolute top-4 bottom-4 left-8 w-0.5 bg-slate-200 -z-0" />
 
-          {TIMELINE_STEPS.map((step, idx) => {
+          {steps.map((step, idx) => {
             const status = getStepStatus(idx);
             const block = getBlockForStep(idx);
             const actor = getStepActor(idx);
@@ -304,6 +360,22 @@ export const ChainOfCustodyTimeline: React.FC<ChainOfCustodyTimelineProps> = ({
                       <span>Ledger Block #{block.index}</span>
                       <span className="text-slate-400 font-normal">({block.blockHash.slice(0, 10)}...)</span>
                       <ExternalLink className="w-3 h-3 ml-1" />
+                    </div>
+                  )}
+
+                  {donation.proofPhotoUrl && (step.id === 'DELIVERED' || step.id === 'CONFIRMED') && (
+                    <div className="mt-2">
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setSelectedPhoto(donation.proofPhotoUrl!);
+                        }}
+                        className="inline-flex items-center space-x-1.5 px-2.5 py-1 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 rounded-lg border border-emerald-200 text-xs font-semibold transition-colors"
+                      >
+                        <Camera className="w-3.5 h-3.5 text-emerald-600" />
+                        <span>View Handover Photo Evidence</span>
+                      </button>
                     </div>
                   )}
                 </div>
@@ -391,6 +463,30 @@ export const ChainOfCustodyTimeline: React.FC<ChainOfCustodyTimelineProps> = ({
                 </p>
               </div>
 
+              {(selectedBlock.payload?.hasPhotoProof || selectedBlock.payload?.photoAttached || (selectedBlock.eventType === 'DELIVERY_CONFIRMED' && donation.proofPhotoUrl)) && (
+                <div className="p-2.5 bg-emerald-50 rounded-xl border border-emerald-200 space-y-2">
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="text-emerald-800 font-bold flex items-center space-x-1.5">
+                      <Camera className="w-3.5 h-3.5 text-emerald-600" />
+                      <span>Delivery Photo Proof Anchored</span>
+                    </span>
+                    <span className="text-[10px] bg-emerald-200 text-emerald-900 font-mono font-bold px-1.5 py-0.5 rounded">
+                      hasPhotoProof: true
+                    </span>
+                  </div>
+                  {donation.proofPhotoUrl && (
+                    <div className="relative rounded-lg overflow-hidden border border-emerald-200 bg-slate-900">
+                      <img
+                        src={donation.proofPhotoUrl}
+                        alt="Handover proof"
+                        className="w-full max-h-36 object-cover cursor-pointer hover:opacity-95"
+                        onClick={() => setSelectedPhoto(donation.proofPhotoUrl!)}
+                      />
+                    </div>
+                  )}
+                </div>
+              )}
+
               <div className="flex items-center space-x-2 pt-2 text-[11px] text-emerald-700 font-medium">
                 <ShieldCheck className="w-4 h-4 text-emerald-600" />
                 <span>Cryptographically verified & chained in immutable storage</span>
@@ -403,6 +499,48 @@ export const ChainOfCustodyTimeline: React.FC<ChainOfCustodyTimelineProps> = ({
                 className="px-4 py-2 bg-teal-700 hover:bg-teal-800 text-white rounded-lg text-xs font-semibold"
               >
                 Close Block
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Photo Preview Modal */}
+      {selectedPhoto && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-fade-in"
+          onClick={() => setSelectedPhoto(null)}
+        >
+          <div
+            className="bg-white rounded-3xl max-w-lg w-full p-4 shadow-2xl border border-slate-200 overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+              <div className="flex items-center space-x-2">
+                <Camera className="w-4 h-4 text-emerald-600" />
+                <span className="text-xs font-bold text-slate-900">Delivery Handover Photo Proof</span>
+              </div>
+              <button
+                onClick={() => setSelectedPhoto(null)}
+                className="p-1 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            <div className="mt-3 rounded-xl overflow-hidden border border-slate-200 bg-slate-900 flex items-center justify-center">
+              <img
+                src={selectedPhoto}
+                alt="Delivery proof"
+                className="w-full h-auto max-h-[60vh] object-contain mx-auto"
+              />
+            </div>
+            <div className="mt-3 flex justify-between items-center text-[11px] text-slate-500">
+              <span className="font-mono">{donation.id}</span>
+              <button
+                onClick={() => setSelectedPhoto(null)}
+                className="px-4 py-1.5 bg-teal-800 hover:bg-teal-900 text-white rounded-xl text-xs font-semibold shadow-sm"
+              >
+                Close
               </button>
             </div>
           </div>

@@ -132,7 +132,7 @@ export default function App() {
               </TouchableOpacity>
               <TouchableOpacity
                 style={[styles.presetBtn, { backgroundColor: '#0d9488' }]}
-                onPress={() => setServerUrlInput('https://caretrace-sandeep-backend.onrender.com/api')}
+                onPress={() => setServerUrlInput('https://caretrace-backend-fluw.onrender.com/api')}
               >
                 <Text style={[styles.presetBtnText, { color: '#ffffff', fontWeight: '700' }]}>Render Cloud</Text>
               </TouchableOpacity>

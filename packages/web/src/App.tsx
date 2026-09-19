@@ -8,13 +8,15 @@ import { DonorDashboard } from './pages/DonorDashboard';
 import { InstitutionDashboard } from './pages/InstitutionDashboard';
 import { AgentPortal } from './pages/AgentPortal';
 import { AdminDashboard } from './pages/AdminDashboard';
+import { PublicLedgerExplorer } from './pages/PublicLedgerExplorer';
 import { Bell, CheckCircle2, ShieldCheck, X } from 'lucide-react';
 
 export const App: React.FC = () => {
   const [personas, setPersonas] = useState<User[]>([]);
   const [currentPersona, setCurrentPersona] = useState<User | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
-  const [activeNavTab, setActiveNavTab] = useState<'PUBLIC_BOARD' | 'PORTAL'>('PUBLIC_BOARD');
+  const [activeNavTab, setActiveNavTab] = useState<'PUBLIC_BOARD' | 'PORTAL' | 'VERIFY'>('PUBLIC_BOARD');
+  const [verifyDonationId, setVerifyDonationId] = useState<string>('');
   const [refreshKey, setRefreshKey] = useState<number>(0);
   const [isResetting, setIsResetting] = useState<boolean>(false);
   const [toastMessage, setToastMessage] = useState<{ title: string; body: string } | null>(null);
@@ -58,6 +60,17 @@ export const App: React.FC = () => {
       setToastMessage({
         title: 'Database Reset',
         body: 'Pristine demo dataset restored.'
+      });
+    } else if (event.type === 'ANNOUNCEMENT_CREATED') {
+      const isUrgent = event.data.urgency === 'URGENT';
+      setToastMessage({
+        title: isUrgent ? '🚨 Urgent Platform Notice' : '📢 Platform Announcement',
+        body: event.data.title || 'New broadcast notice posted.'
+      });
+    } else if (event.type === 'ANNOUNCEMENT_DISMISSED') {
+      setToastMessage({
+        title: '📢 Notice Updated',
+        body: event.data.title ? `"${event.data.title}" was concluded.` : 'A broadcast notice was deactivated.'
       });
     }
   });
@@ -126,13 +139,48 @@ export const App: React.FC = () => {
     }
   };
 
+  useEffect(() => {
+    const syncFromUrl = () => {
+      const path = window.location.pathname.toLowerCase();
+      const search = new URLSearchParams(window.location.search);
+      const hash = window.location.hash.toLowerCase();
+
+      const queryDonationId = search.get('id') || search.get('verify') || search.get('donationId');
+      if (queryDonationId) {
+        setVerifyDonationId(queryDonationId);
+      }
+
+      if (path.startsWith('/verify') || path.startsWith('/ledger') || hash === '#verify' || hash === '#ledger' || search.has('verify') || search.has('id')) {
+        setActiveNavTab('VERIFY');
+      } else if (path.startsWith('/portal') || hash === '#portal') {
+        setActiveNavTab('PORTAL');
+      }
+    };
+
+    syncFromUrl();
+    window.addEventListener('popstate', syncFromUrl);
+    return () => window.removeEventListener('popstate', syncFromUrl);
+  }, []);
+
+  const handleSelectNavTab = (tab: 'PUBLIC_BOARD' | 'PORTAL' | 'VERIFY') => {
+    setActiveNavTab(tab);
+    if (tab === 'VERIFY') {
+      const url = verifyDonationId ? `/verify?id=${encodeURIComponent(verifyDonationId)}` : '/verify';
+      window.history.pushState({}, '', url);
+    } else if (tab === 'PORTAL') {
+      window.history.pushState({}, '', '/portal');
+    } else {
+      window.history.pushState({}, '', '/');
+    }
+  };
+
   const handleLogout = () => {
     clearAuthToken();
     setIsAuthenticated(false);
     if (personas.length > 0) {
       setCurrentPersona(personas[0]);
     }
-    setActiveNavTab('PUBLIC_BOARD');
+    handleSelectNavTab('PUBLIC_BOARD');
     setToastMessage({
       title: 'Logged Out',
       body: 'You are now viewing the public board as a guest.'
@@ -147,13 +195,13 @@ export const App: React.FC = () => {
         currentPersona={currentPersona}
         onSelectPersona={(persona) => {
           setCurrentPersona(persona);
-          setActiveNavTab('PORTAL');
+          handleSelectNavTab('PORTAL');
         }}
         sseConnected={sseConnected}
         onResetDatabase={handleReset}
         isResetting={isResetting}
         activeNavTab={activeNavTab}
-        onSelectNavTab={(tab) => setActiveNavTab(tab)}
+        onSelectNavTab={handleSelectNavTab}
         onOpenAuthModal={handleOpenAuth}
         onLogout={handleLogout}
         isAuthenticated={isAuthenticated}
@@ -182,7 +230,12 @@ export const App: React.FC = () => {
 
       {/* Main Content Area */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {activeNavTab === 'PUBLIC_BOARD' ? (
+        {activeNavTab === 'VERIFY' ? (
+          <PublicLedgerExplorer
+            initialDonationId={verifyDonationId}
+            onNavigateBack={() => handleSelectNavTab('PUBLIC_BOARD')}
+          />
+        ) : activeNavTab === 'PUBLIC_BOARD' ? (
           <PublicRequestBoard
             currentUser={currentPersona}
             refreshKey={refreshKey}
@@ -191,7 +244,11 @@ export const App: React.FC = () => {
               handleOpenAuth('DONOR_LOGIN', `Sign in or register to pledge your donation for: "${req.title}"`);
             }}
             onPledgedSuccess={(donationId) => {
-              setActiveNavTab('PORTAL');
+              handleSelectNavTab('PORTAL');
+            }}
+            onNavigateToVerify={(donationId) => {
+              if (donationId) setVerifyDonationId(donationId);
+              handleSelectNavTab('VERIFY');
             }}
           />
         ) : (

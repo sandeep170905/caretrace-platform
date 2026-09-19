@@ -80,7 +80,8 @@ export class LedgerService {
       payloadHash,
       previousHash,
       blockHash,
-      nonce
+      nonce,
+      payload
     };
 
     db.addLedgerBlock(block);
@@ -209,7 +210,9 @@ export class LedgerService {
       genesisBlockHash: genesisBlock.blockHash,
       deliveryBlockHash: deliveryBlock.blockHash,
       chainLength: donationBlocks.length,
-      verificationUrl: `https://caretrace.org/verify/${donation.id}`
+      verificationUrl: `https://caretrace.org/verify/${donation.id}`,
+      proofPhotoUrl: donation.proofPhotoUrl,
+      hasPhotoProof: Boolean(donation.proofPhotoUrl)
     };
   }
 }

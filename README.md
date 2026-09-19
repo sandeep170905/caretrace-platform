@@ -145,9 +145,9 @@ npx expo start --web --port 8081
 ## 🌐 Live Cloud Deployment (Render)
 
 ### Backend API (Render Web Service)
-- **Live Backend URL**: `https://caretrace-sandeep-backend.onrender.com` *(or `https://caretrace-backend-fluw.onrender.com`)*
+- **Live Backend URL**: `https://caretrace-backend-fluw.onrender.com`
 - **Root Healthcheck**: `GET /` &rarr; returns `{ "status": "ok", "service": "CareTrace API", "version": "1.0.0" }`
-- **Ledger Verification**: `GET /api/ledger/verify` &rarr; returns `{ "isValid": true, "totalBlocks": 10, ... }`
+- **Ledger Verification**: `GET /api/ledger/verify` &rarr; returns `{ "isValid": true, "totalBlocks": 12, ... }`
 - **SSE Stream**: `GET /api/events` &rarr; real-time event notifications
 
 > [!NOTE]
@@ -161,7 +161,7 @@ npx expo start --web --port 8081
   - **Root Directory**: *(leave blank / empty)*
   - **Build Command**: `npm install && npm run build:shared && npm run build:web`
   - **Publish Directory**: `packages/web/dist`
-  - **Environment Variables**: `VITE_API_BASE_URL=https://caretrace-sandeep-backend.onrender.com/api` *(or your active backend URL)*
+  - **Environment Variables**: `VITE_API_BASE_URL=https://caretrace-backend-fluw.onrender.com/api`
   - **Redirects / Rewrites**: Type: `Rewrite`, Source: `/*`, Destination: `/index.html`
 
 ---

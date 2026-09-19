@@ -73,11 +73,21 @@ export const AgentPortal: React.FC<AgentPortalProps> = ({ user, refreshKey }) =>
           setStatusMessage(`Pickup authenticated for ${donationId}! Sealed to ledger block #${res.ledgerBlock.index}.`);
         }
       } else {
+        const targetDonation = donations.find(d => d.id === donationId);
+        const INSTITUTION_DIRECTORS: Record<string, string> = {
+          'inst-karunai': 'Lakshmi Narayanan (Director)',
+          'inst-anbu': 'Sister V. Shanthi (Director)',
+          'inst-nanban': 'K. Venkatesh (Director)'
+        };
+        const resolvedRecipient =
+          (targetDonation?.institutionId && INSTITUTION_DIRECTORS[targetDonation.institutionId]) ||
+          (targetDonation?.institutionName ? `${targetDonation.institutionName} (Director)` : 'Authorized Institution Director');
+
         const res = await scanDelivery({
           qrPayload: donationId,
-          recipientName: 'Sister Maria (Director)',
+          recipientName: resolvedRecipient,
           signature: `DIGITAL_SIG:${user.name.toUpperCase().replace(/\s+/g, '_')}_FIELD_COURIER`,
-          notes: 'Handover completed at institution dock.',
+          notes: `Handover verified and completed at ${targetDonation?.institutionName || 'institution dock'}.`,
           actorId: user.id
         });
         if (res.success) {

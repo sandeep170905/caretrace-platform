@@ -7,7 +7,7 @@
       "role": "DONOR",
       "phone": "+91 98401 23456",
       "avatar": "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=150&auto=format&fit=crop&q=80",
-      "passwordHash": "95407faf088c9ee047d94e7cb0263dda:c20b4e7cca75f1c57a19c811ca355691b379f4184fcbb8c5a872ea839495faf5ff0bb7e8981b35b5fa10a43e62741a323517185da95d06f4c74cda76f3dec2b2"
+      "passwordHash": "54793bee51afd0f136dbb75ec693c34f:095210849d9ad9899b68959daf5874e66896981e735c174fd0a590260749652697086893b36023f1d9267fbb10cbbcc3476ac0ee6368757ad9a162a3839e205a"
     },
     {
       "id": "user-donor-akash",
@@ -16,7 +16,7 @@
       "role": "DONOR",
       "phone": "+91 97908 11223",
       "avatar": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80",
-      "passwordHash": "95407faf088c9ee047d94e7cb0263dda:c20b4e7cca75f1c57a19c811ca355691b379f4184fcbb8c5a872ea839495faf5ff0bb7e8981b35b5fa10a43e62741a323517185da95d06f4c74cda76f3dec2b2"
+      "passwordHash": "54793bee51afd0f136dbb75ec693c34f:095210849d9ad9899b68959daf5874e66896981e735c174fd0a590260749652697086893b36023f1d9267fbb10cbbcc3476ac0ee6368757ad9a162a3839e205a"
     },
     {
       "id": "user-donor-karthik",
@@ -25,7 +25,7 @@
       "role": "DONOR",
       "phone": "+91 99620 44556",
       "avatar": "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=150&auto=format&fit=crop&q=80",
-      "passwordHash": "95407faf088c9ee047d94e7cb0263dda:c20b4e7cca75f1c57a19c811ca355691b379f4184fcbb8c5a872ea839495faf5ff0bb7e8981b35b5fa10a43e62741a323517185da95d06f4c74cda76f3dec2b2"
+      "passwordHash": "54793bee51afd0f136dbb75ec693c34f:095210849d9ad9899b68959daf5874e66896981e735c174fd0a590260749652697086893b36023f1d9267fbb10cbbcc3476ac0ee6368757ad9a162a3839e205a"
     },
     {
       "id": "user-inst-lakshmi",
@@ -35,7 +35,7 @@
       "phone": "+91 98403 87654",
       "institutionId": "inst-karunai",
       "avatar": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80",
-      "passwordHash": "95407faf088c9ee047d94e7cb0263dda:c20b4e7cca75f1c57a19c811ca355691b379f4184fcbb8c5a872ea839495faf5ff0bb7e8981b35b5fa10a43e62741a323517185da95d06f4c74cda76f3dec2b2"
+      "passwordHash": "54793bee51afd0f136dbb75ec693c34f:095210849d9ad9899b68959daf5874e66896981e735c174fd0a590260749652697086893b36023f1d9267fbb10cbbcc3476ac0ee6368757ad9a162a3839e205a"
     },
     {
       "id": "user-agent-sakthivel",
@@ -44,7 +44,7 @@
       "role": "PICKUP_AGENT",
       "phone": "+91 94441 56789",
       "avatar": "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80",
-      "passwordHash": "95407faf088c9ee047d94e7cb0263dda:c20b4e7cca75f1c57a19c811ca355691b379f4184fcbb8c5a872ea839495faf5ff0bb7e8981b35b5fa10a43e62741a323517185da95d06f4c74cda76f3dec2b2"
+      "passwordHash": "54793bee51afd0f136dbb75ec693c34f:095210849d9ad9899b68959daf5874e66896981e735c174fd0a590260749652697086893b36023f1d9267fbb10cbbcc3476ac0ee6368757ad9a162a3839e205a"
     },
     {
       "id": "user-admin-sandeep",
@@ -53,7 +53,7 @@
       "role": "ADMIN",
       "phone": "+91 98840 99000",
       "avatar": "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&auto=format&fit=crop&q=80",
-      "passwordHash": "95407faf088c9ee047d94e7cb0263dda:c20b4e7cca75f1c57a19c811ca355691b379f4184fcbb8c5a872ea839495faf5ff0bb7e8981b35b5fa10a43e62741a323517185da95d06f4c74cda76f3dec2b2"
+      "passwordHash": "54793bee51afd0f136dbb75ec693c34f:095210849d9ad9899b68959daf5874e66896981e735c174fd0a590260749652697086893b36023f1d9267fbb10cbbcc3476ac0ee6368757ad9a162a3839e205a"
     }
   ],
   "institutions": [
@@ -134,6 +134,8 @@
       "urgency": "HIGH",
       "status": "VERIFIED",
       "authenticityScore": 95,
+      "mlRiskScore": 0.08,
+      "mlRiskTier": "LOW",
       "riskFlags": [],
       "documents": [
         {
@@ -160,6 +162,8 @@
       "urgency": "HIGH",
       "status": "FULFILLED",
       "authenticityScore": 92,
+      "mlRiskScore": 0.11,
+      "mlRiskTier": "LOW",
       "riskFlags": [],
       "documents": [],
       "createdAt": "2026-01-20T08:30:00.000Z",
@@ -178,6 +182,8 @@
       "urgency": "HIGH",
       "status": "VERIFIED",
       "authenticityScore": 88,
+      "mlRiskScore": 0.14,
+      "mlRiskTier": "LOW",
       "riskFlags": [],
       "documents": [
         {
@@ -204,6 +210,8 @@
       "urgency": "MEDIUM",
       "status": "VERIFIED",
       "authenticityScore": 94,
+      "mlRiskScore": 0.09,
+      "mlRiskTier": "LOW",
       "riskFlags": [],
       "documents": [],
       "createdAt": "2026-02-12T09:00:00.000Z",
@@ -222,6 +230,8 @@
       "urgency": "HIGH",
       "status": "PENDING",
       "authenticityScore": 35,
+      "mlRiskScore": 0.89,
+      "mlRiskTier": "HIGH",
       "riskFlags": [
         {
           "ruleId": "RULE-INST-UNVERIFIED",
@@ -285,7 +295,7 @@
         "latitude": 12.9279,
         "longitude": 80.1216
       },
-      "qrCodePayload": "{\"donationId\":\"CT-2026-8801\",\"donorId\":\"user-donor-ajith\",\"institutionId\":\"inst-karunai\",\"issuedAt\":\"2026-09-13T08:29:48.073Z\",\"signature\":\"689cdf60b3d82cc7\"}",
+      "qrCodePayload": "{\"donationId\":\"CT-2026-8801\",\"donorId\":\"user-donor-ajith\",\"institutionId\":\"inst-karunai\",\"issuedAt\":\"2026-09-19T05:09:50.581Z\",\"signature\":\"7d0a34812893c233\"}",
       "pickupTimestamp": "2026-02-02T10:15:00.000Z",
       "deliveryTimestamp": "2026-02-02T14:45:00.000Z",
       "confirmationNotes": "Lakshmi Narayanan (Director) - Received 80 pristine bedsheet and net sets. Inspected and distributed to dormitories.",
@@ -293,7 +303,7 @@
       "proofPhotoUrl": "https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?w=600&auto=format&fit=crop&q=80",
       "createdAt": "2026-02-01T15:00:00.000Z",
       "updatedAt": "2026-02-02T14:45:00.000Z",
-      "ledgerBlockHash": "b3a076e2f45f8f15f75340e0713251139227de4fcb48f561ea21b54fe8ff545e"
+      "ledgerBlockHash": "e4b7e0fa9d7f9cd7d001ce9a5ef9112555ee8ab9f8f63c810970da380cbc55fb"
     },
     {
       "id": "CT-2026-9042",
@@ -330,11 +340,11 @@
         "latitude": 12.984,
         "longitude": 80.178
       },
-      "qrCodePayload": "{\"donationId\":\"CT-2026-9042\",\"donorId\":\"user-donor-ajith\",\"institutionId\":\"inst-karunai\",\"issuedAt\":\"2026-09-13T08:29:48.086Z\",\"signature\":\"565b0587471e8e6b\"}",
-      "pickupTimestamp": "2026-09-13T07:54:48.086Z",
-      "createdAt": "2026-09-13T06:29:48.086Z",
-      "updatedAt": "2026-09-13T08:29:48.086Z",
-      "ledgerBlockHash": "839bdfdf03dc477e609f4edac97ffbb53f33147e341ffaed8c8c2f5d84569753"
+      "qrCodePayload": "{\"donationId\":\"CT-2026-9042\",\"donorId\":\"user-donor-ajith\",\"institutionId\":\"inst-karunai\",\"issuedAt\":\"2026-09-19T05:09:50.588Z\",\"signature\":\"207677e2e98c0b76\"}",
+      "pickupTimestamp": "2026-09-19T04:34:50.588Z",
+      "createdAt": "2026-09-19T03:09:50.588Z",
+      "updatedAt": "2026-09-19T05:09:50.588Z",
+      "ledgerBlockHash": "40b6ed09d19a0d904c6ce9907535af6458325e8549fb10003488bee0146350c9"
     },
     {
       "id": "CT-2026-8712",
@@ -371,14 +381,14 @@
         "latitude": 13.1143,
         "longitude": 80.1548
       },
-      "qrCodePayload": "{\"donationId\":\"CT-2026-8712\",\"donorId\":\"user-donor-akash\",\"institutionId\":\"inst-anbu\",\"issuedAt\":\"2026-09-13T08:29:48.094Z\",\"signature\":\"e5a2800e0ff8f0c1\"}",
+      "qrCodePayload": "{\"donationId\":\"CT-2026-8712\",\"donorId\":\"user-donor-akash\",\"institutionId\":\"inst-anbu\",\"issuedAt\":\"2026-09-19T05:09:50.593Z\",\"signature\":\"9b06316b1abac1cd\"}",
       "pickupTimestamp": "2026-02-08T09:30:00.000Z",
       "deliveryTimestamp": "2026-02-08T13:15:00.000Z",
       "confirmationNotes": "Sister V. Shanthi (Director) - First-aid and ORS supplies verified in sterile packaging.",
       "recipientSignature": "DIGITAL_SIG:SISTER_SHANTHI_ANBU_CARE_2026",
       "createdAt": "2026-02-07T11:00:00.000Z",
       "updatedAt": "2026-02-08T13:15:00.000Z",
-      "ledgerBlockHash": "db73262b4669748ed968c7590b56284f3f940a55b747aae9da1b371f2621ae18"
+      "ledgerBlockHash": "dffc0df127da46fe1bdca4ce1a84333102027577bb0bff5d5680e362f5d3a9a2"
     },
     {
       "id": "CT-2026-8650",
@@ -415,20 +425,56 @@
         "latitude": 13.1143,
         "longitude": 80.1548
       },
-      "qrCodePayload": "{\"donationId\":\"CT-2026-8650\",\"donorId\":\"user-donor-karthik\",\"institutionId\":\"inst-anbu\",\"issuedAt\":\"2026-09-13T08:29:48.099Z\",\"signature\":\"f5b5f8282e484d14\"}",
+      "qrCodePayload": "{\"donationId\":\"CT-2026-8650\",\"donorId\":\"user-donor-karthik\",\"institutionId\":\"inst-anbu\",\"issuedAt\":\"2026-09-19T05:09:50.597Z\",\"signature\":\"f89cae761407e984\"}",
       "pickupTimestamp": "2026-02-04T08:00:00.000Z",
       "deliveryTimestamp": "2026-02-04T12:30:00.000Z",
       "confirmationNotes": "Sister V. Shanthi (Director) - 30 sacks of Ponni rice received and stocked in pantry.",
       "recipientSignature": "DIGITAL_SIG:SISTER_SHANTHI_ANBU_CARE_2026",
       "createdAt": "2026-02-03T16:00:00.000Z",
       "updatedAt": "2026-02-04T12:30:00.000Z",
-      "ledgerBlockHash": "53a5ec38d03092f15ff23a4f76902d31616280425c74377044405a060713cd1b"
+      "ledgerBlockHash": "bc1d748110092c01f2544bedd40c91bf933c0d77b641bb0b9471ec6100259996"
+    },
+    {
+      "id": "CT-2026-5607",
+      "donorId": "user-donor-ajith",
+      "donorName": "Ajith R",
+      "donorEmail": "ajith@caretrace.org",
+      "requirementId": "req-school-uniforms-stationery",
+      "requirementTitle": "School Uniform Sets & Academic Notebook Stationery Bundles",
+      "institutionId": "inst-karunai",
+      "institutionName": "Karunai Karangal Foster Sanctuary",
+      "type": "FUNDS",
+      "items": [
+        {
+          "name": "Direct Child Education & Nutrition Fund (Monetary Contribution)",
+          "quantity": 1,
+          "unit": "grant",
+          "estimatedValueInr": 100000
+        }
+      ],
+      "status": "CONFIRMED",
+      "monetaryAmountInr": 100000,
+      "receiptNumber": "REC-80G-2026-5607",
+      "pickupAddress": "Online Escrow Settlement",
+      "destinationAddress": "18 GST Road, Tambaram Sanatorium, Chennai, Tamil Nadu",
+      "pickupCoordinates": {
+        "latitude": 13.0827,
+        "longitude": 80.2707
+      },
+      "destinationCoordinates": {
+        "latitude": 12.9279,
+        "longitude": 80.1216
+      },
+      "qrCodePayload": "UPI_SIM:CT-2026-5607:100000:INR",
+      "createdAt": "2026-02-15T11:30:00.000Z",
+      "updatedAt": "2026-02-15T11:30:00.000Z",
+      "ledgerBlockHash": "9d87e0ff78561c5cd9ccba59acac7d09cc32243c261d44de66edea579931d5c7"
     }
   ],
   "ledgerBlocks": [
     {
       "index": 0,
-      "timestamp": "2026-09-13T08:29:48.073Z",
+      "timestamp": "2026-09-19T05:09:50.582Z",
       "donationId": "CT-2026-8801",
       "eventType": "DONATION_MATCHED",
       "actorId": "user-donor-ajith",
@@ -437,12 +483,17 @@
       "details": "Ajith R pledged 80 cotton bedsheets & mosquito net sets to Karunai Karangal Foster Sanctuary.",
       "payloadHash": "6e3edffa8f3edeb81fcbf8f02651a937d2b8e0a3bb4ae3036846ea3b0d978f90",
       "previousHash": "0000000000000000000000000000000000000000000000000000000000000000",
-      "blockHash": "d063abb1e424d6bd77ce392226deebc582ac7c625432ee0fef05a4e30663dadf",
-      "nonce": 0
+      "blockHash": "8bdfecd875d7ac2091269dff7f66676644e1a5f0895c822eb3ca14b25156f2e1",
+      "nonce": 0,
+      "payload": {
+        "itemsCount": 80,
+        "donor": "Ajith R",
+        "totalValueInr": 50000
+      }
     },
     {
       "index": 1,
-      "timestamp": "2026-09-13T08:29:48.075Z",
+      "timestamp": "2026-09-19T05:09:50.583Z",
       "donationId": "CT-2026-8801",
       "eventType": "PICKUP_VERIFIED",
       "actorId": "user-agent-sakthivel",
@@ -450,13 +501,17 @@
       "actorName": "Sakthivel S",
       "details": "Pickup verified and sealed at Anna Nagar West logistics hub by Courier Sakthivel S.",
       "payloadHash": "cb92102ac6b6de23bb05f30af5884f0b9c2e7f594aa083f88081f886d51d613b",
-      "previousHash": "d063abb1e424d6bd77ce392226deebc582ac7c625432ee0fef05a4e30663dadf",
-      "blockHash": "89033203cfb4fb6b0206186106fa10d7af1915d4a07ee7feec1eb74653e8e318",
-      "nonce": 0
+      "previousHash": "8bdfecd875d7ac2091269dff7f66676644e1a5f0895c822eb3ca14b25156f2e1",
+      "blockHash": "1b4bbbfb4a4a768e0512a96a6482ff8c7af17d0fd5614b3c91600aa773e40191",
+      "nonce": 0,
+      "payload": {
+        "agent": "Sakthivel S",
+        "pickupPoint": "Anna Nagar West Logistics Hub, 2nd Avenue, Anna Nagar, Chennai 600040"
+      }
     },
     {
       "index": 2,
-      "timestamp": "2026-09-13T08:29:48.081Z",
+      "timestamp": "2026-09-19T05:09:50.585Z",
       "donationId": "CT-2026-8801",
       "eventType": "IN_TRANSIT_CHECKPOINT",
       "actorId": "system-iot",
@@ -464,27 +519,37 @@
       "actorName": "CareTrace Route Telemetry Engine",
       "details": "In transit corridor verified. Crossing Guindy / Kathipara flyover towards Tambaram corridor.",
       "payloadHash": "6eac906ad3f244ecde5f2366eb8abc1f5aaf0083e8d70270482b11ad7e58075b",
-      "previousHash": "89033203cfb4fb6b0206186106fa10d7af1915d4a07ee7feec1eb74653e8e318",
-      "blockHash": "d5dd4790f87b5e99b6cb28188f1b3f5064a7b8843cda27a662415da9383db1b8",
-      "nonce": 0
+      "previousHash": "1b4bbbfb4a4a768e0512a96a6482ff8c7af17d0fd5614b3c91600aa773e40191",
+      "blockHash": "ba4908353eea9f533137b12ff54a5d891a27413dd4ba528c4c6dcba572860422",
+      "nonce": 0,
+      "payload": {
+        "speedKmh": 46,
+        "progress": "65%"
+      }
     },
     {
       "index": 3,
-      "timestamp": "2026-09-13T08:29:48.084Z",
+      "timestamp": "2026-09-19T05:09:50.586Z",
       "donationId": "CT-2026-8801",
       "eventType": "DELIVERY_CONFIRMED",
       "actorId": "user-inst-lakshmi",
       "actorRole": "INSTITUTION",
       "actorName": "Lakshmi Narayanan",
-      "details": "Consignment received and authenticated via delivery QR scan by Lakshmi Narayanan (Director, Karunai Karangal).",
-      "payloadHash": "3a6535e84880f5cdd6200b9ee3d5e8df9c82f47314e1f3b063a10b6d03db2810",
-      "previousHash": "d5dd4790f87b5e99b6cb28188f1b3f5064a7b8843cda27a662415da9383db1b8",
-      "blockHash": "b3a076e2f45f8f15f75340e0713251139227de4fcb48f561ea21b54fe8ff545e",
-      "nonce": 0
+      "details": "Consignment received and authenticated via delivery QR scan by Lakshmi Narayanan (Director, Karunai Karangal). Attached handover photo evidence sealed on-chain.",
+      "payloadHash": "29cf7f737997a1c3a563c1ba28972543a704b7d66e5e2f457dea0143b9ecd6f3",
+      "previousHash": "ba4908353eea9f533137b12ff54a5d891a27413dd4ba528c4c6dcba572860422",
+      "blockHash": "e4b7e0fa9d7f9cd7d001ce9a5ef9112555ee8ab9f8f63c810970da380cbc55fb",
+      "nonce": 0,
+      "payload": {
+        "signature": "DIGITAL_SIG:LAKSHMI_NARAYANAN_KARUNAI_TAMBARAM_2026",
+        "notes": "Lakshmi Narayanan (Director) - Received 80 pristine bedsheet and net sets. Inspected and distributed to dormitories.",
+        "hasPhotoProof": true,
+        "photoAttached": true
+      }
     },
     {
       "index": 4,
-      "timestamp": "2026-09-13T08:29:48.086Z",
+      "timestamp": "2026-09-19T05:09:50.589Z",
       "donationId": "CT-2026-9042",
       "eventType": "DONATION_MATCHED",
       "actorId": "user-donor-ajith",
@@ -492,13 +557,17 @@
       "actorName": "Ajith R",
       "details": "Ajith R pledged 30 stitched school uniform & notebook sets to Karunai Karangal Sanctuary.",
       "payloadHash": "e14915f2d514e3beb3f8eef1855fd3d75d639e8b86edcb29d2a5a9570f6242bd",
-      "previousHash": "b3a076e2f45f8f15f75340e0713251139227de4fcb48f561ea21b54fe8ff545e",
-      "blockHash": "ccc34d23e618a90d63285cfdec0defb2a11c7cc4731ba0550e45631760028ebc",
-      "nonce": 0
+      "previousHash": "e4b7e0fa9d7f9cd7d001ce9a5ef9112555ee8ab9f8f63c810970da380cbc55fb",
+      "blockHash": "e47a022958d758b5360fdffa8c14bcf742d42856469c96e32761929fad71f5e1",
+      "nonce": 0,
+      "payload": {
+        "itemsCount": 30,
+        "totalValueInr": 35000
+      }
     },
     {
       "index": 5,
-      "timestamp": "2026-09-13T08:29:48.088Z",
+      "timestamp": "2026-09-19T05:09:50.591Z",
       "donationId": "CT-2026-9042",
       "eventType": "PICKUP_VERIFIED",
       "actorId": "user-agent-sakthivel",
@@ -506,13 +575,16 @@
       "actorName": "Sakthivel S",
       "details": "Pickup verified and scanned by Sakthivel S at T. Nagar Wholesale Hub. Consignment en route via GST Road.",
       "payloadHash": "259eaacb85869d7b22bc2596130ab87532cdc625bf84b6e2d488de6e663c005e",
-      "previousHash": "ccc34d23e618a90d63285cfdec0defb2a11c7cc4731ba0550e45631760028ebc",
-      "blockHash": "839bdfdf03dc477e609f4edac97ffbb53f33147e341ffaed8c8c2f5d84569753",
-      "nonce": 0
+      "previousHash": "e47a022958d758b5360fdffa8c14bcf742d42856469c96e32761929fad71f5e1",
+      "blockHash": "40b6ed09d19a0d904c6ce9907535af6458325e8549fb10003488bee0146350c9",
+      "nonce": 0,
+      "payload": {
+        "agent": "Sakthivel S"
+      }
     },
     {
       "index": 6,
-      "timestamp": "2026-09-13T08:29:48.095Z",
+      "timestamp": "2026-09-19T05:09:50.594Z",
       "donationId": "CT-2026-8712",
       "eventType": "DONATION_MATCHED",
       "actorId": "user-donor-akash",
@@ -520,13 +592,17 @@
       "actorName": "Akash Kumar G",
       "details": "Akash Kumar G matched 20 medical kits to Anbu Illam Sanctuary.",
       "payloadHash": "622a28374aa9348ba1e65fd853f9141cc73905f290ddeba3dfa13d7b4273241e",
-      "previousHash": "839bdfdf03dc477e609f4edac97ffbb53f33147e341ffaed8c8c2f5d84569753",
-      "blockHash": "d5e4baee43259ea93cb0c6f799b6b037d060cfc3e3637d0ebf55a8db28b6c3af",
-      "nonce": 0
+      "previousHash": "40b6ed09d19a0d904c6ce9907535af6458325e8549fb10003488bee0146350c9",
+      "blockHash": "d38b055499c434e38d8bc780a21dde91c9c849312fdf06c5ec26871063703e14",
+      "nonce": 0,
+      "payload": {
+        "itemsCount": 20,
+        "totalValueInr": 16000
+      }
     },
     {
       "index": 7,
-      "timestamp": "2026-09-13T08:29:48.098Z",
+      "timestamp": "2026-09-19T05:09:50.596Z",
       "donationId": "CT-2026-8712",
       "eventType": "DELIVERY_CONFIRMED",
       "actorId": "user-inst-shanthi",
@@ -534,13 +610,16 @@
       "actorName": "Sister V. Shanthi (Director)",
       "details": "Delivery verified by Director Sister V. Shanthi at Ambattur facility.",
       "payloadHash": "7fae80e70d2d6f7b4e70d7fc7fea06c96eab6be8b5c4563d3102f9677a53c57e",
-      "previousHash": "d5e4baee43259ea93cb0c6f799b6b037d060cfc3e3637d0ebf55a8db28b6c3af",
-      "blockHash": "db73262b4669748ed968c7590b56284f3f940a55b747aae9da1b371f2621ae18",
-      "nonce": 0
+      "previousHash": "d38b055499c434e38d8bc780a21dde91c9c849312fdf06c5ec26871063703e14",
+      "blockHash": "dffc0df127da46fe1bdca4ce1a84333102027577bb0bff5d5680e362f5d3a9a2",
+      "nonce": 0,
+      "payload": {
+        "signature": "DIGITAL_SIG:SISTER_SHANTHI_ANBU_CARE_2026"
+      }
     },
     {
       "index": 8,
-      "timestamp": "2026-09-13T08:29:48.100Z",
+      "timestamp": "2026-09-19T05:09:50.598Z",
       "donationId": "CT-2026-8650",
       "eventType": "DONATION_MATCHED",
       "actorId": "user-donor-karthik",
@@ -548,13 +627,17 @@
       "actorName": "Karthik V",
       "details": "Karthik V matched 30 rice bags to Anbu Illam kitchen.",
       "payloadHash": "5b90bcf2e34284ad46baef841f1bf6718eae35da8bde13ac48b3e41e601b985f",
-      "previousHash": "db73262b4669748ed968c7590b56284f3f940a55b747aae9da1b371f2621ae18",
-      "blockHash": "3abebcf63a61e499fe9fec226ec81bd847b6736d6ee0a26e459acf8a803ac16c",
-      "nonce": 0
+      "previousHash": "dffc0df127da46fe1bdca4ce1a84333102027577bb0bff5d5680e362f5d3a9a2",
+      "blockHash": "ef97df3296cda793b33749b2f2913a8ceb7f3ef59a7686f3ce93d6cb0f1efd39",
+      "nonce": 0,
+      "payload": {
+        "itemsCount": 30,
+        "totalValueInr": 45000
+      }
     },
     {
       "index": 9,
-      "timestamp": "2026-09-13T08:29:48.108Z",
+      "timestamp": "2026-09-19T05:09:50.599Z",
       "donationId": "CT-2026-8650",
       "eventType": "DELIVERY_CONFIRMED",
       "actorId": "user-inst-shanthi",
@@ -562,9 +645,74 @@
       "actorName": "Sister V. Shanthi (Director)",
       "details": "Rice sacks verified by Director Sister V. Shanthi at Ambattur facility.",
       "payloadHash": "7fae80e70d2d6f7b4e70d7fc7fea06c96eab6be8b5c4563d3102f9677a53c57e",
-      "previousHash": "3abebcf63a61e499fe9fec226ec81bd847b6736d6ee0a26e459acf8a803ac16c",
-      "blockHash": "53a5ec38d03092f15ff23a4f76902d31616280425c74377044405a060713cd1b",
-      "nonce": 0
+      "previousHash": "ef97df3296cda793b33749b2f2913a8ceb7f3ef59a7686f3ce93d6cb0f1efd39",
+      "blockHash": "bc1d748110092c01f2544bedd40c91bf933c0d77b641bb0b9471ec6100259996",
+      "nonce": 0,
+      "payload": {
+        "signature": "DIGITAL_SIG:SISTER_SHANTHI_ANBU_CARE_2026"
+      }
+    },
+    {
+      "index": 10,
+      "timestamp": "2026-09-19T05:09:50.601Z",
+      "donationId": "CT-2026-5607",
+      "eventType": "DONATION_MATCHED",
+      "actorId": "user-donor-ajith",
+      "actorRole": "DONOR",
+      "actorName": "Ajith R",
+      "details": "Ajith R initiated monetary contribution of ₹1,00,000 for School Uniform Sets & Academic Notebook Stationery Bundles.",
+      "payloadHash": "23be38354fab83848bcec49abff0bb95643e73718b0a2a9527f94468db05f869",
+      "previousHash": "bc1d748110092c01f2544bedd40c91bf933c0d77b641bb0b9471ec6100259996",
+      "blockHash": "bc8842e14defb6ebbc2572460026774d9d7638c40cb5458efe4f730674b91440",
+      "nonce": 0,
+      "payload": {
+        "amountInr": 100000,
+        "institution": "Karunai Karangal Foster Sanctuary",
+        "type": "FUNDS"
+      }
+    },
+    {
+      "index": 11,
+      "timestamp": "2026-09-19T05:09:50.603Z",
+      "donationId": "CT-2026-5607",
+      "eventType": "MONETARY_DONATION_CONFIRMED",
+      "actorId": "user-donor-ajith",
+      "actorRole": "DONOR",
+      "actorName": "Ajith R",
+      "details": "Simulated UPI transaction settled: ₹1,00,000 to Karunai Karangal Foster Sanctuary. VPA caretrace.demo@sandboxbank. 80G Tax Exemption Receipt REC-80G-2026-5607 generated.",
+      "payloadHash": "98551c5d2d0f0b310910a4a590ac17d0c3b124bb21bfe035d6ec1af685ac0d1f",
+      "previousHash": "bc8842e14defb6ebbc2572460026774d9d7638c40cb5458efe4f730674b91440",
+      "blockHash": "9d87e0ff78561c5cd9ccba59acac7d09cc32243c261d44de66edea579931d5c7",
+      "nonce": 0,
+      "payload": {
+        "amountInr": 100000,
+        "donorId": "user-donor-ajith",
+        "institutionId": "inst-karunai",
+        "receiptNumber": "REC-80G-2026-5607",
+        "vpa": "caretrace.demo@sandboxbank"
+      }
+    },
+    {
+      "index": 12,
+      "timestamp": "2026-09-19T05:09:50.640Z",
+      "donationId": "CT-2026-9999",
+      "eventType": "MONETARY_DONATION_CONFIRMED",
+      "actorId": "user-donor-ajith",
+      "actorRole": "DONOR",
+      "actorName": "Ajith R",
+      "details": "Simulated UPI donation of ₹1,25,000 confirmed for Anbu Illam Children's Sanctuary",
+      "payloadHash": "6bcc54df2f6fbc23985f59c231025878b56aa159eb7f032e0578ec36d3ba2b0d",
+      "previousHash": "9d87e0ff78561c5cd9ccba59acac7d09cc32243c261d44de66edea579931d5c7",
+      "blockHash": "5d427fa047c4d22238e3b67f0894179b9b5971379cdb4ce28f19f128d860aae8",
+      "nonce": 0,
+      "payload": {
+        "amountInr": 125000,
+        "donorId": "user-donor-ajith",
+        "donorName": "Ajith R",
+        "institutionId": "inst-anbu",
+        "institutionName": "Anbu Illam Children's Sanctuary",
+        "vpa": "caretrace.demo@sandboxbank"
+      }
     }
   ],
   "riskAuditLogs": [
@@ -592,7 +740,18 @@
       "speedKmh": 42,
       "estimatedArrivalMinutes": 16,
       "progressPercentage": 55,
-      "lastUpdated": "2026-09-13T08:29:48.094Z"
+      "lastUpdated": "2026-09-19T05:09:50.593Z"
     }
-  }
+  },
+  "announcements": [
+    {
+      "id": "ann-demo-2026-01",
+      "title": "[Demo Notice] Platform Update: Simulated UPI Monetary Donations Now Live",
+      "message": "CareTrace donors can now fulfill verified childcare requirements through direct simulated UPI payments and receive instant Section 80G sample tax exemption receipts.",
+      "urgency": "GENERAL",
+      "createdAt": "2026-09-19T05:09:50.605Z",
+      "active": true,
+      "createdBy": "Sandeep R (Platform Admin)"
+    }
+  ]
 }

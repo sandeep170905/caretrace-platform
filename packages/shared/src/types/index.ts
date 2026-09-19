@@ -74,6 +74,8 @@ export interface Requirement {
   urgency: RequirementUrgency;
   status: RequirementStatus;
   authenticityScore: number; // Rule-based score (0 - 100)
+  mlRiskScore?: number; // ML logistic regression secondary risk probability (0.00 - 1.00)
+  mlRiskTier?: 'LOW' | 'MEDIUM' | 'HIGH';
   riskFlags: RiskFlag[];
   documents: RequirementDocument[];
   createdAt: string;
@@ -138,6 +140,10 @@ export interface Donation {
   recipientSignature?: string;
   proofPhotoUrl?: string;
   ledgerBlockHash?: string;
+  monetaryAmountInr?: number;
+  receiptNumber?: string;
+  paymentMethod?: 'UPI_SIMULATED';
+  upiTransactionId?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -149,7 +155,8 @@ export type LedgerEventType =
   | 'PICKUP_VERIFIED'
   | 'IN_TRANSIT_CHECKPOINT'
   | 'DELIVERY_CONFIRMED'
-  | 'INTEGRITY_AUDIT';
+  | 'INTEGRITY_AUDIT'
+  | 'MONETARY_DONATION_CONFIRMED';
 
 export interface LedgerBlock {
   index: number;
@@ -164,6 +171,7 @@ export interface LedgerBlock {
   previousHash: string;
   blockHash: string; // SHA-256 of index + timestamp + donationId + eventType + payloadHash + previousHash + nonce
   nonce: number;
+  payload?: Record<string, any>;
 }
 
 export interface LedgerVerificationResult {
@@ -212,5 +220,41 @@ export interface ProofOfDeliveryCertificate {
   deliveryBlockHash: string;
   chainLength: number;
   verificationUrl: string;
+  proofPhotoUrl?: string;
+  hasPhotoProof?: boolean;
+}
+
+export interface TaxExemptionReceipt {
+  receiptNumber: string;
+  donationId: string;
+  amountInr: number;
+  amountInWords: string;
+  date: string;
+  donorName: string;
+  donorEmail: string;
+  donorPhone?: string;
+  institutionName: string;
+  institutionRegistrationNumber: string;
+  institutionTaxId: string;
+  institutionAddress: string;
+  requirementTitle: string;
+  paymentMethod: string;
+  upiTransactionId: string;
+  ledgerBlockHash: string;
+  ledgerBlockIndex: number;
+  isDemoSample: true;
+}
+
+export type AnnouncementUrgency = 'GENERAL' | 'URGENT';
+
+export interface Announcement {
+  id: string;
+  title: string;
+  message: string;
+  urgency: AnnouncementUrgency;
+  createdAt: string;
+  expiresAt?: string;
+  active: boolean;
+  createdBy?: string;
 }
 

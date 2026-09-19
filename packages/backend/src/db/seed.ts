@@ -2,7 +2,8 @@ import {
   User,
   Institution,
   Requirement,
-  Donation
+  Donation,
+  Announcement
 } from '@caretrace/shared';
 import { db } from './database';
 import { LedgerService } from '../services/ledgerService';
@@ -175,6 +176,8 @@ export function runSeed() {
     urgency: 'HIGH',
     status: 'VERIFIED',
     authenticityScore: 95,
+    mlRiskScore: 0.08,
+    mlRiskTier: 'LOW',
     riskFlags: [],
     documents: [
       {
@@ -202,6 +205,8 @@ export function runSeed() {
     urgency: 'HIGH',
     status: 'FULFILLED',
     authenticityScore: 92,
+    mlRiskScore: 0.11,
+    mlRiskTier: 'LOW',
     riskFlags: [],
     documents: [],
     createdAt: '2026-01-20T08:30:00.000Z',
@@ -221,6 +226,8 @@ export function runSeed() {
     urgency: 'HIGH',
     status: 'VERIFIED',
     authenticityScore: 88,
+    mlRiskScore: 0.14,
+    mlRiskTier: 'LOW',
     riskFlags: [],
     documents: [
       {
@@ -248,6 +255,8 @@ export function runSeed() {
     urgency: 'MEDIUM',
     status: 'VERIFIED',
     authenticityScore: 94,
+    mlRiskScore: 0.09,
+    mlRiskTier: 'LOW',
     riskFlags: [],
     documents: [],
     createdAt: '2026-02-12T09:00:00.000Z',
@@ -268,6 +277,8 @@ export function runSeed() {
     urgency: 'HIGH',
     status: 'PENDING',
     authenticityScore: 35, // Low score!
+    mlRiskScore: 0.89,
+    mlRiskTier: 'HIGH',
     riskFlags: [
       {
         ruleId: 'RULE-INST-UNVERIFIED',
@@ -365,8 +376,13 @@ export function runSeed() {
     donationDeliveredId,
     'DELIVERY_CONFIRMED',
     { id: institutionDirector.id, role: 'INSTITUTION', name: institutionDirector.name },
-    `Consignment received and authenticated via delivery QR scan by Lakshmi Narayanan (Director, Karunai Karangal).`,
-    { signature: donationDelivered.recipientSignature, notes: donationDelivered.confirmationNotes }
+    `Consignment received and authenticated via delivery QR scan by Lakshmi Narayanan (Director, Karunai Karangal). Attached handover photo evidence sealed on-chain.`,
+    {
+      signature: donationDelivered.recipientSignature,
+      notes: donationDelivered.confirmationNotes,
+      hasPhotoProof: true,
+      photoAttached: true
+    }
   );
 
   // 5. Pre-seeded In-Progress Donation (CT-2026-9042) Ready for Live Demo Pickup & Delivery!
@@ -527,6 +543,73 @@ export function runSeed() {
     `Rice sacks verified by Director Sister V. Shanthi at Ambattur facility.`,
     { signature: donationKarthik.recipientSignature }
   );
+
+  // 7. Pre-seeded Verified Monetary Contribution (CT-2026-5607) for Ajith R
+  const monetaryDonationId = 'CT-2026-5607';
+  const monetaryDonation: Donation = {
+    id: monetaryDonationId,
+    donorId: donorUser.id,
+    donorName: donorUser.name,
+    donorEmail: donorUser.email,
+    requirementId: req4.id,
+    requirementTitle: req4.title,
+    institutionId: karunaiKarangal.id,
+    institutionName: karunaiKarangal.name,
+    type: 'FUNDS',
+    items: [
+      {
+        name: 'Direct Child Education & Nutrition Fund (Monetary Contribution)',
+        quantity: 1,
+        unit: 'grant',
+        estimatedValueInr: 100000
+      }
+    ],
+    status: 'CONFIRMED',
+    monetaryAmountInr: 100000,
+    receiptNumber: 'REC-80G-2026-5607',
+    pickupAddress: 'Online Escrow Settlement',
+    destinationAddress: `${karunaiKarangal.address}, ${karunaiKarangal.city}, ${karunaiKarangal.state}`,
+    pickupCoordinates: { latitude: 13.0827, longitude: 80.2707 },
+    destinationCoordinates: { latitude: karunaiKarangal.latitude, longitude: karunaiKarangal.longitude },
+    qrCodePayload: 'UPI_SIM:CT-2026-5607:100000:INR',
+    createdAt: '2026-02-15T11:30:00.000Z',
+    updatedAt: '2026-02-15T11:30:00.000Z'
+  };
+  db.upsertDonation(monetaryDonation);
+
+  LedgerService.recordCheckpoint(
+    monetaryDonationId,
+    'DONATION_MATCHED',
+    { id: donorUser.id, role: 'DONOR', name: donorUser.name },
+    `Ajith R initiated monetary contribution of ₹1,00,000 for ${req4.title}.`,
+    { amountInr: 100000, institution: karunaiKarangal.name, type: 'FUNDS' }
+  );
+
+  LedgerService.recordCheckpoint(
+    monetaryDonationId,
+    'MONETARY_DONATION_CONFIRMED',
+    { id: donorUser.id, role: 'DONOR', name: donorUser.name },
+    `Simulated UPI transaction settled: ₹1,00,000 to ${karunaiKarangal.name}. VPA caretrace.demo@sandboxbank. 80G Tax Exemption Receipt REC-80G-2026-5607 generated.`,
+    {
+      amountInr: 100000,
+      donorId: donorUser.id,
+      institutionId: karunaiKarangal.id,
+      receiptNumber: 'REC-80G-2026-5607',
+      vpa: 'caretrace.demo@sandboxbank'
+    }
+  );
+
+  // Seed demo-safe announcement (platform update, not real disaster appeal)
+  const seedAnnouncement: Announcement = {
+    id: 'ann-demo-2026-01',
+    title: '[Demo Notice] Platform Update: Simulated UPI Monetary Donations Now Live',
+    message: 'CareTrace donors can now fulfill verified childcare requirements through direct simulated UPI payments and receive instant Section 80G sample tax exemption receipts.',
+    urgency: 'GENERAL',
+    createdAt: new Date().toISOString(),
+    active: true,
+    createdBy: 'Sandeep R (Platform Admin)'
+  };
+  db.upsertAnnouncement(seedAnnouncement);
 
   console.log('✅ Chennai localized database seeded successfully with:');
   console.log(`   - 6 Users: Ajith R (Donor), Lakshmi Narayanan (Director), Sakthivel S (Agent), Sandeep R (Admin), Akash Kumar G (Donor), Karthik V (Donor)`);

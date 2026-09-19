@@ -2,6 +2,7 @@ import { Router, Request, Response } from 'express';
 import { db } from '../db/database';
 import { Requirement, RequirementStatus } from '@caretrace/shared';
 import { FraudScoringService } from '../services/fraudScoringService';
+import { MLRiskService } from '../services/mlRiskService';
 import { NotificationService } from '../services/notificationService';
 
 export const requirementRouter = Router();
@@ -81,6 +82,10 @@ requirementRouter.post('/', (req: Request, res: Response) => {
   // Run Rule-Based Authenticity & Fraud Scoring Engine
   const scoringResult = FraudScoringService.evaluateAndLogRequirement(partialReq, institutionId);
 
+  // Run ML Secondary Classifier (Logistic Regression)
+  const pastReqs = db.getRequirements().filter(r => r.institutionId === institutionId);
+  const mlPrediction = MLRiskService.predictRisk(partialReq, inst, pastReqs);
+
   // Auto-verify if score >= 70 and institution is verified; otherwise mark PENDING review
   let status: RequirementStatus = 'PENDING';
   if (inst.verified && scoringResult.isApproved) {
@@ -100,6 +105,8 @@ requirementRouter.post('/', (req: Request, res: Response) => {
     urgency: urgency || 'MEDIUM',
     status,
     authenticityScore: scoringResult.score,
+    mlRiskScore: mlPrediction.mlRiskScore,
+    mlRiskTier: mlPrediction.mlRiskTier,
     riskFlags: scoringResult.flags,
     documents: documents || [],
     createdAt: now,
@@ -110,7 +117,8 @@ requirementRouter.post('/', (req: Request, res: Response) => {
 
   NotificationService.broadcast('REQUIREMENT_CREATED', {
     requirement: newRequirement,
-    scoringResult
+    scoringResult,
+    mlPrediction
   });
 
   res.status(201).json({

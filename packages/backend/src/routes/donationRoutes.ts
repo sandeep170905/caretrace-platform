@@ -1,6 +1,6 @@
 import { Router, Request, Response } from 'express';
 import { db } from '../db/database';
-import { Donation, DonationStatus } from '@caretrace/shared';
+import { Donation, DonationStatus, TaxExemptionReceipt, numberToIndianWords } from '@caretrace/shared';
 import { LedgerService } from '../services/ledgerService';
 import { QRService } from '../services/qrService';
 import { NotificationService } from '../services/notificationService';
@@ -149,4 +149,186 @@ donationRouter.post('/', async (req: Request, res: Response) => {
     qrDataUrl
   });
 });
+
+// Create a simulated monetary donation via UPI
+donationRouter.post('/monetary', async (req: Request, res: Response) => {
+  const { donorId, requirementId, amountInr, paymentNote } = req.body;
+
+  const parsedAmount = Number(amountInr);
+  if (!donorId || !requirementId || !parsedAmount || parsedAmount <= 0) {
+    return res.status(400).json({ success: false, error: 'Valid donorId, requirementId, and positive amountInr are required' });
+  }
+
+  const donor = db.getUserById(donorId);
+  if (!donor) return res.status(404).json({ success: false, error: 'Donor not found' });
+
+  const requirement = db.getRequirementById(requirementId);
+  if (!requirement) return res.status(404).json({ success: false, error: 'Requirement not found' });
+
+  const institution = db.getInstitutionById(requirement.institutionId);
+  if (!institution) return res.status(404).json({ success: false, error: 'Institution not found' });
+
+  // Generate unique human-readable & cryptographic identifiers
+  const randomSuffix = Math.floor(1000 + Math.random() * 9000);
+  const donationId = `CT-2026-${randomSuffix}`;
+  const receiptNumber = `REC-80G-2026-${Math.floor(10000 + Math.random() * 90000)}`;
+  const upiTransactionId = `UPI-TXN-DEMO-${Date.now().toString().slice(-8)}`;
+  const fictionalVpa = 'caretrace.demo@sandboxbank';
+
+  // Generate mock UPI payment URI & QR data URL
+  const upiUri = `upi://pay?pa=${fictionalVpa}&pn=${encodeURIComponent(institution.name)}&am=${parsedAmount}&cu=INR&tn=${encodeURIComponent(`Donation ${donationId}`)}`;
+  const qrDataUrl = await QRService.generateQRDataUrl(upiUri);
+
+  const now = new Date().toISOString();
+
+  // Monetary donation is instantly settled and confirmed
+  const newDonation: Donation = {
+    id: donationId,
+    donorId: donor.id,
+    donorName: donor.name,
+    donorEmail: donor.email,
+    requirementId: requirement.id,
+    requirementTitle: requirement.title,
+    institutionId: institution.id,
+    institutionName: institution.name,
+    type: 'FUNDS',
+    items: [
+      {
+        name: `Monetary Contribution (${requirement.title})`,
+        quantity: 1,
+        unit: 'INR',
+        estimatedValueInr: parsedAmount
+      }
+    ],
+    status: 'CONFIRMED',
+    pickupAddress: 'N/A (Direct Digital UPI Transfer)',
+    destinationAddress: `${institution.address}, ${institution.city}, ${institution.state}`,
+    pickupCoordinates: { latitude: 13.0850, longitude: 80.2101 },
+    destinationCoordinates: { latitude: institution.latitude, longitude: institution.longitude },
+    qrCodePayload: upiUri,
+    monetaryAmountInr: parsedAmount,
+    receiptNumber,
+    paymentMethod: 'UPI_SIMULATED',
+    upiTransactionId,
+    deliveryTimestamp: now,
+    confirmationNotes: paymentNote || `Simulated UPI donation of ₹${parsedAmount.toLocaleString('en-IN')} confirmed to ${institution.name} via ${fictionalVpa}.`,
+    createdAt: now,
+    updatedAt: now
+  };
+
+  db.upsertDonation(newDonation);
+
+  // Record MONETARY_DONATION_CONFIRMED on the Cryptographic Ledger
+  const ledgerBlock = LedgerService.recordCheckpoint(
+    donationId,
+    'MONETARY_DONATION_CONFIRMED',
+    { id: donor.id, role: 'DONOR', name: donor.name },
+    `Simulated UPI donation of ₹${parsedAmount.toLocaleString('en-IN')} confirmed for ${institution.name} (Receipt #${receiptNumber})`,
+    {
+      amountInr: parsedAmount,
+      donorId: donor.id,
+      donorName: donor.name,
+      institutionId: institution.id,
+      institutionName: institution.name,
+      receiptNumber,
+      upiTransactionId,
+      vpa: fictionalVpa
+    }
+  );
+
+  // Build Section 80G Digital Tax Exemption Receipt (Demo Sample)
+  const receipt: TaxExemptionReceipt = {
+    receiptNumber,
+    donationId,
+    amountInr: parsedAmount,
+    amountInWords: numberToIndianWords(parsedAmount),
+    date: now,
+    donorName: donor.name,
+    donorEmail: donor.email,
+    donorPhone: donor.phone,
+    institutionName: institution.name,
+    institutionRegistrationNumber: institution.registrationNumber,
+    institutionTaxId: institution.taxId,
+    institutionAddress: `${institution.address}, ${institution.city}, ${institution.state} ${institution.postalCode}`,
+    requirementTitle: requirement.title,
+    paymentMethod: 'Simulated UPI (Unified Payments Interface)',
+    upiTransactionId,
+    ledgerBlockHash: ledgerBlock.blockHash,
+    ledgerBlockIndex: ledgerBlock.index,
+    isDemoSample: true
+  };
+
+  // Update requirement fulfilled quantity
+  requirement.fulfilledQuantity = Math.min(
+    requirement.targetQuantity,
+    requirement.fulfilledQuantity + 1
+  );
+  if (requirement.fulfilledQuantity >= requirement.targetQuantity) {
+    requirement.status = 'FULFILLED';
+  }
+  db.upsertRequirement(requirement);
+
+  // Broadcast real-time events via SSE
+  NotificationService.broadcast('DONATION_CREATED', {
+    donation: newDonation,
+    ledgerBlock
+  });
+  NotificationService.broadcast('DONATION_STATUS_UPDATED', {
+    donation: newDonation,
+    status: 'CONFIRMED'
+  });
+
+  res.status(201).json({
+    success: true,
+    donation: newDonation,
+    ledgerBlock,
+    receipt,
+    qrDataUrl,
+    fictionalVpa
+  });
+});
+
+// Retrieve Section 80G Tax Exemption Receipt for any monetary donation
+donationRouter.get('/:id/receipt', (req: Request, res: Response) => {
+  const donation = db.getDonationById(req.params.id);
+  if (!donation) {
+    return res.status(404).json({ success: false, error: 'Donation not found' });
+  }
+
+  if (donation.type !== 'FUNDS' || !donation.monetaryAmountInr) {
+    return res.status(400).json({ success: false, error: 'Donation is not a monetary contribution' });
+  }
+
+  const institution = db.getInstitutionById(donation.institutionId);
+  if (!institution) {
+    return res.status(404).json({ success: false, error: 'Institution not found' });
+  }
+
+  const blocks = db.getLedgerBlocksForDonation(donation.id);
+  const monetaryBlock = blocks.find(b => b.eventType === 'MONETARY_DONATION_CONFIRMED') || blocks[0];
+
+  const receipt: TaxExemptionReceipt = {
+    receiptNumber: donation.receiptNumber || `REC-80G-2026-${donation.id.replace(/\D/g, '')}`,
+    donationId: donation.id,
+    amountInr: donation.monetaryAmountInr,
+    amountInWords: numberToIndianWords(donation.monetaryAmountInr),
+    date: donation.createdAt,
+    donorName: donation.donorName,
+    donorEmail: donation.donorEmail,
+    donorPhone: '+91 98401 23456',
+    institutionName: institution.name,
+    institutionRegistrationNumber: institution.registrationNumber,
+    institutionTaxId: institution.taxId,
+    institutionAddress: `${institution.address}, ${institution.city}, ${institution.state} ${institution.postalCode}`,
+    requirementTitle: donation.requirementTitle,
+    paymentMethod: 'Simulated UPI (Unified Payments Interface)',
+    upiTransactionId: donation.upiTransactionId || `UPI-TXN-DEMO-${donation.id}`,
+    ledgerBlockHash: monetaryBlock ? monetaryBlock.blockHash : (donation.ledgerBlockHash || '0'.repeat(64)),
+    ledgerBlockIndex: monetaryBlock ? monetaryBlock.index : 0,
+    isDemoSample: true
+  };
+
+  res.json({ success: true, receipt });
+});
+
 
