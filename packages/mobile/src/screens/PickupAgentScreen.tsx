@@ -741,7 +741,7 @@ const styles = StyleSheet.create({
     fontWeight: '700'
   },
   scannerOverlay: {
-    ...StyleSheet.absoluteFill,
+    ...StyleSheet.absoluteFillObject,
     alignItems: 'center',
     justifyContent: 'center'
   },
