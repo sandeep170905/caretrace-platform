@@ -10,12 +10,16 @@
     "build:shared": "npm --workspace=packages/shared run build",
     "build:backend": "npm --workspace=packages/backend run build",
     "build:web": "npm --workspace=packages/web run build",
+    "prestart": "npm run build:shared && npm run build:backend",
     "start": "npm --workspace=packages/backend run start",
     "dev:backend": "npm --workspace=packages/backend run dev",
     "dev:web": "npm --workspace=packages/web run dev",
     "dev:mobile": "npm --workspace=packages/mobile run start",
     "seed": "npm --workspace=packages/backend run seed",
-    "test:backend": "npm --workspace=packages/backend run test"
+    "test": "npm --workspace=packages/backend run test"
+  },
+  "dependencies": {
+    "typescript": "^5.7.3"
   },
   "devDependencies": {
     "concurrently": "^9.1.2"

@@ -6,7 +6,7 @@ services:
     name: caretrace-sandeep-backend
     runtime: node
     plan: free
-    buildCommand: npm install && npm run build:shared && npm run build:backend
+    buildCommand: npm install --include=dev && npm run build:shared && npm run build:backend
     startCommand: npm run start
     healthCheckPath: /api/health
     envVars:
