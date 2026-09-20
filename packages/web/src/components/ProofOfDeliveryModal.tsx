@@ -10,7 +10,7 @@ interface ProofOfDeliveryModalProps {
 export const ProofOfDeliveryModal: React.FC<ProofOfDeliveryModalProps> = ({ certificate, onClose }) => {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-sm animate-fade-in">
-      <div className="bg-white rounded-3xl max-w-xl w-full p-6 sm:p-8 shadow-2xl border border-[#E7E8E2] relative overflow-hidden">
+      <div className="bg-white rounded-3xl max-w-xl w-full p-6 sm:p-8 shadow-2xl border border-[#E7E8E2] relative overflow-hidden max-h-[90vh] overflow-y-auto">
         {/* Certificate Watermark Seal */}
         <div className="absolute -top-12 -right-12 w-48 h-48 rounded-full bg-teal-50/60 pointer-events-none -z-0 flex items-center justify-center">
           <Award className="w-32 h-32 text-teal-600/10" />

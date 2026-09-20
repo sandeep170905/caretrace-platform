@@ -404,10 +404,10 @@ export const InstitutionDashboard: React.FC<InstitutionDashboardProps> = ({ user
 
       {/* Navigation Sub-Tabs & Action Bar */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-200 pb-2">
-        <div className="flex items-center space-x-2 bg-slate-100/90 p-1 rounded-2xl border border-slate-200">
+        <div className="flex items-center space-x-2 bg-slate-100/90 p-1 rounded-2xl border border-slate-200 overflow-x-auto max-w-full">
           <button
             onClick={() => handleTabSwitch('DELIVERIES')}
-            className={`px-4 py-2 rounded-xl text-xs font-semibold transition-all flex items-center space-x-2 ${
+            className={`px-4 py-2 rounded-xl text-xs font-semibold transition-all flex items-center space-x-2 shrink-0 min-h-[44px] ${
               activeTab === 'DELIVERIES'
                 ? 'bg-white text-teal-900 shadow-sm'
                 : 'text-slate-600 hover:text-slate-900'
@@ -426,7 +426,7 @@ export const InstitutionDashboard: React.FC<InstitutionDashboardProps> = ({ user
 
           <button
             onClick={() => handleTabSwitch('REQUIREMENTS')}
-            className={`px-4 py-2 rounded-xl text-xs font-semibold transition-all flex items-center space-x-2 ${
+            className={`px-4 py-2 rounded-xl text-xs font-semibold transition-all flex items-center space-x-2 shrink-0 min-h-[44px] ${
               activeTab === 'REQUIREMENTS'
                 ? 'bg-white text-teal-900 shadow-sm'
                 : 'text-slate-600 hover:text-slate-900'
@@ -441,7 +441,7 @@ export const InstitutionDashboard: React.FC<InstitutionDashboardProps> = ({ user
 
           <button
             onClick={() => handleTabSwitch('CERTIFICATES')}
-            className={`px-4 py-2 rounded-xl text-xs font-semibold transition-all flex items-center space-x-2 ${
+            className={`px-4 py-2 rounded-xl text-xs font-semibold transition-all flex items-center space-x-2 shrink-0 min-h-[44px] ${
               activeTab === 'CERTIFICATES'
                 ? 'bg-white text-teal-900 shadow-sm'
                 : 'text-slate-600 hover:text-slate-900'
@@ -743,7 +743,7 @@ export const InstitutionDashboard: React.FC<InstitutionDashboardProps> = ({ user
       {/* Post New Requirement Modal */}
       {isNewReqOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-sm animate-fade-in">
-          <div className="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl border border-slate-200">
+          <div className="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl border border-slate-200 max-h-[90vh] overflow-y-auto">
             <h3 className="text-base font-bold text-slate-900">Post Institutional Childcare Need</h3>
             <p className="text-xs text-slate-500 mt-0.5">
               The submission will be evaluated live by the CareTrace fraud & demand scoring engine.
@@ -909,7 +909,7 @@ export const InstitutionDashboard: React.FC<InstitutionDashboardProps> = ({ user
       {/* Edit Requirement Modal */}
       {editingReq && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-sm animate-fade-in">
-          <div className="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl border border-slate-200">
+          <div className="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl border border-slate-200 max-h-[90vh] overflow-y-auto">
             <h3 className="text-base font-bold text-slate-900">Edit Institutional Requirement</h3>
             <p className="text-xs text-slate-500 mt-0.5">
               Update requirement details and parameters for ID <span className="font-mono text-teal-800">{editingReq.id}</span>
@@ -1032,7 +1032,7 @@ export const InstitutionDashboard: React.FC<InstitutionDashboardProps> = ({ user
       {/* Handover Signature & Receipt Verification Dialog */}
       {pendingHandoverDonationId && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-sm animate-fade-in">
-          <div className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-200">
+          <div className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-200 max-h-[90vh] overflow-y-auto">
             <h3 className="text-base font-bold text-slate-900 flex items-center space-x-2">
               <CheckCircle2 className="w-5 h-5 text-emerald-600" />
               <span>Confirm Consignment Handover</span>

@@ -251,7 +251,7 @@ export const AgentPortal: React.FC<AgentPortalProps> = ({ user, refreshKey }) =>
                           e.stopPropagation();
                           handleOpenScanner('PICKUP');
                         }}
-                        className="px-3 py-1 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-xs font-semibold shadow-sm"
+                        className="px-3.5 py-2 min-h-[40px] sm:min-h-[36px] bg-amber-600 hover:bg-amber-700 text-white rounded-xl text-xs font-semibold shadow-sm flex items-center justify-center transition-all active:scale-95"
                       >
                         Verify Pickup
                       </button>
@@ -263,7 +263,7 @@ export const AgentPortal: React.FC<AgentPortalProps> = ({ user, refreshKey }) =>
                           e.stopPropagation();
                           handleOpenScanner('DELIVERY');
                         }}
-                        className="px-3 py-1 bg-teal-800 hover:bg-teal-900 text-white rounded-lg text-xs font-semibold shadow-sm"
+                        className="px-3.5 py-2 min-h-[40px] sm:min-h-[36px] bg-teal-800 hover:bg-teal-900 text-white rounded-xl text-xs font-semibold shadow-sm flex items-center justify-center transition-all active:scale-95"
                       >
                         Deliver & Scan
                       </button>

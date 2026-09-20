@@ -418,7 +418,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, refreshKey
                         </span>
                       </div>
                       <p className="text-xs text-slate-600 mt-1">{inst.description}</p>
-                      <div className="flex items-center space-x-4 text-xs text-slate-500 mt-2">
+                      <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-500 mt-2">
                         <span>Registration: <code className="font-mono text-slate-700">{inst.registrationNumber}</code></span>
                         <span>Capacity: {inst.currentChildrenCount} / {inst.capacity} kids</span>
                         <span>Location: {inst.address}, {inst.city}</span>
@@ -458,7 +458,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, refreshKey
                       <span className="text-[10px] uppercase font-bold text-rose-800 bg-rose-100/80 px-2 py-0.5 rounded border border-rose-200">
                         {req.category}
                       </span>
-                      <div className="flex items-center space-x-1.5">
+                      <div className="flex flex-wrap items-center gap-1.5">
                         <span className="text-xs font-mono font-bold bg-rose-200 text-rose-900 px-2 py-0.5 rounded border border-rose-300 shadow-xs">
                           Rule Score: {req.authenticityScore}/100
                         </span>
@@ -572,7 +572,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, refreshKey
                       <p className="sm:col-span-2">
                         Items: {d.items.map((it: any) => `${it.quantity} ${it.unit} ${it.name}`).join(', ')}
                       </p>
-                      <p className="sm:col-span-2 text-slate-500">
+                      <p className="sm:col-span-2 text-slate-500 break-words">
                         Pickup Location: {d.pickupAddress}
                       </p>
                     </div>

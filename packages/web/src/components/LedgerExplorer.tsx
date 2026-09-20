@@ -151,7 +151,7 @@ export const LedgerExplorer: React.FC<LedgerExplorerProps> = ({ donationId }) =>
             <XCircle className="w-6 h-6 text-rose-600 flex-shrink-0 mt-0.5" />
           )}
           <div>
-            <div className="flex items-center space-x-2">
+            <div className="flex flex-wrap items-center gap-2">
               <span className="font-bold text-sm">
                 {verification?.isValid ? 'LEDGER INTEGRITY VERIFIED (CRYPTOGRAPHICALLY SOUND)' : 'TAMPERING DETECTED IN LEDGER CHAIN!'}
               </span>

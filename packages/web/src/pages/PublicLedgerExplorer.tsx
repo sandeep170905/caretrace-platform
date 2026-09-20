@@ -214,7 +214,7 @@ export const PublicLedgerExplorer: React.FC<PublicLedgerExplorerProps> = ({
                     <XCircle className="w-7 h-7 text-rose-600 shrink-0 mt-0.5" />
                   )}
                   <div>
-                    <div className="flex items-center space-x-2">
+                    <div className="flex flex-wrap items-center gap-2">
                       <h3 className="font-extrabold text-base sm:text-lg tracking-tight">
                         {verification?.isValid
                           ? 'CRYPTOGRAPHIC INTEGRITY VERIFIED'

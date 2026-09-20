@@ -58,7 +58,7 @@ export const AnnouncementBanner: React.FC<AnnouncementBannerProps> = ({
             }`}
           >
             <div className="flex items-start justify-between gap-3">
-              <div className="flex items-start space-x-3.5">
+              <div className="flex items-start space-x-3.5 min-w-0 flex-1">
                 <div
                   className={`p-2.5 rounded-xl shrink-0 mt-0.5 ${
                     isUrgent
@@ -73,7 +73,7 @@ export const AnnouncementBanner: React.FC<AnnouncementBannerProps> = ({
                   )}
                 </div>
 
-                <div className="space-y-1">
+                <div className="space-y-1 min-w-0 flex-1 break-words">
                   <div className="flex flex-wrap items-center gap-2">
                     <span
                       className={`text-[10px] uppercase font-mono font-extrabold px-2.5 py-0.5 rounded-full border ${
@@ -98,15 +98,15 @@ export const AnnouncementBanner: React.FC<AnnouncementBannerProps> = ({
                     )}
                   </div>
 
-                  <h4 className="text-sm sm:text-base font-bold text-white tracking-tight">
+                  <h4 className="text-sm sm:text-base font-bold text-white tracking-tight break-words">
                     {ann.title}
                   </h4>
 
-                  <p className="text-xs sm:text-sm text-slate-200/90 leading-relaxed max-w-4xl">
+                  <p className="text-xs sm:text-sm text-slate-200/90 leading-relaxed max-w-4xl break-words">
                     {ann.message}
                   </p>
 
-                  <div className="pt-1 flex items-center space-x-3 text-[10px] text-slate-400 font-mono">
+                  <div className="pt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-[10px] text-slate-400 font-mono">
                     <span>Broadcast by: {ann.createdBy || 'Platform Admin'}</span>
                     <span>•</span>
                     <span>{formatRelativeTime(ann.createdAt, { includeTime: true })}</span>

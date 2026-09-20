@@ -410,7 +410,7 @@ export const PublicRequestBoard: React.FC<PublicRequestBoardProps> = ({
                   <div className="flex items-center space-x-1.5 shrink-0">
                     <button
                       onClick={() => handleUpiClick(req)}
-                      className="px-2.5 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 rounded-xl text-xs font-semibold shadow-xs transition-colors flex items-center space-x-1"
+                      className="px-3 py-2 min-h-[40px] sm:min-h-[36px] bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 rounded-xl text-xs font-semibold shadow-xs transition-colors flex items-center space-x-1"
                       title="Donate Funds via Simulated UPI"
                     >
                       <span className="font-bold">₹</span>
@@ -418,7 +418,7 @@ export const PublicRequestBoard: React.FC<PublicRequestBoardProps> = ({
                     </button>
                     <button
                       onClick={() => handleDonateClick(req)}
-                      className="flex items-center space-x-1.5 px-3 py-1.5 bg-teal-800 hover:bg-teal-900 text-white rounded-xl text-xs font-semibold shadow-xs hover:shadow transition-all active:scale-95"
+                      className="flex items-center space-x-1.5 px-3.5 py-2 min-h-[40px] sm:min-h-[36px] bg-teal-800 hover:bg-teal-900 text-white rounded-xl text-xs font-semibold shadow-xs hover:shadow transition-all active:scale-95"
                     >
                       <HeartHandshake className="w-3.5 h-3.5" />
                       <span>Pledge Goods</span>
@@ -434,7 +434,7 @@ export const PublicRequestBoard: React.FC<PublicRequestBoardProps> = ({
       {/* Pledge Donation Modal */}
       {pledgingReq && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-sm animate-fade-in">
-          <div className="bg-white rounded-3xl max-w-md w-full p-6 sm:p-7 shadow-2xl border border-slate-200 relative">
+          <div className="bg-white rounded-3xl max-w-md w-full p-6 sm:p-7 shadow-2xl border border-slate-200 relative max-h-[90vh] overflow-y-auto">
             <button
               onClick={() => { setPledgingReq(null); setPledgeSuccessId(null); }}
               className="absolute top-5 right-5 text-slate-400 hover:text-slate-600 p-1"

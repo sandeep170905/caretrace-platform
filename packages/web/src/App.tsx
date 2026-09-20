@@ -188,7 +188,7 @@ export const App: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#FBFBF9] text-slate-900">
+    <div className="min-h-screen flex flex-col bg-[#FBFBF9] text-slate-900 overflow-x-hidden w-full">
       {/* Navbar with Tab Switcher, Role Switcher, and Auth Buttons */}
       <Navbar
         personas={personas}
@@ -209,7 +209,7 @@ export const App: React.FC = () => {
 
       {/* Real-Time Live Push Notification Toast */}
       {toastMessage && (
-        <div className="fixed bottom-6 right-6 z-50 max-w-sm w-full bg-slate-900 text-white p-4 rounded-2xl shadow-2xl border border-teal-500/50 flex items-start justify-between space-x-3 animate-slide-up">
+        <div className="fixed bottom-4 sm:bottom-6 right-4 sm:right-6 left-4 sm:left-auto z-50 max-w-sm bg-slate-900 text-white p-4 rounded-2xl shadow-2xl border border-teal-500/50 flex items-start justify-between space-x-3 animate-slide-up">
           <div className="flex items-start space-x-3">
             <div className="w-8 h-8 rounded-xl bg-teal-500/20 text-teal-400 flex items-center justify-center flex-shrink-0 mt-0.5">
               <Bell className="w-4 h-4 animate-bounce" />

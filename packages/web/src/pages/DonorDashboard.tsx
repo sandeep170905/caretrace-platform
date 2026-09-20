@@ -221,10 +221,10 @@ export const DonorDashboard: React.FC<DonorDashboardProps> = ({ user, refreshKey
 
       {/* Navigation Sub-Tabs & Action Bar */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-200 pb-2">
-        <div className="flex items-center space-x-2 bg-slate-100/90 p-1 rounded-2xl border border-slate-200">
+        <div className="flex items-center space-x-2 bg-slate-100/90 p-1 rounded-2xl border border-slate-200 overflow-x-auto max-w-full">
           <button
             onClick={() => handleTabSwitch('TRACKING')}
-            className={`px-4 py-2 rounded-xl text-xs font-semibold transition-all flex items-center space-x-2 ${
+            className={`px-4 py-2 rounded-xl text-xs font-semibold transition-all flex items-center space-x-2 shrink-0 min-h-[44px] ${
               activeTab === 'TRACKING'
                 ? 'bg-white text-teal-900 shadow-sm'
                 : 'text-slate-600 hover:text-slate-900'
@@ -239,7 +239,7 @@ export const DonorDashboard: React.FC<DonorDashboardProps> = ({ user, refreshKey
 
           <button
             onClick={() => handleTabSwitch('EXPLORE')}
-            className={`px-4 py-2 rounded-xl text-xs font-semibold transition-all flex items-center space-x-2 ${
+            className={`px-4 py-2 rounded-xl text-xs font-semibold transition-all flex items-center space-x-2 shrink-0 min-h-[44px] ${
               activeTab === 'EXPLORE'
                 ? 'bg-white text-teal-900 shadow-sm'
                 : 'text-slate-600 hover:text-slate-900'
@@ -319,7 +319,7 @@ export const DonorDashboard: React.FC<DonorDashboardProps> = ({ user, refreshKey
                 >
                   <div className="flex items-start justify-between">
                     <div>
-                      <div className="flex items-center space-x-2">
+                      <div className="flex flex-wrap items-center gap-1.5">
                         <span className="font-mono text-xs font-bold text-slate-900">{d.id}</span>
                         {isMonetary ? (
                           <>
