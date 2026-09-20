@@ -22,10 +22,8 @@ services:
   # -------------------------------------------------------------
   # CareTrace Web Operations Portal & Public Needs Board
   # -------------------------------------------------------------
-  - type: web
+  - type: static
     name: caretrace-web
-    runtime: static
-    plan: free
     buildCommand: npm install && npm run build:shared && npm run build:web
     staticPublishPath: packages/web/dist
     routes:
