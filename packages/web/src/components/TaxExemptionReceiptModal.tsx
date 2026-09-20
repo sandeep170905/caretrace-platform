@@ -1,5 +1,5 @@
 import React from 'react';
-import { TaxExemptionReceipt, formatIndianCurrency } from '@caretrace/shared';
+import { TaxExemptionReceipt, formatIndianCurrency, formatRelativeTime } from '@caretrace/shared';
 import {
   FileCheck2,
   Printer,
@@ -71,7 +71,7 @@ export const TaxExemptionReceiptModal: React.FC<TaxExemptionReceiptModalProps> =
                 {receipt.receiptNumber}
               </span>
               <span className="text-[10px] text-slate-500 block mt-1">
-                Date: {new Date(receipt.date).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}
+                Date: {new Date(receipt.date).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })} ({formatRelativeTime(receipt.date)})
               </span>
             </div>
           </div>

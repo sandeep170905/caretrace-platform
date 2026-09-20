@@ -48,6 +48,9 @@ export const SimulatedUpiModal: React.FC<SimulatedUpiModalProps> = ({
     setError(null);
 
     try {
+      // Realistic 1.5s simulated UPI processing delay
+      await new Promise(resolve => setTimeout(resolve, 1500));
+
       const result = await createMonetaryDonation({
         donorId,
         requirementId: requirement.id,
@@ -59,10 +62,10 @@ export const SimulatedUpiModal: React.FC<SimulatedUpiModalProps> = ({
         onSuccess(result.receipt);
       } else {
         setError('Payment simulation encountered an error. Please try again.');
+        setIsProcessing(false);
       }
     } catch (err: any) {
       setError(err.message || 'Payment simulation failed');
-    } finally {
       setIsProcessing(false);
     }
   };
@@ -91,11 +94,48 @@ export const SimulatedUpiModal: React.FC<SimulatedUpiModalProps> = ({
 
           <button
             onClick={onClose}
-            className="p-1.5 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors"
+            disabled={isProcessing}
+            className="p-1.5 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors disabled:opacity-30 disabled:pointer-events-none"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
+
+        {isProcessing ? (
+          /* Realistic Processing Payment Loading State */
+          <div className="py-12 px-4 flex flex-col items-center justify-center text-center animate-fade-in">
+            <div className="relative mb-5">
+              <div className="w-16 h-16 rounded-2xl bg-emerald-50 border border-emerald-200 flex items-center justify-center shadow-inner">
+                <div className="w-8 h-8 border-3 border-emerald-600 border-t-transparent rounded-full animate-spin" />
+              </div>
+              <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-slate-900 text-white flex items-center justify-center text-xs font-bold shadow-sm">
+                ₹
+              </div>
+            </div>
+
+            <h4 className="text-base font-bold text-slate-900 mb-1">Processing Payment...</h4>
+            <p className="text-xs text-slate-600 max-w-xs mb-5 leading-relaxed">
+              Authorizing simulated transfer of <span className="font-bold text-slate-900">{formatted}</span> via <span className="font-semibold text-emerald-700">{selectedApp}</span>
+            </p>
+
+            <div className="w-full max-w-xs bg-slate-50 rounded-2xl p-3.5 border border-slate-200/80 space-y-2 text-left">
+              <div className="flex items-center space-x-2 text-xs text-slate-700 font-medium">
+                <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                <span>Contacting Sandbox UPI Switch...</span>
+              </div>
+              <div className="flex items-center space-x-2 text-[11px] text-slate-500">
+                <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                <span className="truncate">Sealing block to SHA-256 Ledger</span>
+              </div>
+            </div>
+
+            <div className="mt-6 flex items-center space-x-2 text-[10px] text-slate-400">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping" />
+              <span>VPA: {FICTIONAL_VPA} • Sandbox Simulation</span>
+            </div>
+          </div>
+        ) : (
+          <>
 
         {/* Institution / Requirement Context */}
         <div className="mt-4 p-3.5 rounded-2xl bg-slate-50/80 border border-slate-200/70 flex items-center justify-between">
@@ -302,6 +342,8 @@ export const SimulatedUpiModal: React.FC<SimulatedUpiModalProps> = ({
         <p className="mt-3 text-[10px] text-slate-400 text-center leading-relaxed">
           Demo sandbox environment • No real funds debited • Generates sample 80G tax receipt on confirmation
         </p>
+        </>
+        )}
       </div>
     </div>
   );

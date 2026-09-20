@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { User, Institution, Requirement, RiskFlag, Donation, Announcement, AnnouncementUrgency } from '@caretrace/shared';
+import { User, Institution, Requirement, RiskFlag, Donation, Announcement, AnnouncementUrgency, formatRelativeTime, formatSmartTimestamp } from '@caretrace/shared';
 import {
   ShieldAlert,
   ShieldCheck,
@@ -39,6 +39,7 @@ import {
   dismissAnnouncement
 } from '../api/client';
 import { LedgerExplorer } from '../components/LedgerExplorer';
+import { DashboardSkeleton } from '../components/DashboardSkeleton';
 
 interface AdminDashboardProps {
   user: User;
@@ -53,8 +54,17 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, refreshKey
   const [pendingDonations, setPendingDonations] = useState<Donation[]>([]);
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
   const [activeTab, setActiveTab] = useState<'FRAUD_LOGS' | 'VERIFICATION_QUEUE' | 'COURIER_DISPATCH' | 'LEDGER_EXPLORER' | 'BROADCASTS'>('FRAUD_LOGS');
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isTabSwitching, setIsTabSwitching] = useState<boolean>(false);
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
   const [dispatchMsg, setDispatchMsg] = useState<string | null>(null);
+
+  const handleTabSwitch = (tab: 'FRAUD_LOGS' | 'VERIFICATION_QUEUE' | 'COURIER_DISPATCH' | 'LEDGER_EXPLORER' | 'BROADCASTS') => {
+    if (tab === activeTab) return;
+    setIsTabSwitching(true);
+    setActiveTab(tab);
+    setTimeout(() => setIsTabSwitching(false), 180);
+  };
 
   // Broadcast announcement form state
   const [broadcastTitle, setBroadcastTitle] = useState<string>('');
@@ -65,6 +75,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, refreshKey
   const [broadcastFeedback, setBroadcastFeedback] = useState<string | null>(null);
 
   const loadData = async () => {
+    setIsLoading(true);
     try {
       const [statsRes, logs, insts, reqs, pDonations, anns] = await Promise.all([
         fetchAdminStats(),
@@ -82,6 +93,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, refreshKey
       setAnnouncements(anns);
     } catch (e) {
       console.error('Failed to load admin metrics:', e);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -182,6 +195,14 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, refreshKey
   const pendingInstitutions = institutions.filter(i => !i.verified);
   const pendingRequirements = requirements.filter(r => r.status === 'PENDING');
 
+  if (isLoading && !stats) {
+    return (
+      <div className="space-y-6 animate-fade-in">
+        <DashboardSkeleton type="ADMIN" />
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6 animate-fade-in">
       {/* Admin Top Banner */}
@@ -231,10 +252,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, refreshKey
       </div>
 
       {/* Navigation Sub-Tabs */}
-      <div className="flex space-x-2 border-b border-slate-200 pb-2">
+      <div className="flex space-x-2 border-b border-slate-200 pb-2 overflow-x-auto">
         <button
-          onClick={() => setActiveTab('FRAUD_LOGS')}
-          className={`flex items-center space-x-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+          onClick={() => handleTabSwitch('FRAUD_LOGS')}
+          className={`flex items-center space-x-2 px-4 py-2 rounded-xl text-xs font-bold transition-all shrink-0 ${
             activeTab === 'FRAUD_LOGS'
               ? 'bg-purple-900 text-white shadow-sm'
               : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200'
@@ -245,8 +266,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, refreshKey
         </button>
 
         <button
-          onClick={() => setActiveTab('VERIFICATION_QUEUE')}
-          className={`flex items-center space-x-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+          onClick={() => handleTabSwitch('VERIFICATION_QUEUE')}
+          className={`flex items-center space-x-2 px-4 py-2 rounded-xl text-xs font-bold transition-all shrink-0 ${
             activeTab === 'VERIFICATION_QUEUE'
               ? 'bg-purple-900 text-white shadow-sm'
               : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200'
@@ -257,8 +278,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, refreshKey
         </button>
 
         <button
-          onClick={() => setActiveTab('COURIER_DISPATCH')}
-          className={`flex items-center space-x-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+          onClick={() => handleTabSwitch('COURIER_DISPATCH')}
+          className={`flex items-center space-x-2 px-4 py-2 rounded-xl text-xs font-bold transition-all shrink-0 ${
             activeTab === 'COURIER_DISPATCH'
               ? 'bg-purple-900 text-white shadow-sm'
               : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200'
@@ -269,8 +290,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, refreshKey
         </button>
 
         <button
-          onClick={() => setActiveTab('LEDGER_EXPLORER')}
-          className={`flex items-center space-x-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+          onClick={() => handleTabSwitch('LEDGER_EXPLORER')}
+          className={`flex items-center space-x-2 px-4 py-2 rounded-xl text-xs font-bold transition-all shrink-0 ${
             activeTab === 'LEDGER_EXPLORER'
               ? 'bg-purple-900 text-white shadow-sm'
               : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200'
@@ -281,8 +302,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, refreshKey
         </button>
 
         <button
-          onClick={() => setActiveTab('BROADCASTS')}
-          className={`flex items-center space-x-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+          onClick={() => handleTabSwitch('BROADCASTS')}
+          className={`flex items-center space-x-2 px-4 py-2 rounded-xl text-xs font-bold transition-all shrink-0 ${
             activeTab === 'BROADCASTS'
               ? 'bg-purple-900 text-white shadow-sm'
               : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200'
@@ -306,6 +327,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, refreshKey
         </div>
       )}
 
+      {/* Tab Panels with Smooth Skeleton Transition */}
+      {isTabSwitching ? (
+        <DashboardSkeleton type="TAB_CONTENT" />
+      ) : (
+        <>
       {/* Tab 1: Risk & Fraud Flag Review List */}
       {activeTab === 'FRAUD_LOGS' && (
         <div className="bg-white rounded-2xl p-6 border border-[#E7E8E2] shadow-sm space-y-4">
@@ -346,7 +372,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, refreshKey
                     </p>
 
                     <div className="flex items-center space-x-3 text-[11px] text-slate-400 mt-1">
-                      <span>Triggered: {new Date(log.triggeredAt).toLocaleString()}</span>
+                      <span>Triggered: {formatRelativeTime(log.triggeredAt, { includeTime: true })}</span>
                       {isResolved && (
                         <span className="text-emerald-700 font-semibold flex items-center space-x-1">
                           <Check className="w-3 h-3" />
@@ -796,11 +822,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, refreshKey
                         <div className="flex flex-wrap items-center gap-3 text-[10px] text-slate-400 font-mono pt-0.5">
                           <span>By: {ann.createdBy || 'Platform Admin'}</span>
                           <span>•</span>
-                          <span>Posted: {new Date(ann.createdAt).toLocaleString()}</span>
+                          <span>Posted: {formatRelativeTime(ann.createdAt, { includeTime: true })}</span>
                           {ann.expiresAt && (
                             <>
                               <span>•</span>
-                              <span>Expires: {new Date(ann.expiresAt).toLocaleDateString()}</span>
+                              <span>Expires: {formatRelativeTime(ann.expiresAt)}</span>
                             </>
                           )}
                         </div>
@@ -830,6 +856,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, refreshKey
             )}
           </div>
         </div>
+      )}
+      </>
       )}
     </div>
   );

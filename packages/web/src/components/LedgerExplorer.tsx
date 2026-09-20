@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { LedgerBlock, LedgerVerificationResult } from '@caretrace/shared';
+import { LedgerBlock, LedgerVerificationResult, formatRelativeTime, formatSmartTimestamp } from '@caretrace/shared';
 import {
   ShieldCheck,
   ShieldAlert,
@@ -182,7 +182,7 @@ export const LedgerExplorer: React.FC<LedgerExplorerProps> = ({ donationId }) =>
         <div className="text-right sm:border-l sm:pl-4 border-emerald-200/60 flex-shrink-0">
           <p className="text-[10px] text-slate-500 font-medium">Verified Timestamp</p>
           <p className="text-xs font-mono font-semibold text-slate-700">
-            {verification?.verifiedAt ? new Date(verification.verifiedAt).toLocaleTimeString() : 'Pending'}
+            {verification?.verifiedAt ? formatSmartTimestamp(verification.verifiedAt) : 'Pending'}
           </p>
         </div>
       </div>
@@ -224,7 +224,7 @@ export const LedgerExplorer: React.FC<LedgerExplorerProps> = ({ donationId }) =>
                     Block #{block.index}
                   </span>
                   <span className="text-[10px] font-mono text-slate-400">
-                    {new Date(block.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    {formatRelativeTime(block.timestamp, { includeTime: true })}
                   </span>
                 </div>
 
@@ -250,7 +250,7 @@ export const LedgerExplorer: React.FC<LedgerExplorerProps> = ({ donationId }) =>
               </span>
               <span className="text-xs font-bold text-slate-800">{selectedBlock.eventType}</span>
             </div>
-            <span className="text-[11px] font-mono text-slate-500">{selectedBlock.timestamp}</span>
+            <span className="text-[11px] font-mono text-slate-500">{formatSmartTimestamp(selectedBlock.timestamp)}</span>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">

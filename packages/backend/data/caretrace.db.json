@@ -206,7 +206,7 @@
       "description": "Tailored uniform pairs (Sizes 26-36) and 192-page ruled long notebooks with geometry stationery sets for academic term.",
       "targetQuantity": 60,
       "unit": "sets",
-      "fulfilledQuantity": 30,
+      "fulfilledQuantity": 31,
       "urgency": "MEDIUM",
       "status": "VERIFIED",
       "authenticityScore": 94,
@@ -469,6 +469,46 @@
       "createdAt": "2026-02-15T11:30:00.000Z",
       "updatedAt": "2026-02-15T11:30:00.000Z",
       "ledgerBlockHash": "9d87e0ff78561c5cd9ccba59acac7d09cc32243c261d44de66edea579931d5c7"
+    },
+    {
+      "id": "CT-2026-2455",
+      "donorId": "user-donor-ajith",
+      "donorName": "Ajith R",
+      "donorEmail": "ajith@caretrace.org",
+      "requirementId": "req-school-uniforms-stationery",
+      "requirementTitle": "School Uniform Sets & Academic Notebook Stationery Bundles",
+      "institutionId": "inst-karunai",
+      "institutionName": "Karunai Karangal Foster Sanctuary",
+      "type": "FUNDS",
+      "items": [
+        {
+          "name": "Monetary Contribution (School Uniform Sets & Academic Notebook Stationery Bundles)",
+          "quantity": 1,
+          "unit": "INR",
+          "estimatedValueInr": 2500
+        }
+      ],
+      "status": "CONFIRMED",
+      "pickupAddress": "N/A (Direct Digital UPI Transfer)",
+      "destinationAddress": "18 GST Road, Tambaram Sanatorium, Chennai, Tamil Nadu",
+      "pickupCoordinates": {
+        "latitude": 13.085,
+        "longitude": 80.2101
+      },
+      "destinationCoordinates": {
+        "latitude": 12.9279,
+        "longitude": 80.1216
+      },
+      "qrCodePayload": "upi://pay?pa=caretrace.demo@sandboxbank&pn=Karunai%20Karangal%20Foster%20Sanctuary&am=2500&cu=INR&tn=Donation%20CT-2026-2455",
+      "monetaryAmountInr": 2500,
+      "receiptNumber": "REC-80G-2026-33373",
+      "paymentMethod": "UPI_SIMULATED",
+      "upiTransactionId": "UPI-TXN-DEMO-87730555",
+      "deliveryTimestamp": "2026-09-20T07:02:10.564Z",
+      "confirmationNotes": "Test simulated UPI payment",
+      "createdAt": "2026-09-20T07:02:10.564Z",
+      "updatedAt": "2026-09-20T07:02:10.564Z",
+      "ledgerBlockHash": "d1d72c6f83bcdd7b72be0727e5d9eeaf97417622ab585b9831be63440b2e8e11"
     }
   ],
   "ledgerBlocks": [
@@ -711,6 +751,30 @@
         "donorName": "Ajith R",
         "institutionId": "inst-anbu",
         "institutionName": "Anbu Illam Children's Sanctuary",
+        "vpa": "caretrace.demo@sandboxbank"
+      }
+    },
+    {
+      "index": 13,
+      "timestamp": "2026-09-20T07:02:10.583Z",
+      "donationId": "CT-2026-2455",
+      "eventType": "MONETARY_DONATION_CONFIRMED",
+      "actorId": "user-donor-ajith",
+      "actorRole": "DONOR",
+      "actorName": "Ajith R",
+      "details": "Simulated UPI donation of ₹2,500 confirmed for Karunai Karangal Foster Sanctuary (Receipt #REC-80G-2026-33373)",
+      "payloadHash": "d3053fbef18b509998cc6eb3951995879e9e15b24f8c8316e727213174df6e9f",
+      "previousHash": "5d427fa047c4d22238e3b67f0894179b9b5971379cdb4ce28f19f128d860aae8",
+      "blockHash": "d1d72c6f83bcdd7b72be0727e5d9eeaf97417622ab585b9831be63440b2e8e11",
+      "nonce": 0,
+      "payload": {
+        "amountInr": 2500,
+        "donorId": "user-donor-ajith",
+        "donorName": "Ajith R",
+        "institutionId": "inst-karunai",
+        "institutionName": "Karunai Karangal Foster Sanctuary",
+        "receiptNumber": "REC-80G-2026-33373",
+        "upiTransactionId": "UPI-TXN-DEMO-87730555",
         "vpa": "caretrace.demo@sandboxbank"
       }
     }

@@ -1,5 +1,5 @@
 import React from 'react';
-import { ProofOfDeliveryCertificate } from '@caretrace/shared';
+import { ProofOfDeliveryCertificate, formatRelativeTime, formatSmartTimestamp } from '@caretrace/shared';
 import { Award, ShieldCheck, X, CheckCircle2, Hash, FileCheck, Printer, Camera, ExternalLink } from 'lucide-react';
 
 interface ProofOfDeliveryModalProps {
@@ -82,11 +82,10 @@ export const ProofOfDeliveryModal: React.FC<ProofOfDeliveryModalProps> = ({ cert
             <div className="p-3 bg-slate-50 rounded-xl border border-slate-200">
               <span className="text-slate-500 text-[11px] block">Confirmation Timestamp</span>
               <p className="text-xs font-bold text-slate-800 mt-0.5">
-                {new Date(certificate.deliveryConfirmedAt).toLocaleDateString()}{' '}
-                {new Date(certificate.deliveryConfirmedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                {formatSmartTimestamp(certificate.deliveryConfirmedAt)}
               </p>
               <span className="text-[10px] text-slate-500 block mt-1">
-                Field Courier: {certificate.pickupAgentName}
+                Field Courier: {certificate.pickupAgentName} ({formatRelativeTime(certificate.deliveryConfirmedAt)})
               </span>
             </div>
           </div>

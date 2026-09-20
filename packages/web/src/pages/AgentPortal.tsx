@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { User, Donation, LedgerBlock } from '@caretrace/shared';
+import { User, Donation, LedgerBlock, formatRelativeTime } from '@caretrace/shared';
 import {
   Truck,
   QrCode,
@@ -18,6 +18,7 @@ import {
 import { fetchDonations, scanPickup, scanDelivery, stepTransitSimulation } from '../api/client';
 import { TactileQRScanner } from '../components/TactileQRScanner';
 import { LiveTransitMap } from '../components/LiveTransitMap';
+import { DashboardSkeleton } from '../components/DashboardSkeleton';
 
 interface AgentPortalProps {
   user: User;
@@ -31,8 +32,10 @@ export const AgentPortal: React.FC<AgentPortalProps> = ({ user, refreshKey }) =>
   const [scanMode, setScanMode] = useState<'PICKUP' | 'DELIVERY'>('PICKUP');
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
   const loadDonations = async () => {
+    setIsLoading(true);
     try {
       const all = await fetchDonations();
       // Agent handles active logistics
@@ -46,6 +49,8 @@ export const AgentPortal: React.FC<AgentPortalProps> = ({ user, refreshKey }) =>
       }
     } catch (e) {
       console.error('Failed to load agent consignments:', e);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -105,6 +110,14 @@ export const AgentPortal: React.FC<AgentPortalProps> = ({ user, refreshKey }) =>
   const pendingPickups = donations.filter(d => d.status === 'PICKUP_SCHEDULED');
   const inTransitConsignments = donations.filter(d => d.status === 'IN_TRANSIT' || d.status === 'PICKED_UP');
   const completedConsignments = donations.filter(d => d.status === 'CONFIRMED');
+
+  if (isLoading && donations.length === 0) {
+    return (
+      <div className="space-y-6 max-w-5xl mx-auto animate-fade-in pb-12">
+        <DashboardSkeleton type="AGENT" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6 max-w-5xl mx-auto animate-fade-in pb-12">
@@ -227,9 +240,10 @@ export const AgentPortal: React.FC<AgentPortalProps> = ({ user, refreshKey }) =>
 
                   {/* Field Quick Action Buttons */}
                   <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between">
-                    <span className="text-[11px] font-mono text-slate-500">
-                      {d.items[0]?.quantity} {d.items[0]?.unit}
-                    </span>
+                    <div className="flex flex-col text-[11px] font-mono text-slate-500">
+                      <span>{d.items[0]?.quantity} {d.items[0]?.unit}</span>
+                      <span className="text-[10px] text-slate-400 font-sans">{formatRelativeTime(d.pickupTimestamp || d.createdAt)}</span>
+                    </div>
 
                     {d.status === 'PICKUP_SCHEDULED' && (
                       <button
@@ -284,6 +298,7 @@ export const AgentPortal: React.FC<AgentPortalProps> = ({ user, refreshKey }) =>
                   <div className="text-right">
                     <span className="text-xs text-slate-500 block">Recipient</span>
                     <span className="text-xs font-bold text-slate-800">{activeDonation.institutionName}</span>
+                    <span className="text-[10px] text-slate-400 block font-mono">Updated {formatRelativeTime(activeDonation.updatedAt || activeDonation.createdAt)}</span>
                   </div>
                 </div>
 

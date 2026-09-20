@@ -14,9 +14,19 @@ import {
   AnnouncementUrgency
 } from '@caretrace/shared';
 
-const DEFAULT_PROD_API_URL = 'https://caretrace-backend-fluw.onrender.com/api';
-const envApiUrl = import.meta.env.VITE_API_BASE_URL || (import.meta.env.PROD ? DEFAULT_PROD_API_URL : '/api');
-const API_BASE = envApiUrl.endsWith('/api') ? envApiUrl : `${envApiUrl.replace(/\/$/, '')}/api`;
+const getApiBaseUrl = (): string => {
+  const envUrl = (import.meta.env.VITE_API_BASE_URL || '').trim();
+  if (envUrl) {
+    let formatted = envUrl;
+    if (!formatted.startsWith('http://') && !formatted.startsWith('https://') && !formatted.startsWith('/')) {
+      formatted = `https://${formatted}`;
+    }
+    return formatted.endsWith('/api') ? formatted : `${formatted.replace(/\/$/, '')}/api`;
+  }
+  return '/api';
+};
+
+const API_BASE = getApiBaseUrl();
 const TOKEN_STORAGE_KEY = 'caretrace_jwt_token';
 
 /**

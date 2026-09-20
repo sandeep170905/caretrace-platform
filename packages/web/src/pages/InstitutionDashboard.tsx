@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { User, Institution, Requirement, Donation, ProofOfDeliveryCertificate } from '@caretrace/shared';
+import React, { useState, useEffect, useMemo } from 'react';
+import { User, Institution, Requirement, Donation, ProofOfDeliveryCertificate, RequirementScorer, ScoringResult, formatRelativeTime } from '@caretrace/shared';
 import {
   Building2,
   Package,
@@ -34,6 +34,7 @@ import {
 import { TactileQRScanner } from '../components/TactileQRScanner';
 import { ProofOfDeliveryModal } from '../components/ProofOfDeliveryModal';
 import { AnnouncementBanner } from '../components/AnnouncementBanner';
+import { DashboardSkeleton } from '../components/DashboardSkeleton';
 
 interface InstitutionDashboardProps {
   user: User;
@@ -104,6 +105,15 @@ export const InstitutionDashboard: React.FC<InstitutionDashboardProps> = ({ user
   const [isScannerOpen, setIsScannerOpen] = useState<boolean>(false);
   const [selectedCertificate, setSelectedCertificate] = useState<ProofOfDeliveryCertificate | null>(null);
   const [activeTab, setActiveTab] = useState<'DELIVERIES' | 'REQUIREMENTS' | 'CERTIFICATES'>('DELIVERIES');
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isTabSwitching, setIsTabSwitching] = useState<boolean>(false);
+
+  const handleTabSwitch = (tab: 'DELIVERIES' | 'REQUIREMENTS' | 'CERTIFICATES') => {
+    if (tab === activeTab) return;
+    setIsTabSwitching(true);
+    setActiveTab(tab);
+    setTimeout(() => setIsTabSwitching(false), 180);
+  };
 
   // New Requirement Form State
   const [isNewReqOpen, setIsNewReqOpen] = useState<boolean>(false);
@@ -115,6 +125,24 @@ export const InstitutionDashboard: React.FC<InstitutionDashboardProps> = ({ user
   const [reqDescription, setReqDescription] = useState('');
   const [scoringFeedback, setScoringFeedback] = useState<any | null>(null);
   const [isSubmittingReq, setIsSubmittingReq] = useState(false);
+
+  // Real-time authenticity/fraud score calculated dynamically as institution edits requirement
+  const liveScoring: ScoringResult | null = useMemo(() => {
+    if (!institution) return null;
+    return RequirementScorer.evaluateRequirement(
+      {
+        title: reqTitle,
+        category: reqCategory,
+        urgency: reqUrgency,
+        targetQuantity: Number(reqQuantity) || 0,
+        unit: reqUnit,
+        description: reqDescription,
+        documents: []
+      },
+      institution,
+      requirements.filter(r => r.institutionId === institution.id).length
+    );
+  }, [institution, reqTitle, reqCategory, reqUrgency, reqQuantity, reqUnit, reqDescription, requirements]);
 
   // Handover confirmation modal
   const [pendingHandoverDonationId, setPendingHandoverDonationId] = useState<string | null>(null);
@@ -135,6 +163,7 @@ export const InstitutionDashboard: React.FC<InstitutionDashboardProps> = ({ user
   const [isUpdatingReq, setIsUpdatingReq] = useState(false);
 
   const loadData = async () => {
+    setIsLoading(true);
     try {
       const institutions = await fetchInstitutions();
       // Match user's institution or default to Sunrise
@@ -162,6 +191,8 @@ export const InstitutionDashboard: React.FC<InstitutionDashboardProps> = ({ user
       }
     } catch (e) {
       console.error('Failed to load institution data:', e);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -294,6 +325,15 @@ export const InstitutionDashboard: React.FC<InstitutionDashboardProps> = ({ user
     if (cert) setSelectedCertificate(cert);
   };
 
+  if (isLoading && !institution) {
+    return (
+      <div className="space-y-6 animate-fade-in">
+        <AnnouncementBanner refreshKey={refreshKey} />
+        <DashboardSkeleton type="INSTITUTION" />
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-8 animate-fade-in">
       {/* Broadcast Announcements Banner */}
@@ -366,7 +406,7 @@ export const InstitutionDashboard: React.FC<InstitutionDashboardProps> = ({ user
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-200 pb-2">
         <div className="flex items-center space-x-2 bg-slate-100/90 p-1 rounded-2xl border border-slate-200">
           <button
-            onClick={() => setActiveTab('DELIVERIES')}
+            onClick={() => handleTabSwitch('DELIVERIES')}
             className={`px-4 py-2 rounded-xl text-xs font-semibold transition-all flex items-center space-x-2 ${
               activeTab === 'DELIVERIES'
                 ? 'bg-white text-teal-900 shadow-sm'
@@ -385,7 +425,7 @@ export const InstitutionDashboard: React.FC<InstitutionDashboardProps> = ({ user
           </button>
 
           <button
-            onClick={() => setActiveTab('REQUIREMENTS')}
+            onClick={() => handleTabSwitch('REQUIREMENTS')}
             className={`px-4 py-2 rounded-xl text-xs font-semibold transition-all flex items-center space-x-2 ${
               activeTab === 'REQUIREMENTS'
                 ? 'bg-white text-teal-900 shadow-sm'
@@ -400,7 +440,7 @@ export const InstitutionDashboard: React.FC<InstitutionDashboardProps> = ({ user
           </button>
 
           <button
-            onClick={() => setActiveTab('CERTIFICATES')}
+            onClick={() => handleTabSwitch('CERTIFICATES')}
             className={`px-4 py-2 rounded-xl text-xs font-semibold transition-all flex items-center space-x-2 ${
               activeTab === 'CERTIFICATES'
                 ? 'bg-white text-teal-900 shadow-sm'
@@ -444,8 +484,13 @@ export const InstitutionDashboard: React.FC<InstitutionDashboardProps> = ({ user
         )}
       </div>
 
-      {/* Section 1: Incoming Consignments & Handover QR Scan */}
-      {activeTab === 'DELIVERIES' && (
+      {/* Main Tab Panels with Smooth Skeleton Transition */}
+      {isTabSwitching ? (
+        <DashboardSkeleton type="TAB_CONTENT" />
+      ) : (
+        <>
+          {/* Section 1: Incoming Consignments & Handover QR Scan */}
+          {activeTab === 'DELIVERIES' && (
         <div className="bg-white rounded-2xl p-6 border border-[#E7E8E2] shadow-sm space-y-4">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100">
             <div>
@@ -631,7 +676,7 @@ export const InstitutionDashboard: React.FC<InstitutionDashboardProps> = ({ user
 
                 <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between">
                   <span className="text-[11px] text-slate-400">
-                    {new Date(req.createdAt).toLocaleDateString()}
+                    {formatRelativeTime(req.createdAt)}
                   </span>
                   <div className="flex items-center space-x-1.5">
                     <button
@@ -676,7 +721,7 @@ export const InstitutionDashboard: React.FC<InstitutionDashboardProps> = ({ user
                     <span className="text-xs text-slate-600 font-semibold">{d.requirementTitle}</span>
                   </div>
                   <p className="text-xs text-slate-500 mt-0.5">
-                    Delivered on {new Date(d.deliveryTimestamp || d.updatedAt).toLocaleDateString()} • Signature: <span className="font-mono">{d.recipientSignature}</span>
+                    Delivered {formatRelativeTime(d.deliveryTimestamp || d.updatedAt, { includeTime: true })} • Signature: <span className="font-mono">{d.recipientSignature}</span>
                   </p>
                 </div>
 
@@ -691,6 +736,8 @@ export const InstitutionDashboard: React.FC<InstitutionDashboardProps> = ({ user
             ))}
           </div>
         </div>
+      )}
+      </>
       )}
 
       {/* Post New Requirement Modal */}
@@ -783,17 +830,58 @@ export const InstitutionDashboard: React.FC<InstitutionDashboardProps> = ({ user
                 />
               </div>
 
-              {scoringFeedback && (
-                <div className="p-3 bg-teal-50 border border-teal-200 rounded-xl text-teal-950 space-y-1">
-                  <span className="font-bold flex items-center space-x-1">
-                    <ShieldCheck className="w-4 h-4 text-teal-700" />
-                    <span>Rule Engine Score: {scoringFeedback.score}/100 ({scoringFeedback.riskLevel} Risk)</span>
-                  </span>
-                  <p className="text-[11px] text-teal-800">
-                    {scoringFeedback.isApproved
-                      ? 'Approved for verified donor listing!'
-                      : 'Flagged for compliance review.'}
-                  </p>
+              {liveScoring && (
+                <div className={`p-3.5 rounded-2xl border transition-all ${
+                  liveScoring.score >= 80
+                    ? 'bg-emerald-50/90 border-emerald-200 text-emerald-950'
+                    : liveScoring.score >= 60
+                    ? 'bg-amber-50/90 border-amber-200 text-amber-950'
+                    : 'bg-rose-50/90 border-rose-200 text-rose-950'
+                }`}>
+                  <div className="flex items-center justify-between mb-1.5">
+                    <div className="flex items-center space-x-1.5 font-bold text-xs">
+                      <ShieldCheck className={`w-4 h-4 ${
+                        liveScoring.score >= 80 ? 'text-emerald-600' : liveScoring.score >= 60 ? 'text-amber-600' : 'text-rose-600'
+                      }`} />
+                      <span>Live Authenticity & Fraud Risk Preview</span>
+                    </div>
+                    <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                      liveScoring.score >= 80
+                        ? 'bg-emerald-100 text-emerald-800'
+                        : liveScoring.score >= 60
+                        ? 'bg-amber-100 text-amber-800'
+                        : 'bg-rose-100 text-rose-800'
+                    }`}>
+                      {liveScoring.score}/100 • {liveScoring.riskLevel} Risk
+                    </span>
+                  </div>
+
+                  {/* Real-time score meter bar */}
+                  <div className="w-full h-1.5 bg-slate-200/80 rounded-full overflow-hidden my-2">
+                    <div
+                      className={`h-full transition-all duration-300 ${
+                        liveScoring.score >= 80 ? 'bg-emerald-600' : liveScoring.score >= 60 ? 'bg-amber-500' : 'bg-rose-500'
+                      }`}
+                      style={{ width: `${liveScoring.score}%` }}
+                    />
+                  </div>
+
+                  {/* Dynamic Rule Feedback / Detected Anomalies */}
+                  {liveScoring.flags.length > 0 ? (
+                    <div className="space-y-1 mt-1 pt-1.5 border-t border-rose-200/60 text-[11px]">
+                      {liveScoring.flags.map((flag, idx) => (
+                        <p key={idx} className="flex items-start space-x-1.5 text-rose-800">
+                          <AlertTriangle className="w-3.5 h-3.5 shrink-0 text-rose-600 mt-0.5" />
+                          <span>{flag.message}</span>
+                        </p>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-[11px] text-emerald-800 flex items-center space-x-1">
+                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                      <span>Claim matches registered capacity ({institution?.capacity || 48} children). Direct verified donor listing!</span>
+                    </p>
+                  )}
                 </div>
               )}
 

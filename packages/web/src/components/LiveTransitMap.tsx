@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Donation, TransitTelemetry } from '@caretrace/shared';
 import { Truck, MapPin, Navigation, Gauge, Clock, ChevronRight, Play, RefreshCw, CheckCircle } from 'lucide-react';
 import { fetchTransitTelemetry, stepTransitSimulation } from '../api/client';
@@ -18,13 +18,53 @@ export const LiveTransitMap: React.FC<LiveTransitMapProps> = ({
   const [waypoints, setWaypoints] = useState<{ latitude: number; longitude: number }[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [isAdvancing, setIsAdvancing] = useState<boolean>(false);
+  const initialProgress = initialTelemetry?.progressPercentage || (donation.status === 'CONFIRMED' ? 100 : 50);
+  const [displayedProgress, setDisplayedProgress] = useState<number>(initialProgress);
+  const animRef = useRef<number | null>(null);
+  const currentProgressRef = useRef<number>(initialProgress);
+
+  const animateToProgress = (targetVal: number, duration: number = 1500) => {
+    if (animRef.current) {
+      cancelAnimationFrame(animRef.current);
+    }
+
+    const startVal = currentProgressRef.current;
+    if (startVal === targetVal) return;
+
+    const startTime = performance.now();
+
+    const frame = (now: number) => {
+      const elapsed = now - startTime;
+      const progressFraction = Math.min(elapsed / duration, 1);
+      // Smooth ease-out cubic
+      const ease = 1 - Math.pow(1 - progressFraction, 3);
+
+      const current = Math.round(startVal + (targetVal - startVal) * ease);
+      setDisplayedProgress(current);
+      currentProgressRef.current = current;
+
+      if (progressFraction < 1) {
+        animRef.current = requestAnimationFrame(frame);
+      } else {
+        setDisplayedProgress(targetVal);
+        currentProgressRef.current = targetVal;
+        animRef.current = null;
+      }
+    };
+
+    animRef.current = requestAnimationFrame(frame);
+  };
 
   const loadData = async () => {
     try {
       const data = await fetchTransitTelemetry(donation.id);
-      if (data.success) {
+      if (data.success && data.telemetry) {
         setTelemetry(data.telemetry);
         setWaypoints(data.waypoints || []);
+        if (data.telemetry.progressPercentage !== currentProgressRef.current) {
+          setDisplayedProgress(data.telemetry.progressPercentage);
+          currentProgressRef.current = data.telemetry.progressPercentage;
+        }
       }
     } catch (e) {
       console.error('Failed to load transit telemetry:', e);
@@ -33,14 +73,24 @@ export const LiveTransitMap: React.FC<LiveTransitMapProps> = ({
 
   useEffect(() => {
     loadData();
+    return () => {
+      if (animRef.current) {
+        cancelAnimationFrame(animRef.current);
+      }
+    };
   }, [donation.id]);
 
   const handleStep = async () => {
+    if (isAdvancing) return;
     setIsAdvancing(true);
     try {
       const res = await stepTransitSimulation(donation.id, 20);
-      if (res.success) {
+      if (res.success && res.telemetry) {
         setTelemetry(res.telemetry);
+        const targetPercent = res.telemetry.progressPercentage;
+        // Smoothly animate vehicle and percentage counter over 1.6s
+        animateToProgress(targetPercent, 1600);
+        await new Promise(resolve => setTimeout(resolve, 1650));
         if (onStatusAdvanced) onStatusAdvanced();
       }
     } catch (e) {
@@ -50,7 +100,7 @@ export const LiveTransitMap: React.FC<LiveTransitMapProps> = ({
     }
   };
 
-  const progress = telemetry?.progressPercentage || (donation.status === 'CONFIRMED' ? 100 : 50);
+  const progress = displayedProgress;
 
   // SVG route calculation
   // We represent the route on an SVG coordinate space (e.g. 500 x 180)
@@ -65,7 +115,7 @@ export const LiveTransitMap: React.FC<LiveTransitMapProps> = ({
   const pathD = `M ${startX} ${startY} C 160 30, 240 130, 350 40 S 420 100, ${endX} ${endY}`;
 
   // Vehicle coordinate along progress (t: 0 to 1)
-  const t = progress / 100;
+  const t = Math.min(Math.max(progress / 100, 0), 1);
   const vehicleX = startX + (endX - startX) * t;
   // Approximate curve height modulation
   const curveOffset = Math.sin(t * Math.PI) * -30 + Math.sin(t * Math.PI * 2) * 15;
@@ -78,7 +128,7 @@ export const LiveTransitMap: React.FC<LiveTransitMapProps> = ({
           <h3 className="text-base font-semibold text-slate-900 flex items-center space-x-2">
             <Navigation className="w-4 h-4 text-teal-700" />
             <span>Live Simulated Transit Corridor</span>
-            <span className="text-xs font-mono font-medium px-2 py-0.5 rounded-full bg-amber-50 text-amber-800 border border-amber-200">
+            <span className="text-xs font-mono font-medium px-2 py-0.5 rounded-full bg-amber-50 text-amber-800 border border-amber-200 transition-colors">
               {progress >= 100 ? 'Arrived' : `${progress}% Complete`}
             </span>
           </h3>
@@ -94,8 +144,17 @@ export const LiveTransitMap: React.FC<LiveTransitMapProps> = ({
             disabled={isAdvancing}
             className="flex items-center space-x-2 px-3.5 py-1.5 bg-gradient-to-r from-teal-700 to-teal-800 hover:from-teal-800 hover:to-teal-900 text-white rounded-xl text-xs font-semibold shadow-sm transition-all disabled:opacity-50"
           >
-            <Play className={`w-3 h-3 fill-current ${isAdvancing ? 'animate-spin' : ''}`} />
-            <span>Step Courier Forward (+20%)</span>
+            {isAdvancing ? (
+              <>
+                <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                <span>Advancing Vehicle...</span>
+              </>
+            ) : (
+              <>
+                <Play className="w-3 h-3 fill-current" />
+                <span>Advance Transit (+20%)</span>
+              </>
+            )}
           </button>
         )}
       </div>
@@ -144,7 +203,7 @@ export const LiveTransitMap: React.FC<LiveTransitMapProps> = ({
             filter="url(#glow)"
             strokeDasharray="500"
             strokeDashoffset={500 * (1 - progress / 100)}
-            style={{ transition: 'stroke-dashoffset 0.8s ease' }}
+            style={{ transition: 'stroke-dashoffset 0.06s linear' }}
           />
 
           {/* Waypoint Nodes along route */}
@@ -180,7 +239,7 @@ export const LiveTransitMap: React.FC<LiveTransitMapProps> = ({
           {/* Animated Courier Van Position */}
           <g
             transform={`translate(${vehicleX}, ${vehicleY})`}
-            style={{ transition: 'transform 0.8s cubic-bezier(0.34, 1.56, 0.64, 1)' }}
+            style={{ transition: 'transform 0.06s linear' }}
           >
             {/* Pulsing Radar Ring */}
             <circle r="20" fill="none" stroke="#F59E0B" strokeWidth="1.5" className="animate-ping opacity-50" />

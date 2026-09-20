@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Donation, LedgerBlock } from '@caretrace/shared';
+import { Donation, LedgerBlock, formatRelativeTime, formatSmartTimestamp } from '@caretrace/shared';
 import {
   Check,
   CircleDot,
@@ -164,16 +164,16 @@ export const ChainOfCustodyTimeline: React.FC<ChainOfCustodyTimelineProps> = ({
   const getStepTimestamp = (stepIndex: number): string | null => {
     const block = getBlockForStep(stepIndex);
     if (block) {
-      return new Date(block.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', month: 'short', day: 'numeric' });
+      return formatRelativeTime(block.timestamp, { includeTime: true });
     }
     if (stepIndex === 1) {
-      return new Date(donation.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', month: 'short', day: 'numeric' });
+      return formatRelativeTime(donation.createdAt, { includeTime: true });
     }
     if (stepIndex === 2 && donation.pickupTimestamp) {
-      return new Date(donation.pickupTimestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', month: 'short', day: 'numeric' });
+      return formatRelativeTime(donation.pickupTimestamp, { includeTime: true });
     }
     if (stepIndex >= 4 && donation.deliveryTimestamp) {
-      return new Date(donation.deliveryTimestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', month: 'short', day: 'numeric' });
+      return formatRelativeTime(donation.deliveryTimestamp, { includeTime: true });
     }
     return null;
   };
@@ -441,10 +441,10 @@ export const ChainOfCustodyTimeline: React.FC<ChainOfCustodyTimelineProps> = ({
                     <span>Timestamp</span>
                   </span>
                   <p className="font-semibold text-slate-800 mt-0.5">
-                    {new Date(selectedBlock.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+                    {formatSmartTimestamp(selectedBlock.timestamp)}
                   </p>
                   <p className="text-[10px] text-slate-500">
-                    {new Date(selectedBlock.timestamp).toLocaleDateString()}
+                    {formatRelativeTime(selectedBlock.timestamp)}
                   </p>
                 </div>
               </div>

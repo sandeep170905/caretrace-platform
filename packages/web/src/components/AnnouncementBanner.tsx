@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Announcement } from '@caretrace/shared';
+import { Announcement, formatRelativeTime } from '@caretrace/shared';
 import { fetchActiveAnnouncements } from '../api/client';
 import { AlertCircle, Megaphone, X, Clock, ShieldAlert, Radio } from 'lucide-react';
 
@@ -93,7 +93,7 @@ export const AnnouncementBanner: React.FC<AnnouncementBannerProps> = ({
                     {ann.expiresAt && (
                       <span className="text-[10px] text-amber-200/90 font-mono flex items-center space-x-1">
                         <Clock className="w-3 h-3" />
-                        <span>Valid until {new Date(ann.expiresAt).toLocaleDateString()}</span>
+                        <span>Valid until {formatRelativeTime(ann.expiresAt)}</span>
                       </span>
                     )}
                   </div>
@@ -109,14 +109,7 @@ export const AnnouncementBanner: React.FC<AnnouncementBannerProps> = ({
                   <div className="pt-1 flex items-center space-x-3 text-[10px] text-slate-400 font-mono">
                     <span>Broadcast by: {ann.createdBy || 'Platform Admin'}</span>
                     <span>•</span>
-                    <span>
-                      {new Date(ann.createdAt).toLocaleString([], {
-                        month: 'short',
-                        day: 'numeric',
-                        hour: '2-digit',
-                        minute: '2-digit'
-                      })}
-                    </span>
+                    <span>{formatRelativeTime(ann.createdAt, { includeTime: true })}</span>
                   </div>
                 </div>
               </div>

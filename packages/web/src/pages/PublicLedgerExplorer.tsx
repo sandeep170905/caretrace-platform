@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { LedgerBlock, LedgerVerificationResult } from '@caretrace/shared';
+import { LedgerBlock, LedgerVerificationResult, formatRelativeTime, formatSmartTimestamp } from '@caretrace/shared';
 import {
   Search,
   ShieldCheck,
@@ -248,10 +248,10 @@ export const PublicLedgerExplorer: React.FC<PublicLedgerExplorerProps> = ({
                     Audit Timestamp
                   </span>
                   <p className="text-xs font-mono font-semibold text-slate-800">
-                    {verification?.verifiedAt ? new Date(verification.verifiedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }) : 'Verified'}
+                    {verification?.verifiedAt ? formatSmartTimestamp(verification.verifiedAt) : 'Verified'}
                   </p>
                   <p className="text-[10px] text-slate-500 font-mono">
-                    {verification?.verifiedAt ? new Date(verification.verifiedAt).toLocaleDateString() : ''}
+                    {verification?.verifiedAt ? formatRelativeTime(verification.verifiedAt) : ''}
                   </p>
                 </div>
               </div>
@@ -331,7 +331,7 @@ export const PublicLedgerExplorer: React.FC<PublicLedgerExplorerProps> = ({
                             Block #{block.index}
                           </span>
                           <span className="text-[10px] font-mono text-slate-400">
-                            {new Date(block.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                            {formatRelativeTime(block.timestamp, { includeTime: true })}
                           </span>
                         </div>
 
@@ -370,7 +370,7 @@ export const PublicLedgerExplorer: React.FC<PublicLedgerExplorerProps> = ({
                       <div>
                         <h5 className="text-xs font-bold text-slate-900">{selectedBlock.eventType}</h5>
                         <p className="text-[10px] text-slate-500 font-mono">
-                          Recorded: {new Date(selectedBlock.timestamp).toLocaleString()}
+                          Recorded: {formatSmartTimestamp(selectedBlock.timestamp)}
                         </p>
                       </div>
                     </div>
