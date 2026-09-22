@@ -30,10 +30,10 @@ export function runSeed() {
   };
 
   // Additional donors for realistic directory & past verified donations
-  const donorAkash: User = {
-    id: 'user-donor-akash',
-    name: 'Akash Kumar G',
-    email: 'akash@caretrace.org',
+  const donorSanjay: User = {
+    id: 'user-donor-sanjay',
+    name: 'Sanjay Verma',
+    email: 'sanjay@caretrace.org',
     role: 'DONOR',
     phone: '+91 97908 11223',
     avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80',
@@ -52,8 +52,8 @@ export function runSeed() {
 
   // Institution Director (Chennai) - Karunai Karangal Foster Sanctuary
   const institutionDirector: User = {
-    id: 'user-inst-lakshmi',
-    name: 'Lakshmi Narayanan',
+    id: 'user-inst-akash',
+    name: 'Akash Kumar',
     email: 'director@karunaikarangal.org',
     role: 'INSTITUTION',
     phone: '+91 98403 87654',
@@ -85,7 +85,7 @@ export function runSeed() {
   };
 
   db.upsertUser(donorUser);
-  db.upsertUser(donorAkash);
+  db.upsertUser(donorSanjay);
   db.upsertUser(donorKarthik);
   db.upsertUser(institutionDirector);
   db.upsertUser(pickupAgent);
@@ -338,8 +338,8 @@ export function runSeed() {
     qrCodePayload: qrPayloadDelivered,
     pickupTimestamp: '2026-02-02T10:15:00.000Z',
     deliveryTimestamp: '2026-02-02T14:45:00.000Z',
-    confirmationNotes: 'Lakshmi Narayanan (Director) - Received 80 pristine bedsheet and net sets. Inspected and distributed to dormitories.',
-    recipientSignature: 'DIGITAL_SIG:LAKSHMI_NARAYANAN_KARUNAI_TAMBARAM_2026',
+    confirmationNotes: 'Akash Kumar (Director) - Received 80 pristine bedsheet and net sets. Inspected and distributed to dormitories.',
+    recipientSignature: 'DIGITAL_SIG:AKASH_KUMAR_KARUNAI_TAMBARAM_2026',
     proofPhotoUrl: 'https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?w=600&auto=format&fit=crop&q=80',
     createdAt: '2026-02-01T15:00:00.000Z',
     updatedAt: '2026-02-02T14:45:00.000Z'
@@ -376,7 +376,7 @@ export function runSeed() {
     donationDeliveredId,
     'DELIVERY_CONFIRMED',
     { id: institutionDirector.id, role: 'INSTITUTION', name: institutionDirector.name },
-    `Consignment received and authenticated via delivery QR scan by Lakshmi Narayanan (Director, Karunai Karangal). Attached handover photo evidence sealed on-chain.`,
+    `Consignment received and authenticated via delivery QR scan by Akash Kumar (Director, Karunai Karangal). Attached handover photo evidence sealed on-chain.`,
     {
       signature: donationDelivered.recipientSignature,
       notes: donationDelivered.confirmationNotes,
@@ -447,14 +447,14 @@ export function runSeed() {
     lastUpdated: new Date().toISOString()
   });
 
-  // 6. Additional Past Donations for Akash Kumar G & Karthik V (Realistic Directory Data)
-  const donationAkashId = 'CT-2026-8712';
-  const qrPayloadAkash = QRService.createPayloadString(donationAkashId, donorAkash.id, anbuIllam.id);
-  const donationAkash: Donation = {
-    id: donationAkashId,
-    donorId: donorAkash.id,
-    donorName: donorAkash.name,
-    donorEmail: donorAkash.email,
+  // 6. Additional Past Donations for Sanjay Verma & Karthik V (Realistic Directory Data)
+  const donationSanjayId = 'CT-2026-8712';
+  const qrPayloadSanjay = QRService.createPayloadString(donationSanjayId, donorSanjay.id, anbuIllam.id);
+  const donationSanjay: Donation = {
+    id: donationSanjayId,
+    donorId: donorSanjay.id,
+    donorName: donorSanjay.name,
+    donorEmail: donorSanjay.email,
     requirementId: req3.id,
     requirementTitle: req3.title,
     institutionId: anbuIllam.id,
@@ -471,7 +471,7 @@ export function runSeed() {
     pickupCoordinates: { latitude: 13.0784, longitude: 80.2412 },
     destinationCoordinates: { latitude: anbuIllam.latitude, longitude: anbuIllam.longitude },
     currentCoordinates: { latitude: anbuIllam.latitude, longitude: anbuIllam.longitude },
-    qrCodePayload: qrPayloadAkash,
+    qrCodePayload: qrPayloadSanjay,
     pickupTimestamp: '2026-02-08T09:30:00.000Z',
     deliveryTimestamp: '2026-02-08T13:15:00.000Z',
     confirmationNotes: 'Sister V. Shanthi (Director) - First-aid and ORS supplies verified in sterile packaging.',
@@ -479,21 +479,21 @@ export function runSeed() {
     createdAt: '2026-02-07T11:00:00.000Z',
     updatedAt: '2026-02-08T13:15:00.000Z'
   };
-  db.upsertDonation(donationAkash);
+  db.upsertDonation(donationSanjay);
 
   LedgerService.recordCheckpoint(
-    donationAkashId,
+    donationSanjayId,
     'DONATION_MATCHED',
-    { id: donorAkash.id, role: 'DONOR', name: donorAkash.name },
-    `Akash Kumar G matched 20 medical kits to Anbu Illam Sanctuary.`,
+    { id: donorSanjay.id, role: 'DONOR', name: donorSanjay.name },
+    `Sanjay Verma matched 20 medical kits to Anbu Illam Sanctuary.`,
     { itemsCount: 20, totalValueInr: 16000 }
   );
   LedgerService.recordCheckpoint(
-    donationAkashId,
+    donationSanjayId,
     'DELIVERY_CONFIRMED',
     { id: 'user-inst-shanthi', role: 'INSTITUTION', name: 'Sister V. Shanthi (Director)' },
     `Delivery verified by Director Sister V. Shanthi at Ambattur facility.`,
-    { signature: donationAkash.recipientSignature }
+    { signature: donationSanjay.recipientSignature }
   );
 
   const donationKarthikId = 'CT-2026-8650';
@@ -567,11 +567,13 @@ export function runSeed() {
     status: 'CONFIRMED',
     monetaryAmountInr: 100000,
     receiptNumber: 'REC-80G-2026-5607',
-    pickupAddress: 'Online Escrow Settlement',
+    paymentMethod: 'Direct Monetary Contribution',
+    upiTransactionId: 'TXN-2026-5607',
+    pickupAddress: 'N/A (Direct Monetary Contribution)',
     destinationAddress: `${karunaiKarangal.address}, ${karunaiKarangal.city}, ${karunaiKarangal.state}`,
     pickupCoordinates: { latitude: 13.0827, longitude: 80.2707 },
     destinationCoordinates: { latitude: karunaiKarangal.latitude, longitude: karunaiKarangal.longitude },
-    qrCodePayload: 'UPI_SIM:CT-2026-5607:100000:INR',
+    qrCodePayload: 'CARETRACE:MONETARY:CT-2026-9200:TXN-2026-5607',
     createdAt: '2026-02-15T11:30:00.000Z',
     updatedAt: '2026-02-15T11:30:00.000Z'
   };
@@ -589,21 +591,21 @@ export function runSeed() {
     monetaryDonationId,
     'MONETARY_DONATION_CONFIRMED',
     { id: donorUser.id, role: 'DONOR', name: donorUser.name },
-    `Simulated UPI transaction settled: ₹1,00,000 to ${karunaiKarangal.name}. VPA caretrace.demo@sandboxbank. 80G Tax Exemption Receipt REC-80G-2026-5607 generated.`,
+    `Direct monetary contribution confirmed: ₹1,00,000 to ${karunaiKarangal.name}. 80G Tax Exemption Receipt REC-80G-2026-5607 generated (Txn Ref: TXN-2026-5607).`,
     {
       amountInr: 100000,
       donorId: donorUser.id,
       institutionId: karunaiKarangal.id,
       receiptNumber: 'REC-80G-2026-5607',
-      vpa: 'caretrace.demo@sandboxbank'
+      transactionRef: 'TXN-2026-5607'
     }
   );
 
   // Seed demo-safe announcement (platform update, not real disaster appeal)
   const seedAnnouncement: Announcement = {
     id: 'ann-demo-2026-01',
-    title: '[Demo Notice] Platform Update: Simulated UPI Monetary Donations Now Live',
-    message: 'CareTrace donors can now fulfill verified childcare requirements through direct simulated UPI payments and receive instant Section 80G sample tax exemption receipts.',
+    title: '[Notice] Platform Update: Direct Monetary Contributions with Section 80G Receipts Now Live',
+    message: 'CareTrace donors can now fulfill verified childcare requirements through direct monetary contributions and receive instant cryptographic Section 80G sample tax exemption receipts.',
     urgency: 'GENERAL',
     createdAt: new Date().toISOString(),
     active: true,
@@ -612,7 +614,7 @@ export function runSeed() {
   db.upsertAnnouncement(seedAnnouncement);
 
   console.log('✅ Chennai localized database seeded successfully with:');
-  console.log(`   - 6 Users: Ajith R (Donor), Lakshmi Narayanan (Director), Sakthivel S (Agent), Sandeep R (Admin), Akash Kumar G (Donor), Karthik V (Donor)`);
+  console.log(`   - 6 Users: Ajith R (Donor), Akash Kumar (Director), Sakthivel S (Agent), Sandeep R (Admin), Sanjay Verma (Donor), Karthik V (Donor)`);
   console.log(`   - 3 Institutions: Anbu Illam (Ambattur), Karunai Karangal (Tambaram), Nanban Youth Shelter (Poonamallee - Flagged)`);
   console.log(`   - 5 Requirements: Groceries, Bedsheets/Nets, First-Aid, Uniforms, and Flagged 500 Rice Bags Anomaly`);
   console.log(`   - 4 Donations: CT-2026-8801 (Confirmed), CT-2026-9042 (In-Transit), CT-2026-8712 (Confirmed), CT-2026-8650 (Confirmed)`);

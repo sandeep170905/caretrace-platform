@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.db = void 0;
+exports.db = exports.Database = void 0;
 const fs_1 = __importDefault(require("fs"));
 const path_1 = __importDefault(require("path"));
 const DATA_DIR = path_1.default.resolve(__dirname, '../../data');
@@ -127,6 +127,9 @@ class Database {
             this.data.donations.push(donation);
         this.save();
     }
+    getDonationsByDonor(donorId) {
+        return this.data.donations.filter(d => d.donorId === donorId);
+    }
     // Ledger Blocks
     getLedgerBlocks() {
         return this.data.ledgerBlocks.sort((a, b) => a.index - b.index);
@@ -221,4 +224,5 @@ class Database {
         this.save();
     }
 }
+exports.Database = Database;
 exports.db = new Database();

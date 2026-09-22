@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Requirement, Institution, User, TaxExemptionReceipt } from '@caretrace/shared';
 import { fetchRequirements, fetchInstitutions, createDonation } from '../api/client';
 import { AnnouncementBanner } from '../components/AnnouncementBanner';
-import { SimulatedUpiModal } from '../components/SimulatedUpiModal';
+import { PledgeMonetaryModal } from '../components/PledgeMonetaryModal';
 import { TaxExemptionReceiptModal } from '../components/TaxExemptionReceiptModal';
 import {
   Search,
@@ -21,6 +21,7 @@ import {
 
 interface PublicRequestBoardProps {
   currentUser: User | null;
+  isAuthenticated: boolean;
   onRequireAuth: (req: Requirement) => void;
   onPledgedSuccess?: (donationId: string) => void;
   onNavigateToVerify?: (donationId?: string) => void;
@@ -29,6 +30,7 @@ interface PublicRequestBoardProps {
 
 export const PublicRequestBoard: React.FC<PublicRequestBoardProps> = ({
   currentUser,
+  isAuthenticated,
   onRequireAuth,
   onPledgedSuccess,
   onNavigateToVerify,
@@ -51,20 +53,20 @@ export const PublicRequestBoard: React.FC<PublicRequestBoardProps> = ({
   const [isSubmittingPledge, setIsSubmittingPledge] = useState<boolean>(false);
   const [pledgeSuccessId, setPledgeSuccessId] = useState<string | null>(null);
 
-  // Simulated UPI payment state
-  const [upiRequirement, setUpiRequirement] = useState<Requirement | null>(null);
+  // Monetary contribution state
+  const [monetaryRequirement, setMonetaryRequirement] = useState<Requirement | null>(null);
   const [activeReceipt, setActiveReceipt] = useState<TaxExemptionReceipt | null>(null);
 
-  const handleUpiClick = (req: Requirement) => {
-    if (currentUser && currentUser.role === 'DONOR') {
-      setUpiRequirement(req);
+  const handleMonetaryClick = (req: Requirement) => {
+    if (currentUser && isAuthenticated && currentUser.role === 'DONOR') {
+      setMonetaryRequirement(req);
     } else {
       onRequireAuth(req);
     }
   };
 
   const handlePaymentSuccess = async (receipt: TaxExemptionReceipt) => {
-    setUpiRequirement(null);
+    setMonetaryRequirement(null);
     setActiveReceipt(receipt);
     if (onPledgedSuccess) onPledgedSuccess(receipt.donationId);
     await loadData();
@@ -141,12 +143,12 @@ export const PublicRequestBoard: React.FC<PublicRequestBoardProps> = ({
   });
 
   const handleDonateClick = (req: Requirement) => {
-    // If user is already logged in as a Donor, open pledge modal
-    if (currentUser && currentUser.role === 'DONOR') {
+    // If user is already authenticated as a Donor, open pledge modal
+    if (currentUser && isAuthenticated && currentUser.role === 'DONOR') {
       setPledgingReq(req);
       setPledgeQuantity(Math.max(1, req.targetQuantity - req.fulfilledQuantity));
     } else {
-      // Guest or non-donor persona: trigger login/registration prompt
+      // Guest or unauthenticated persona: trigger login/registration prompt
       onRequireAuth(req);
     }
   };
@@ -409,12 +411,12 @@ export const PublicRequestBoard: React.FC<PublicRequestBoardProps> = ({
                   </span>
                   <div className="flex items-center space-x-1.5 shrink-0">
                     <button
-                      onClick={() => handleUpiClick(req)}
+                      onClick={() => handleMonetaryClick(req)}
                       className="px-3 py-2 min-h-[40px] sm:min-h-[36px] bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 rounded-xl text-xs font-semibold shadow-xs transition-colors flex items-center space-x-1"
-                      title="Donate Funds via Simulated UPI"
+                      title="Pledge Monetary Contribution"
                     >
                       <span className="font-bold">₹</span>
-                      <span>Donate UPI</span>
+                      <span>Contribute Funds</span>
                     </button>
                     <button
                       onClick={() => handleDonateClick(req)}
@@ -532,12 +534,12 @@ export const PublicRequestBoard: React.FC<PublicRequestBoardProps> = ({
         </div>
       )}
 
-      {/* Simulated UPI Payment Modal */}
-      {upiRequirement && currentUser && (
-        <SimulatedUpiModal
+      {/* Monetary Contribution Pledge Modal */}
+      {monetaryRequirement && currentUser && (
+        <PledgeMonetaryModal
           donorId={currentUser.id}
-          requirement={upiRequirement}
-          onClose={() => setUpiRequirement(null)}
+          requirement={monetaryRequirement}
+          onClose={() => setMonetaryRequirement(null)}
           onSuccess={handlePaymentSuccess}
         />
       )}

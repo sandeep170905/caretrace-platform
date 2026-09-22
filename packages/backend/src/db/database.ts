@@ -25,7 +25,7 @@ export interface DatabaseSchema {
 const DATA_DIR = path.resolve(__dirname, '../../data');
 const DB_FILE = path.join(DATA_DIR, 'caretrace.db.json');
 
-class Database {
+export class Database {
   private data: DatabaseSchema = {
     users: [],
     institutions: [],
@@ -150,6 +150,10 @@ class Database {
     if (idx >= 0) this.data.donations[idx] = donation;
     else this.data.donations.push(donation);
     this.save();
+  }
+
+  public getDonationsByDonor(donorId: string): Donation[] {
+    return this.data.donations.filter(d => d.donorId === donorId);
   }
 
   // Ledger Blocks

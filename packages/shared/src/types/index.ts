@@ -142,7 +142,7 @@ export interface Donation {
   ledgerBlockHash?: string;
   monetaryAmountInr?: number;
   receiptNumber?: string;
-  paymentMethod?: 'UPI_SIMULATED';
+  paymentMethod?: string;
   upiTransactionId?: string;
   createdAt: string;
   updatedAt: string;

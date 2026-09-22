@@ -9,7 +9,7 @@ import { InstitutionDashboard } from './pages/InstitutionDashboard';
 import { AgentPortal } from './pages/AgentPortal';
 import { AdminDashboard } from './pages/AdminDashboard';
 import { PublicLedgerExplorer } from './pages/PublicLedgerExplorer';
-import { Bell, CheckCircle2, ShieldCheck, X } from 'lucide-react';
+import { Bell, CheckCircle2, ShieldCheck, X, HeartHandshake, Building2, Truck, Lock, LogIn, UserPlus, ArrowRight } from 'lucide-react';
 
 export const App: React.FC = () => {
   const [personas, setPersonas] = useState<User[]>([]);
@@ -95,9 +95,10 @@ export const App: React.FC = () => {
         if (session && session.user) {
           setCurrentPersona(session.user);
           setIsAuthenticated(true);
-        } else if (list.length > 0 && !currentPersona) {
-          // Default to Ajith R (Donor) for quick role-switcher demo access
-          setCurrentPersona(list[0]);
+        } else {
+          // Unauthenticated guest: do not default to Ajith R
+          setCurrentPersona(null);
+          setIsAuthenticated(false);
         }
       } catch (err) {
         console.error('Failed to initialize CareTrace session:', err);
@@ -133,10 +134,8 @@ export const App: React.FC = () => {
       body: `Welcome, ${user.name} (${user.role.replace('_', ' ')})`
     });
 
-    // If an institution registered or logged in, navigate straight to operations portal
-    if (user.role === 'INSTITUTION' || user.role === 'ADMIN' || user.role === 'PICKUP_AGENT') {
-      setActiveNavTab('PORTAL');
-    }
+    // Navigate straight to Operations Portal for ALL roles, including new DONOR accounts
+    setActiveNavTab('PORTAL');
   };
 
   useEffect(() => {
@@ -177,12 +176,11 @@ export const App: React.FC = () => {
   const handleLogout = () => {
     clearAuthToken();
     setIsAuthenticated(false);
-    if (personas.length > 0) {
-      setCurrentPersona(personas[0]);
-    }
+    setCurrentPersona(null);
+    setPendingPledgeReq(null);
     handleSelectNavTab('PUBLIC_BOARD');
     setToastMessage({
-      title: 'Logged Out',
+      title: 'Signed Out',
       body: 'You are now viewing the public board as a guest.'
     });
   };
@@ -238,6 +236,7 @@ export const App: React.FC = () => {
         ) : activeNavTab === 'PUBLIC_BOARD' ? (
           <PublicRequestBoard
             currentUser={currentPersona}
+            isAuthenticated={isAuthenticated}
             refreshKey={refreshKey}
             onRequireAuth={(req) => {
               setPendingPledgeReq(req);
@@ -256,7 +255,12 @@ export const App: React.FC = () => {
             {currentPersona ? (
               <>
                 {currentPersona.role === 'DONOR' && (
-                  <DonorDashboard user={currentPersona} refreshKey={refreshKey} />
+                  <DonorDashboard
+                    user={currentPersona}
+                    refreshKey={refreshKey}
+                    initialPledgeReq={pendingPledgeReq}
+                    onClearPendingPledge={() => setPendingPledgeReq(null)}
+                  />
                 )}
                 {currentPersona.role === 'INSTITUTION' && (
                   <InstitutionDashboard user={currentPersona} refreshKey={refreshKey} />
@@ -269,8 +273,98 @@ export const App: React.FC = () => {
                 )}
               </>
             ) : (
-              <div className="flex items-center justify-center h-64">
-                <div className="animate-spin w-8 h-8 border-4 border-teal-700 border-t-transparent rounded-full" />
+              /* Portal Landing for Unauthenticated Guests */
+              <div className="max-w-4xl mx-auto py-8 sm:py-12 px-4 space-y-8 animate-fade-in">
+                <div className="text-center space-y-3">
+                  <div className="inline-flex items-center space-x-2 px-3.5 py-1.5 rounded-full bg-teal-50 text-teal-800 border border-teal-200 text-xs font-semibold">
+                    <ShieldCheck className="w-4 h-4 text-teal-700" />
+                    <span>CareTrace Operations Portal</span>
+                  </div>
+                  <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+                    Sign In or Select a Persona to Enter Portal
+                  </h1>
+                  <p className="text-sm text-slate-600 max-w-xl mx-auto">
+                    Sign in to your registered donor account, register a childcare sanctuary, or select any demo role below for 1-click evaluation.
+                  </p>
+                </div>
+
+                {/* Account Sign In & Registration Buttons */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-xl mx-auto">
+                  <button
+                    onClick={() => handleOpenAuth('DONOR_LOGIN')}
+                    className="flex items-center justify-between p-4 bg-teal-800 hover:bg-teal-900 text-white rounded-2xl shadow-md transition-all group"
+                  >
+                    <div className="flex items-center space-x-3 text-left">
+                      <div className="w-10 h-10 rounded-xl bg-white/15 flex items-center justify-center">
+                        <LogIn className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <p className="font-bold text-sm">Sign In</p>
+                        <p className="text-xs text-teal-100/80">Access your donor or NGO dashboard</p>
+                      </div>
+                    </div>
+                    <ArrowRight className="w-5 h-5 text-teal-300 group-hover:translate-x-1 transition-transform" />
+                  </button>
+
+                  <button
+                    onClick={() => handleOpenAuth('DONOR_REGISTER')}
+                    className="flex items-center justify-between p-4 bg-white hover:bg-slate-50 text-slate-900 border border-slate-200 rounded-2xl shadow-sm transition-all group"
+                  >
+                    <div className="flex items-center space-x-3 text-left">
+                      <div className="w-10 h-10 rounded-xl bg-teal-50 text-teal-700 flex items-center justify-center border border-teal-100">
+                        <UserPlus className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <p className="font-bold text-sm">Register as Donor</p>
+                        <p className="text-xs text-slate-500">Create new verified contributor account</p>
+                      </div>
+                    </div>
+                    <ArrowRight className="w-5 h-5 text-slate-400 group-hover:translate-x-1 transition-transform" />
+                  </button>
+                </div>
+
+                {/* 1-Tap Demo Personas Section */}
+                <div className="pt-6 border-t border-slate-200">
+                  <div className="flex items-center justify-between mb-4">
+                    <div>
+                      <h2 className="text-sm font-bold text-slate-900">Explore Instant Demo Personas</h2>
+                      <p className="text-xs text-slate-500">Inspect the portal from any stakeholder perspective without credentials</p>
+                    </div>
+                    <span className="text-[11px] font-semibold text-teal-700 bg-teal-50 px-2.5 py-1 rounded-full border border-teal-200">
+                      1-Tap Preview
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                    {personas.map((p) => (
+                      <button
+                        key={p.id}
+                        onClick={() => {
+                          setCurrentPersona(p);
+                        }}
+                        className="p-4 bg-white hover:bg-teal-50/50 border border-slate-200 hover:border-teal-300 rounded-2xl text-left transition-all shadow-xs group"
+                      >
+                        <div className="flex items-center justify-between mb-3">
+                          <div className="w-9 h-9 rounded-xl bg-slate-100 flex items-center justify-center text-slate-700 group-hover:bg-teal-100 group-hover:text-teal-800 transition-colors">
+                            {p.role === 'DONOR' && <HeartHandshake className="w-4 h-4" />}
+                            {p.role === 'INSTITUTION' && <Building2 className="w-4 h-4" />}
+                            {p.role === 'PICKUP_AGENT' && <Truck className="w-4 h-4" />}
+                            {p.role === 'ADMIN' && <Lock className="w-4 h-4" />}
+                          </div>
+                          <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-slate-100 text-slate-600">
+                            {p.role.replace('_', ' ')}
+                          </span>
+                        </div>
+                        <p className="font-bold text-sm text-slate-900 truncate">{p.name}</p>
+                        <p className="text-xs text-slate-500 truncate mt-0.5">{p.email}</p>
+                        <div className="mt-3 text-xs font-semibold text-teal-700 flex items-center space-x-1 group-hover:translate-x-0.5 transition-transform">
+                          <span>Enter as {p.name.split(' ')[0]}</span>
+                          <span>&rarr;</span>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                </div>
               </div>
             )}
           </>

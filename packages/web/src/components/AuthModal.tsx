@@ -516,10 +516,10 @@ export const AuthModal: React.FC<AuthModalProps> = ({
               className="p-2 rounded-xl bg-slate-50 hover:bg-emerald-50 hover:border-emerald-300 border border-slate-200 text-left transition-colors flex items-center space-x-2"
             >
               <div className="w-6 h-6 rounded-lg bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold text-[10px]">
-                LN
+                AK
               </div>
               <div className="truncate">
-                <p className="font-semibold text-slate-800 text-[11px]">Lakshmi N</p>
+                <p className="font-semibold text-slate-800 text-[11px]">Akash Kumar</p>
                 <p className="text-[10px] text-slate-500">Institution</p>
               </div>
             </button>

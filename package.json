@@ -12,6 +12,7 @@
     "build:web": "npm --workspace=packages/web run build",
     "prestart": "npm run build:shared && npm run build:backend",
     "start": "npm --workspace=packages/backend run start",
+    "dev": "concurrently -k -p \"[{name}]\" -n \"BACKEND,WEB\" -c \"cyan,magenta\" \"npm run dev:backend\" \"npm run dev:web\"",
     "dev:backend": "npm --workspace=packages/backend run dev",
     "dev:web": "npm --workspace=packages/web run dev",
     "dev:mobile": "npm --workspace=packages/mobile run start",

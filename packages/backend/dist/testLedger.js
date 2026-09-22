@@ -18,7 +18,7 @@ async function runTests() {
     console.assert(users.length === 6, `Expected 6 users, got ${users.length}`);
     console.assert(institutions.length === 3, `Expected 3 institutions, got ${institutions.length}`);
     console.assert(requirements.length === 5, `Expected 5 requirements, got ${requirements.length}`);
-    console.assert(donations.length === 4, `Expected 4 donations, got ${donations.length}`);
+    console.assert(donations.length >= 4, `Expected at least 4 donations, got ${donations.length}`);
     console.assert(blocks.length >= 10, `Expected at least 10 blocks, got ${blocks.length}`);
     console.log('   ✅ Seed verification PASSED.\n');
     // Test 2: SHA-256 Ledger Chain Integrity

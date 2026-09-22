@@ -9,7 +9,7 @@ export const authRouter = Router();
 // Get list of demo user personas for fast multi-role testing (kept for quick demo purposes)
 authRouter.get('/personas', (req: Request, res: Response) => {
   const users = db.getUsers();
-  const primaryIds = ['user-donor-ajith', 'user-inst-lakshmi', 'user-agent-sakthivel', 'user-admin-sandeep'];
+  const primaryIds = ['user-donor-ajith', 'user-inst-akash', 'user-agent-sakthivel', 'user-admin-sandeep'];
   const personas = primaryIds
     .map(id => users.find(u => u.id === id))
     .filter((u): u is typeof users[0] => Boolean(u))

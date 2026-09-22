@@ -9,7 +9,7 @@ exports.authRouter = (0, express_1.Router)();
 // Get list of demo user personas for fast multi-role testing (kept for quick demo purposes)
 exports.authRouter.get('/personas', (req, res) => {
     const users = database_1.db.getUsers();
-    const primaryIds = ['user-donor-ajith', 'user-inst-lakshmi', 'user-agent-sakthivel', 'user-admin-sandeep'];
+    const primaryIds = ['user-donor-ajith', 'user-inst-akash', 'user-agent-sakthivel', 'user-admin-sandeep'];
     const personas = primaryIds
         .map(id => users.find(u => u.id === id))
         .filter((u) => Boolean(u))

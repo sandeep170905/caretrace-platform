@@ -29,7 +29,7 @@ import {
 import { ChainOfCustodyTimeline } from '../components/ChainOfCustodyTimeline';
 import { LiveTransitMap } from '../components/LiveTransitMap';
 import { ProofOfDeliveryModal } from '../components/ProofOfDeliveryModal';
-import { SimulatedUpiModal } from '../components/SimulatedUpiModal';
+import { PledgeMonetaryModal } from '../components/PledgeMonetaryModal';
 import { TaxExemptionReceiptModal } from '../components/TaxExemptionReceiptModal';
 import { AnnouncementBanner } from '../components/AnnouncementBanner';
 import { DashboardSkeleton } from '../components/DashboardSkeleton';
@@ -37,9 +37,16 @@ import { DashboardSkeleton } from '../components/DashboardSkeleton';
 interface DonorDashboardProps {
   user: User;
   refreshKey?: number;
+  initialPledgeReq?: Requirement | null;
+  onClearPendingPledge?: () => void;
 }
 
-export const DonorDashboard: React.FC<DonorDashboardProps> = ({ user, refreshKey }) => {
+export const DonorDashboard: React.FC<DonorDashboardProps> = ({
+  user,
+  refreshKey,
+  initialPledgeReq,
+  onClearPendingPledge
+}) => {
   const [donations, setDonations] = useState<Donation[]>([]);
   const [selectedDonation, setSelectedDonation] = useState<any | null>(null);
   const [requirements, setRequirements] = useState<Requirement[]>([]);
@@ -50,7 +57,7 @@ export const DonorDashboard: React.FC<DonorDashboardProps> = ({ user, refreshKey
   // New Donation Modals State
   const [pledgeReq, setPledgeReq] = useState<Requirement | null>(null);
   const [pledgeQty, setPledgeQty] = useState<number>(20);
-  const [upiRequirement, setUpiRequirement] = useState<Requirement | null>(null);
+  const [monetaryRequirement, setMonetaryRequirement] = useState<Requirement | null>(null);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
   const loadData = async () => {
@@ -84,6 +91,16 @@ export const DonorDashboard: React.FC<DonorDashboardProps> = ({ user, refreshKey
     loadData();
   }, [user.id, refreshKey]);
 
+  useEffect(() => {
+    if (initialPledgeReq) {
+      setPledgeReq(initialPledgeReq);
+      setPledgeQty(Math.max(1, initialPledgeReq.targetQuantity - initialPledgeReq.fulfilledQuantity));
+      if (onClearPendingPledge) {
+        onClearPendingPledge();
+      }
+    }
+  }, [initialPledgeReq]);
+
   const handleSelectDonation = async (d: Donation) => {
     try {
       const detail = await fetchDonationDetail(d.id);
@@ -104,7 +121,7 @@ export const DonorDashboard: React.FC<DonorDashboardProps> = ({ user, refreshKey
   };
 
   const handlePaymentSuccess = async (receipt: TaxExemptionReceipt) => {
-    setUpiRequirement(null);
+    setMonetaryRequirement(null);
     setActiveReceipt(receipt);
     await loadData();
     const detail = await fetchDonationDetail(receipt.donationId);
@@ -447,7 +464,7 @@ export const DonorDashboard: React.FC<DonorDashboardProps> = ({ user, refreshKey
                           {formatIndianCurrency(monetaryAmount)}
                         </span>
                         <span className="text-[11px] text-teal-100/90 italic block mt-0.5">
-                          Direct Escrow Deposit via Simulated UPI
+                          Direct Monetary Contribution Settled
                         </span>
                       </div>
                       <div className="text-xs sm:text-right space-y-0.5 border-t sm:border-t-0 border-teal-700/60 pt-2 sm:pt-0">
@@ -457,7 +474,7 @@ export const DonorDashboard: React.FC<DonorDashboardProps> = ({ user, refreshKey
                           <span>Ledger Verified</span>
                         </span>
                         <p className="text-[10px] font-mono text-teal-200/80">
-                          Ref: {selectedDonation.donation.upiTransactionId || 'UPI-SETTLED'}
+                          Ref: {selectedDonation.donation.upiTransactionId || 'TXN-2026-CONFIRMED'}
                         </p>
                       </div>
                     </div>
@@ -614,12 +631,12 @@ export const DonorDashboard: React.FC<DonorDashboardProps> = ({ user, refreshKey
                   </div>
                   <div className="flex items-center space-x-1.5 shrink-0">
                     <button
-                      onClick={() => setUpiRequirement(req)}
+                      onClick={() => setMonetaryRequirement(req)}
                       className="px-2.5 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 rounded-xl text-xs font-semibold shadow-sm transition-colors flex items-center space-x-1"
-                      title="Donate Funds via Simulated UPI"
+                      title="Pledge Monetary Contribution"
                     >
                       <span className="font-bold">₹</span>
-                      <span>Donate UPI</span>
+                      <span>Contribute Funds</span>
                     </button>
                     <button
                       onClick={() => setPledgeReq(req)}
@@ -704,12 +721,12 @@ export const DonorDashboard: React.FC<DonorDashboardProps> = ({ user, refreshKey
         </div>
       )}
 
-      {/* Simulated UPI Payment Modal */}
-      {upiRequirement && (
-        <SimulatedUpiModal
+      {/* Monetary Contribution Pledge Modal */}
+      {monetaryRequirement && (
+        <PledgeMonetaryModal
           donorId={user.id}
-          requirement={upiRequirement}
-          onClose={() => setUpiRequirement(null)}
+          requirement={monetaryRequirement}
+          onClose={() => setMonetaryRequirement(null)}
           onSuccess={handlePaymentSuccess}
         />
       )}

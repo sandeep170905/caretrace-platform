@@ -80,7 +80,7 @@ export const AgentPortal: React.FC<AgentPortalProps> = ({ user, refreshKey }) =>
       } else {
         const targetDonation = donations.find(d => d.id === donationId);
         const INSTITUTION_DIRECTORS: Record<string, string> = {
-          'inst-karunai': 'Lakshmi Narayanan (Director)',
+          'inst-karunai': 'Akash Kumar (Director)',
           'inst-anbu': 'Sister V. Shanthi (Director)',
           'inst-nanban': 'K. Venkatesh (Director)'
         };

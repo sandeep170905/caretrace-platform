@@ -138,11 +138,7 @@ exports.donationRouter.post('/monetary', async (req, res) => {
     const randomSuffix = Math.floor(1000 + Math.random() * 9000);
     const donationId = `CT-2026-${randomSuffix}`;
     const receiptNumber = `REC-80G-2026-${Math.floor(10000 + Math.random() * 90000)}`;
-    const upiTransactionId = `UPI-TXN-DEMO-${Date.now().toString().slice(-8)}`;
-    const fictionalVpa = 'caretrace.demo@sandboxbank';
-    // Generate mock UPI payment URI & QR data URL
-    const upiUri = `upi://pay?pa=${fictionalVpa}&pn=${encodeURIComponent(institution.name)}&am=${parsedAmount}&cu=INR&tn=${encodeURIComponent(`Donation ${donationId}`)}`;
-    const qrDataUrl = await qrService_1.QRService.generateQRDataUrl(upiUri);
+    const transactionRef = `TXN-2026-${Math.floor(1000 + Math.random() * 9000)}`;
     const now = new Date().toISOString();
     // Monetary donation is instantly settled and confirmed
     const newDonation = {
@@ -164,31 +160,30 @@ exports.donationRouter.post('/monetary', async (req, res) => {
             }
         ],
         status: 'CONFIRMED',
-        pickupAddress: 'N/A (Direct Digital UPI Transfer)',
+        pickupAddress: 'N/A (Direct Monetary Contribution)',
         destinationAddress: `${institution.address}, ${institution.city}, ${institution.state}`,
         pickupCoordinates: { latitude: 13.0850, longitude: 80.2101 },
         destinationCoordinates: { latitude: institution.latitude, longitude: institution.longitude },
-        qrCodePayload: upiUri,
+        qrCodePayload: `CARETRACE:MONETARY:${donationId}:${transactionRef}`,
         monetaryAmountInr: parsedAmount,
         receiptNumber,
-        paymentMethod: 'UPI_SIMULATED',
-        upiTransactionId,
+        paymentMethod: 'Direct Monetary Contribution',
+        upiTransactionId: transactionRef,
         deliveryTimestamp: now,
-        confirmationNotes: paymentNote || `Simulated UPI donation of ₹${parsedAmount.toLocaleString('en-IN')} confirmed to ${institution.name} via ${fictionalVpa}.`,
+        confirmationNotes: paymentNote || `Monetary contribution of ₹${parsedAmount.toLocaleString('en-IN')} confirmed to ${institution.name} (Txn Ref: ${transactionRef}).`,
         createdAt: now,
         updatedAt: now
     };
     database_1.db.upsertDonation(newDonation);
     // Record MONETARY_DONATION_CONFIRMED on the Cryptographic Ledger
-    const ledgerBlock = ledgerService_1.LedgerService.recordCheckpoint(donationId, 'MONETARY_DONATION_CONFIRMED', { id: donor.id, role: 'DONOR', name: donor.name }, `Simulated UPI donation of ₹${parsedAmount.toLocaleString('en-IN')} confirmed for ${institution.name} (Receipt #${receiptNumber})`, {
+    const ledgerBlock = ledgerService_1.LedgerService.recordCheckpoint(donationId, 'MONETARY_DONATION_CONFIRMED', { id: donor.id, role: 'DONOR', name: donor.name }, `Monetary contribution of ₹${parsedAmount.toLocaleString('en-IN')} confirmed for ${institution.name} (Receipt #${receiptNumber})`, {
         amountInr: parsedAmount,
         donorId: donor.id,
         donorName: donor.name,
         institutionId: institution.id,
         institutionName: institution.name,
         receiptNumber,
-        upiTransactionId,
-        vpa: fictionalVpa
+        transactionRef
     });
     // Build Section 80G Digital Tax Exemption Receipt (Demo Sample)
     const receipt = {
@@ -205,8 +200,8 @@ exports.donationRouter.post('/monetary', async (req, res) => {
         institutionTaxId: institution.taxId,
         institutionAddress: `${institution.address}, ${institution.city}, ${institution.state} ${institution.postalCode}`,
         requirementTitle: requirement.title,
-        paymentMethod: 'Simulated UPI (Unified Payments Interface)',
-        upiTransactionId,
+        paymentMethod: 'Direct Monetary Contribution',
+        upiTransactionId: transactionRef,
         ledgerBlockHash: ledgerBlock.blockHash,
         ledgerBlockIndex: ledgerBlock.index,
         isDemoSample: true
@@ -231,8 +226,7 @@ exports.donationRouter.post('/monetary', async (req, res) => {
         donation: newDonation,
         ledgerBlock,
         receipt,
-        qrDataUrl,
-        fictionalVpa
+        transactionRef
     });
 });
 // Retrieve Section 80G Tax Exemption Receipt for any monetary donation
@@ -264,8 +258,8 @@ exports.donationRouter.get('/:id/receipt', (req, res) => {
         institutionTaxId: institution.taxId,
         institutionAddress: `${institution.address}, ${institution.city}, ${institution.state} ${institution.postalCode}`,
         requirementTitle: donation.requirementTitle,
-        paymentMethod: 'Simulated UPI (Unified Payments Interface)',
-        upiTransactionId: donation.upiTransactionId || `UPI-TXN-DEMO-${donation.id}`,
+        paymentMethod: donation.paymentMethod || 'Direct Monetary Contribution',
+        upiTransactionId: donation.upiTransactionId || `TXN-2026-${donation.id.replace(/\D/g, '')}`,
         ledgerBlockHash: monetaryBlock ? monetaryBlock.blockHash : (donation.ledgerBlockHash || '0'.repeat(64)),
         ledgerBlockIndex: monetaryBlock ? monetaryBlock.index : 0,
         isDemoSample: true

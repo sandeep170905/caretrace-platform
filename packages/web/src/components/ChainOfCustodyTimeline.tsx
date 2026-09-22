@@ -87,8 +87,8 @@ const MONETARY_STEPS: StepDefinition[] = [
   },
   {
     id: 'MONETARY_CONFIRMED',
-    title: 'Simulated UPI Settled',
-    subtitle: 'Direct digital fund settlement via sandbox VPA',
+    title: 'Direct Contribution Settled',
+    subtitle: 'Cryptographic monetary contribution recorded & allocated',
     eventType: 'MONETARY_DONATION_CONFIRMED',
     icon: HeartHandshake
   },
