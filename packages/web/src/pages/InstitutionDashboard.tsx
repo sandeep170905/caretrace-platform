@@ -720,9 +720,17 @@ export const InstitutionDashboard: React.FC<InstitutionDashboardProps> = ({ user
                     <span className="font-mono text-xs font-bold text-slate-900">{d.id}</span>
                     <span className="text-xs text-slate-600 font-semibold">{d.requirementTitle}</span>
                   </div>
-                  <p className="text-xs text-slate-500 mt-0.5">
-                    Delivered {formatRelativeTime(d.deliveryTimestamp || d.updatedAt, { includeTime: true })} • Signature: <span className="font-mono">{d.recipientSignature}</span>
-                  </p>
+                  <div className="flex flex-wrap items-center gap-2 mt-1">
+                    <span className="text-xs text-slate-500">
+                      Delivered {formatRelativeTime(d.deliveryTimestamp || d.updatedAt, { includeTime: true })}
+                    </span>
+                    <span className="text-slate-300">•</span>
+                    <span className="inline-flex items-center space-x-1.5 px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-800 border border-emerald-200 text-[11px]">
+                      <CheckCircle2 className="w-3 h-3 text-emerald-600 flex-shrink-0" />
+                      <span className="text-slate-500 text-[10px] font-sans">Digital Signature:</span>
+                      <span className="font-mono font-semibold text-[10px] tracking-tight">{d.recipientSignature}</span>
+                    </span>
+                  </div>
                 </div>
 
                 <button

@@ -207,6 +207,7 @@ export class LedgerService {
       deliveryConfirmedAt: donation.deliveryTimestamp || deliveryBlock.timestamp,
       pickupAgentName: donation.pickupAgentName || 'CareTrace Logistics Team',
       recipientRepresentative: donation.confirmationNotes?.split(' - ')[0] || 'Institution Director',
+      recipientSignature: donation.recipientSignature,
       genesisBlockHash: genesisBlock.blockHash,
       deliveryBlockHash: deliveryBlock.blockHash,
       chainLength: donationBlocks.length,

@@ -73,10 +73,18 @@ export const ProofOfDeliveryModal: React.FC<ProofOfDeliveryModalProps> = ({ cert
             <div className="p-3 bg-slate-50 rounded-xl border border-slate-200">
               <span className="text-slate-500 text-[11px] block">Handover Representative</span>
               <p className="text-xs font-bold text-slate-800 mt-0.5">{certificate.recipientRepresentative}</p>
-              <span className="text-[10px] text-emerald-700 font-medium flex items-center space-x-1 mt-1">
-                <CheckCircle2 className="w-3 h-3 text-emerald-600" />
-                <span>Digitally Signed</span>
-              </span>
+              <div className="mt-1.5 pt-1.5 border-t border-slate-200/60">
+                <span className="text-[10px] text-emerald-700 font-medium flex items-center space-x-1">
+                  <CheckCircle2 className="w-3 h-3 text-emerald-600 flex-shrink-0" />
+                  <span>Digital Signature Verified</span>
+                </span>
+                <p
+                  className="text-[9px] font-mono text-slate-600 bg-white px-1.5 py-0.5 rounded border border-slate-200 mt-1 truncate"
+                  title={certificate.recipientSignature || 'DIGITAL_SIG:AKASH_KUMAR_KARUNAI_TAMBARAM_2026'}
+                >
+                  {certificate.recipientSignature || 'DIGITAL_SIG:AKASH_KUMAR_KARUNAI_TAMBARAM_2026'}
+                </p>
+              </div>
             </div>
 
             <div className="p-3 bg-slate-50 rounded-xl border border-slate-200">

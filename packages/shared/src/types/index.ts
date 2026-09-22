@@ -216,6 +216,7 @@ export interface ProofOfDeliveryCertificate {
   deliveryConfirmedAt: string;
   pickupAgentName: string;
   recipientRepresentative: string;
+  recipientSignature?: string;
   genesisBlockHash: string;
   deliveryBlockHash: string;
   chainLength: number;
