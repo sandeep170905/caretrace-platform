@@ -18,6 +18,20 @@ services:
         generateValue: true
       - key: CORS_ORIGIN
         value: "*"
+      - key: DATABASE_URL
+        fromDatabase:
+          name: caretrace-db
+          property: connectionString
+
+databases:
+  # -------------------------------------------------------------
+  # CareTrace Managed PostgreSQL Database (Render Free Tier)
+  # NOTE: Render Free databases expire 30 days after creation.
+  # -------------------------------------------------------------
+  - name: caretrace-db
+    databaseName: caretrace
+    user: caretrace_user
+    plan: free
 
   # -------------------------------------------------------------
   # CareTrace Web Operations Portal & Public Needs Board

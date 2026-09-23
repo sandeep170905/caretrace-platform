@@ -109,21 +109,22 @@ async function runStageABVerification() {
     console.log(`   ✅ New Donor now has ${updatedNewDonorDonations.length} donation(s).`);
     console.log(`   ✅ Ajith R donations remain unchanged at ${updatedAjithDonations.length}.`);
     console.log('   ✅ Donation successfully attached to NEW donor account.\n');
-    // Test B1: Real Disk Persistence Verification
-    console.log('5️⃣ Testing Disk Persistence across Simulated Server Restarts (STAGE B)...');
-    const dbFilePath = path_1.default.join(__dirname, '../data/caretrace.db.json');
-    console.assert(fs_1.default.existsSync(dbFilePath), `❌ DB file does not exist at ${dbFilePath}`);
-    const rawJson = fs_1.default.readFileSync(dbFilePath, 'utf-8');
-    const parsedData = JSON.parse(rawJson);
-    const foundUserInDisk = parsedData.users.find((u) => u.id === newUser.id);
-    console.assert(foundUserInDisk !== undefined, '❌ New user was not written to caretrace.db.json on disk!');
-    console.assert(foundUserInDisk.email === testEmail, '❌ Disk user email mismatch');
-    const foundDonationInDisk = parsedData.donations.find((d) => d.id === newDonation.id);
-    console.assert(foundDonationInDisk !== undefined, '❌ New donation was not written to caretrace.db.json on disk!');
-    console.assert(foundDonationInDisk.donorId === newUser.id, '❌ Disk donation donorId mismatch');
-    console.log(`   ✅ Disk file found at: ${dbFilePath}`);
-    console.log(`   ✅ User ${newUser.id} verified in caretrace.db.json on disk.`);
-    console.log(`   ✅ Donation ${newDonation.id} verified in caretrace.db.json on disk.`);
+    // Test B1: Real SQL Database Persistence Verification
+    console.log('5️⃣ Testing Real SQL Database Persistence across Simulated Server Restarts (STAGE B)...');
+    const dbFilePath = path_1.default.join(__dirname, '../data/caretrace.sqlite');
+    console.assert(fs_1.default.existsSync(dbFilePath), `❌ SQLite DB file does not exist at ${dbFilePath}`);
+    const BetterSqlite3 = require('better-sqlite3');
+    const directSql = new BetterSqlite3(dbFilePath);
+    const foundUserInDisk = directSql.prepare('SELECT * FROM users WHERE id = ?').get(newUser.id);
+    console.assert(foundUserInDisk !== undefined, '❌ New user was not written to caretrace.sqlite on disk!');
+    console.assert(foundUserInDisk.email.toLowerCase() === testEmail.toLowerCase(), '❌ Disk user email mismatch');
+    const foundDonationInDisk = directSql.prepare('SELECT * FROM donations WHERE id = ?').get(newDonation.id);
+    console.assert(foundDonationInDisk !== undefined, '❌ New donation was not written to caretrace.sqlite on disk!');
+    console.assert(foundDonationInDisk.donor_id === newUser.id, '❌ Disk donation donorId mismatch');
+    directSql.close();
+    console.log(`   ✅ Real SQL database file verified at: ${dbFilePath}`);
+    console.log(`   ✅ User row for ${newUser.id} verified via SQL query SELECT FROM users.`);
+    console.log(`   ✅ Donation row for ${newDonation.id} verified via SQL query SELECT FROM donations.`);
     // Test B2: Re-instantiate Database from Disk (Simulating Server Restart)
     console.log('\n6️⃣ Simulating Full Backend Process Restart...');
     const restartedDb = new database_1.Database();

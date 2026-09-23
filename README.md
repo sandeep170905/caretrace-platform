@@ -31,7 +31,7 @@
                         │  - Real-time SSE Stream       │
                         │  - Cryptographic Hash Chain   │
                         │  - Transit & Telemetry Engine │
-                        │  - JSON File Database Store   │
+                        │  - Dual-Engine SQL Database   │
                         └───────────────────────────────┘
 ```
 
@@ -45,7 +45,7 @@
    - RESTful API endpoints on port `5000`.
    - Real-time Server-Sent Events (SSE) stream (`/api/events`) broadcasting live state transitions, telemetry updates, and tamper alarms.
    - Salted PBKDF2 password hashing (100,000 iterations) and HMAC-SHA256 JWT authorization tokens.
-   - Persistent zero-dependency file-based database (`caretrace.db.json`).
+   - Dual-Engine SQL Database (embedded SQLite for local development, PostgreSQL in production via Knex) and separate append-only cryptographic ledger.
 3. **`packages/web`**:
    - Responsive web dashboard on port `5173`.
    - **Public Needs Board**: Unauthenticated guest browsing of verified requirements with keyword, locality, and category filters.
@@ -60,6 +60,53 @@
 
 ---
 
+## 🗄️ Two-Part Data Architecture: Relational SQL Database + Cryptographic Ledger
+
+CareTrace employs an intentional **two-tier data architecture** designed for high auditability, non-repudiation, and reliable persistence:
+
+```
+┌───────────────────────────────────────────────────────────────────────────────┐
+│                           CareTrace Data Architecture                         │
+└───────────────────────────────────────────────────────────────────────────────┘
+          │                                                    │
+          ▼                                                    ▼
+┌───────────────────────────────────┐        ┌──────────────────────────────────┐
+│   Tier 1: Relational SQL Database │        │ Tier 2: Cryptographic Hash-Chain │
+│   (Mutable Application Entities)  │        │   (Immutable Checkpoint Ledger)  │
+├───────────────────────────────────┤        ├──────────────────────────────────┤
+│ • Users & Auth (PBKDF2 Hashes)    │        │ • Event-driven Checkpoints       │
+│ • Institutions & Accreditation    │        │ • Deterministic SHA-256 Hashes   │
+│ • Childcare Needs & Quantities    │        │ • Genesis-to-Head Parent Linking │
+│ • Consignments & Waybills         │        │ • Nonce & Merkle Payload Hashing │
+│ • Announcements & Risk Logs       │        │ • Tamper-Evident Math Validation │
+│ • Dialect-Agnostic Knex.js Engine │        │ • Intentionally NOT a CRUD Table │
+│                                   │        │                                  │
+│ Engine Modes:                     │        │ Backing Store:                   │
+│ - Local / Testing: SQLite file    │        │ - caretrace.ledger.json          │
+│ - Cloud / Render: PostgreSQL pool │        │ - Verified via /api/ledger/verify│
+└───────────────────────────────────┘        └──────────────────────────────────┘
+```
+
+### Part 1: Relational Application Database (SQL)
+- **Purpose**: Stores all mutable application entities where relational constraints (foreign keys, unique email constraints, status updates) and ACID transactional guarantees are required.
+- **Unified Query Layer**: Driven by **Knex.js** with zero SQL dialect divergence between development and production.
+  - **Local Development & Testing**: Powered by an embedded **SQLite** database (`packages/backend/data/caretrace.sqlite`) via `better-sqlite3`. Zero configuration, 100% offline, fully persistent across cold restarts.
+  - **Cloud Production (Render)**: Automatically switches to **PostgreSQL** when `DATABASE_URL` is set in the environment.
+- **Tables**: `users`, `institutions`, `requirements`, `donations`, `announcements`, `risk_audit_logs`, `transit_telemetry`.
+
+> [!WARNING]
+> **Render Free PostgreSQL 30-Day Expiration Policy**:  
+> Render's free managed PostgreSQL instances automatically expire and are decommissioned **30 days after creation** unless upgraded or recreated. If your deployment needs to remain active beyond 30 days, re-create the database instance in your Render dashboard or link an external persistent PostgreSQL URL (e.g. Neon, Supabase).
+
+### Part 2: Cryptographic Hash-Chain Ledger (Immutable)
+- **Purpose**: Provides verifiable, tamper-evident non-repudiation for donation matching, courier pickup, and sanctuary delivery handovers.
+- **Why it is NOT an Editable Database Table**: Standard database tables allow `UPDATE` and `DELETE` operations by database administrators. For an audit ledger, allowing arbitrary edits would destroy audit integrity. Instead, CareTrace models the ledger as an **append-only hash chain**:
+  - Every block embeds the exact SHA-256 hash of the previous block (`previousHash`), a payload Merkle hash, actor digital attribution, and a block index.
+  - If any historical record is maliciously modified directly on disk, the SHA-256 chain links break, and `/api/ledger/verify` detects tampering in sub-milliseconds.
+- **Isolation**: The ledger verification service (`LedgerService`, `computeBlockHash`, `verifyChain`, `/api/ledger/verify`) operates completely independently from the SQL application database.
+
+---
+
 ## 🔑 Demo Personas & Credentials
 
 ### Pre-Seeded Accounts
@@ -68,9 +115,9 @@
 |---|---|---|---|---|
 | **Admin / Compliance** | Sandeep R | `sandeep@caretrace.org` | `caretrace123` | Institution accreditation, risk logs, courier dispatch |
 | **Donor (Primary)** | Ajith R | `ajith@caretrace.org` | `caretrace123` | Pledging donations, tracking active consignments |
-| **Institution Director** | Lakshmi Narayanan | `director@karunaikarangal.org` | `caretrace123` | Karunai Karangal Sanctuary; requirement management, delivery handover |
+| **Institution Director** | Akash Kumar | `director@karunaikarangal.org` | `caretrace123` | Karunai Karangal Sanctuary; requirement management, delivery handover |
 | **Pickup Agent** | Sakthivel S | `agent.sakthivel@caretrace.org` | `caretrace123` | Chennai field courier; QR pickup scan, transport manifest |
-| **Donor (Directory)** | Akash Kumar G | `akash@caretrace.org` | `caretrace123` | Historical donor directory & past medical kit donation |
+| **Donor (Directory)** | Sanjay Verma | `sanjay@caretrace.org` | `caretrace123` | Historical donor directory & past medical kit donation |
 | **Donor (Directory)** | Karthik V | `karthik@caretrace.org` | `caretrace123` | Historical donor directory & past rice grain donation |
 
 > [!NOTE]  
@@ -204,7 +251,7 @@ Follow this 5-minute walkthrough scenario during project evaluation:
 2. View the **Live Transit Map**: watch the delivery vehicle proceed along the GST Road corridor with real-time ETA and speed telemetry.
 
 ### Step 6: Sanctuary Handover & Cryptographic Proof
-1. Switch role to **Lakshmi Narayanan (Institution Director)**.
+1. Switch role to **Akash Kumar (Institution Director)**.
 2. In the Incoming Deliveries section, click **"Confirm Delivery Handover"**.
 3. Enter recipient name and signature.
 4. Status updates to `CONFIRMED`.

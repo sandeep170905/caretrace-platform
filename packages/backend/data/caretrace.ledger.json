@@ -1,0 +1,222 @@
+[
+  {
+    "index": 0,
+    "timestamp": "2026-09-23T05:46:36.818Z",
+    "donationId": "CT-2026-8801",
+    "eventType": "DONATION_MATCHED",
+    "actorId": "user-donor-ajith",
+    "actorRole": "DONOR",
+    "actorName": "Ajith R",
+    "details": "Ajith R pledged 80 cotton bedsheets & mosquito net sets to Karunai Karangal Foster Sanctuary.",
+    "payloadHash": "6e3edffa8f3edeb81fcbf8f02651a937d2b8e0a3bb4ae3036846ea3b0d978f90",
+    "previousHash": "0000000000000000000000000000000000000000000000000000000000000000",
+    "blockHash": "edb3cdfde10da91825782e4aae25f9474fa33b2481dd520b13f5725db722b24b",
+    "nonce": 0,
+    "payload": {
+      "itemsCount": 80,
+      "donor": "Ajith R",
+      "totalValueInr": 50000
+    }
+  },
+  {
+    "index": 1,
+    "timestamp": "2026-09-23T05:46:36.819Z",
+    "donationId": "CT-2026-8801",
+    "eventType": "PICKUP_VERIFIED",
+    "actorId": "user-agent-sakthivel",
+    "actorRole": "PICKUP_AGENT",
+    "actorName": "Sakthivel S",
+    "details": "Pickup verified and sealed at Anna Nagar West logistics hub by Courier Sakthivel S.",
+    "payloadHash": "cb92102ac6b6de23bb05f30af5884f0b9c2e7f594aa083f88081f886d51d613b",
+    "previousHash": "edb3cdfde10da91825782e4aae25f9474fa33b2481dd520b13f5725db722b24b",
+    "blockHash": "1f1953c06015e30cefdd54ba3f199e6ffb93c209568a5c0233595a057abd9d1e",
+    "nonce": 0,
+    "payload": {
+      "agent": "Sakthivel S",
+      "pickupPoint": "Anna Nagar West Logistics Hub, 2nd Avenue, Anna Nagar, Chennai 600040"
+    }
+  },
+  {
+    "index": 2,
+    "timestamp": "2026-09-23T05:46:36.821Z",
+    "donationId": "CT-2026-8801",
+    "eventType": "IN_TRANSIT_CHECKPOINT",
+    "actorId": "system-iot",
+    "actorRole": "SYSTEM",
+    "actorName": "CareTrace Route Telemetry Engine",
+    "details": "In transit corridor verified. Crossing Guindy / Kathipara flyover towards Tambaram corridor.",
+    "payloadHash": "6eac906ad3f244ecde5f2366eb8abc1f5aaf0083e8d70270482b11ad7e58075b",
+    "previousHash": "1f1953c06015e30cefdd54ba3f199e6ffb93c209568a5c0233595a057abd9d1e",
+    "blockHash": "728a830ed204e7dd232e5645883737b413be806b18c512d0db8680c59b893cf1",
+    "nonce": 0,
+    "payload": {
+      "speedKmh": 46,
+      "progress": "65%"
+    }
+  },
+  {
+    "index": 3,
+    "timestamp": "2026-09-23T05:46:36.822Z",
+    "donationId": "CT-2026-8801",
+    "eventType": "DELIVERY_CONFIRMED",
+    "actorId": "user-inst-akash",
+    "actorRole": "INSTITUTION",
+    "actorName": "Akash Kumar",
+    "details": "Consignment received and authenticated via delivery QR scan by Akash Kumar (Director, Karunai Karangal). Attached handover photo evidence sealed on-chain.",
+    "payloadHash": "a272dd3792fbc8d602777e9bd8366c39c4d6aa17a8e9682d27378e31e897bbe1",
+    "previousHash": "728a830ed204e7dd232e5645883737b413be806b18c512d0db8680c59b893cf1",
+    "blockHash": "cf034b4940fb283583b05978e355c339177f01c56c0e272f3ee0f5fcc55717e3",
+    "nonce": 0,
+    "payload": {
+      "signature": "DIGITAL_SIG:AKASH_KUMAR_KARUNAI_TAMBARAM_2026",
+      "notes": "Akash Kumar (Director) - Received 80 pristine bedsheet and net sets. Inspected and distributed to dormitories.",
+      "hasPhotoProof": true,
+      "photoAttached": true
+    }
+  },
+  {
+    "index": 4,
+    "timestamp": "2026-09-23T05:46:36.824Z",
+    "donationId": "CT-2026-9042",
+    "eventType": "DONATION_MATCHED",
+    "actorId": "user-donor-ajith",
+    "actorRole": "DONOR",
+    "actorName": "Ajith R",
+    "details": "Ajith R pledged 30 stitched school uniform & notebook sets to Karunai Karangal Sanctuary.",
+    "payloadHash": "e14915f2d514e3beb3f8eef1855fd3d75d639e8b86edcb29d2a5a9570f6242bd",
+    "previousHash": "cf034b4940fb283583b05978e355c339177f01c56c0e272f3ee0f5fcc55717e3",
+    "blockHash": "30fb45a60f41a6b0844919df8118bc0c6fc27da1edc23d08e442939f4cd3079d",
+    "nonce": 0,
+    "payload": {
+      "itemsCount": 30,
+      "totalValueInr": 35000
+    }
+  },
+  {
+    "index": 5,
+    "timestamp": "2026-09-23T05:46:36.825Z",
+    "donationId": "CT-2026-9042",
+    "eventType": "PICKUP_VERIFIED",
+    "actorId": "user-agent-sakthivel",
+    "actorRole": "PICKUP_AGENT",
+    "actorName": "Sakthivel S",
+    "details": "Pickup verified and scanned by Sakthivel S at T. Nagar Wholesale Hub. Consignment en route via GST Road.",
+    "payloadHash": "259eaacb85869d7b22bc2596130ab87532cdc625bf84b6e2d488de6e663c005e",
+    "previousHash": "30fb45a60f41a6b0844919df8118bc0c6fc27da1edc23d08e442939f4cd3079d",
+    "blockHash": "b3595420debfa5e537cd5b87ed4b0a697f4ef389104c65692c6936f4ba43f23d",
+    "nonce": 0,
+    "payload": {
+      "agent": "Sakthivel S"
+    }
+  },
+  {
+    "index": 6,
+    "timestamp": "2026-09-23T05:46:36.827Z",
+    "donationId": "CT-2026-8712",
+    "eventType": "DONATION_MATCHED",
+    "actorId": "user-donor-sanjay",
+    "actorRole": "DONOR",
+    "actorName": "Sanjay Verma",
+    "details": "Sanjay Verma matched 20 medical kits to Anbu Illam Sanctuary.",
+    "payloadHash": "622a28374aa9348ba1e65fd853f9141cc73905f290ddeba3dfa13d7b4273241e",
+    "previousHash": "b3595420debfa5e537cd5b87ed4b0a697f4ef389104c65692c6936f4ba43f23d",
+    "blockHash": "c38ae5d9429d0de565ba7755778cacd432ae60bfcf5548cda077c6f69f01c80d",
+    "nonce": 0,
+    "payload": {
+      "itemsCount": 20,
+      "totalValueInr": 16000
+    }
+  },
+  {
+    "index": 7,
+    "timestamp": "2026-09-23T05:46:36.828Z",
+    "donationId": "CT-2026-8712",
+    "eventType": "DELIVERY_CONFIRMED",
+    "actorId": "user-inst-shanthi",
+    "actorRole": "INSTITUTION",
+    "actorName": "Sister V. Shanthi (Director)",
+    "details": "Delivery verified by Director Sister V. Shanthi at Ambattur facility.",
+    "payloadHash": "7fae80e70d2d6f7b4e70d7fc7fea06c96eab6be8b5c4563d3102f9677a53c57e",
+    "previousHash": "c38ae5d9429d0de565ba7755778cacd432ae60bfcf5548cda077c6f69f01c80d",
+    "blockHash": "05fde8c678189db579e9709778d9f5c6ba8ec33dde91b81e4d981f1289f73891",
+    "nonce": 0,
+    "payload": {
+      "signature": "DIGITAL_SIG:SISTER_SHANTHI_ANBU_CARE_2026"
+    }
+  },
+  {
+    "index": 8,
+    "timestamp": "2026-09-23T05:46:36.829Z",
+    "donationId": "CT-2026-8650",
+    "eventType": "DONATION_MATCHED",
+    "actorId": "user-donor-karthik",
+    "actorRole": "DONOR",
+    "actorName": "Karthik V",
+    "details": "Karthik V matched 30 rice bags to Anbu Illam kitchen.",
+    "payloadHash": "5b90bcf2e34284ad46baef841f1bf6718eae35da8bde13ac48b3e41e601b985f",
+    "previousHash": "05fde8c678189db579e9709778d9f5c6ba8ec33dde91b81e4d981f1289f73891",
+    "blockHash": "7e370c6f037af7d34a917ba0983d0d9e67dc128ad81447336ed7b4ce86c0a871",
+    "nonce": 0,
+    "payload": {
+      "itemsCount": 30,
+      "totalValueInr": 45000
+    }
+  },
+  {
+    "index": 9,
+    "timestamp": "2026-09-23T05:46:36.830Z",
+    "donationId": "CT-2026-8650",
+    "eventType": "DELIVERY_CONFIRMED",
+    "actorId": "user-inst-shanthi",
+    "actorRole": "INSTITUTION",
+    "actorName": "Sister V. Shanthi (Director)",
+    "details": "Rice sacks verified by Director Sister V. Shanthi at Ambattur facility.",
+    "payloadHash": "7fae80e70d2d6f7b4e70d7fc7fea06c96eab6be8b5c4563d3102f9677a53c57e",
+    "previousHash": "7e370c6f037af7d34a917ba0983d0d9e67dc128ad81447336ed7b4ce86c0a871",
+    "blockHash": "054ad080518663f34f02c610c9ec86856a8bc5a2a3f819e9b606946d38885c3f",
+    "nonce": 0,
+    "payload": {
+      "signature": "DIGITAL_SIG:SISTER_SHANTHI_ANBU_CARE_2026"
+    }
+  },
+  {
+    "index": 10,
+    "timestamp": "2026-09-23T05:46:36.832Z",
+    "donationId": "CT-2026-5607",
+    "eventType": "DONATION_MATCHED",
+    "actorId": "user-donor-ajith",
+    "actorRole": "DONOR",
+    "actorName": "Ajith R",
+    "details": "Ajith R initiated monetary contribution of ₹1,00,000 for School Uniform Sets & Academic Notebook Stationery Bundles.",
+    "payloadHash": "23be38354fab83848bcec49abff0bb95643e73718b0a2a9527f94468db05f869",
+    "previousHash": "054ad080518663f34f02c610c9ec86856a8bc5a2a3f819e9b606946d38885c3f",
+    "blockHash": "edc41e75c5229985e1c7455bdedd403e37f7b6e27f6240ded3f0b53ab4e3161f",
+    "nonce": 0,
+    "payload": {
+      "amountInr": 100000,
+      "institution": "Karunai Karangal Foster Sanctuary",
+      "type": "FUNDS"
+    }
+  },
+  {
+    "index": 11,
+    "timestamp": "2026-09-23T05:46:36.832Z",
+    "donationId": "CT-2026-5607",
+    "eventType": "MONETARY_DONATION_CONFIRMED",
+    "actorId": "user-donor-ajith",
+    "actorRole": "DONOR",
+    "actorName": "Ajith R",
+    "details": "Direct monetary contribution confirmed: ₹1,00,000 to Karunai Karangal Foster Sanctuary. 80G Tax Exemption Receipt REC-80G-2026-5607 generated (Txn Ref: TXN-2026-5607).",
+    "payloadHash": "8627331599e3daf8d30a5f6047aaf5a042a2e93f8b2327e762c2d27a9a2139f9",
+    "previousHash": "edc41e75c5229985e1c7455bdedd403e37f7b6e27f6240ded3f0b53ab4e3161f",
+    "blockHash": "95fa751d7dd33323919315a6d7250909293cfd6c2f088f1a4c40d44b0dcd930d",
+    "nonce": 0,
+    "payload": {
+      "amountInr": 100000,
+      "donorId": "user-donor-ajith",
+      "institutionId": "inst-karunai",
+      "receiptNumber": "REC-80G-2026-5607",
+      "transactionRef": "TXN-2026-5607"
+    }
+  }
+]

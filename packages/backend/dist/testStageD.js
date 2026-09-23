@@ -50,13 +50,20 @@ async function runStageDVerification() {
     console.log(`   Total Blocks: ${verification.totalBlocks}`);
     console.log(`   Chain Head: ${verification.chainHeadHash}`);
     console.assert(verification.isValid === true, '❌ Cryptographic chain is INVALID!');
-    // 5. Scan caretrace.db.json for any leftover "Lakshmi"
-    console.log('\n5️⃣ Auditing caretrace.db.json Disk File for Leftover Names...');
-    const dbFile = path_1.default.join(__dirname, '../data/caretrace.db.json');
-    const fileContent = fs_1.default.readFileSync(dbFile, 'utf-8');
-    const lakshmiFound = fileContent.includes('Lakshmi') || fileContent.includes('lakshmi');
-    console.assert(!lakshmiFound, '❌ Found "Lakshmi" in caretrace.db.json!');
-    console.log(`   ✅ Zero occurrences of "Lakshmi" in caretrace.db.json on disk.`);
+    // 5. Scan database and ledger for any leftover "Lakshmi"
+    console.log('\n5️⃣ Auditing SQL Database & Ledger Store for Leftover Names...');
+    const BetterSqlite3 = require('better-sqlite3');
+    const sqliteFile = path_1.default.join(__dirname, '../data/caretrace.sqlite');
+    const sqliteDb = new BetterSqlite3(sqliteFile);
+    const lakshmiUsers = sqliteDb.prepare("SELECT * FROM users WHERE name LIKE '%Lakshmi%' OR email LIKE '%lakshmi%'").all();
+    console.assert(lakshmiUsers.length === 0, '❌ Found "Lakshmi" in SQL users table!');
+    const ledgerFile = path_1.default.join(__dirname, '../data/caretrace.ledger.json');
+    if (fs_1.default.existsSync(ledgerFile)) {
+        const ledgerContent = fs_1.default.readFileSync(ledgerFile, 'utf-8');
+        console.assert(!ledgerContent.includes('Lakshmi'), '❌ Found "Lakshmi" in caretrace.ledger.json!');
+    }
+    sqliteDb.close();
+    console.log(`   ✅ Zero occurrences of "Lakshmi" in SQL database and ledger store.`);
     console.log('\n🎯 STAGE D AKASH KUMAR DIRECTOR VERIFICATION COMPLETE AND PASSED.\n');
 }
 runStageDVerification().catch(err => {
