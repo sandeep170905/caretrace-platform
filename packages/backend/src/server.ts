@@ -53,10 +53,6 @@ app.use(cors({
 app.options('*', cors());
 app.use(express.json());
 
-// Initialize database with seed data if fresh
-if (db.getUsers().length === 0) {
-  runSeed();
-}
 
 // Root health check (prevents 404 on direct browser hits)
 app.get('/', (req: Request, res: Response) => {
@@ -129,10 +125,26 @@ app.use('/api/transit', transitRouter);
 app.use('/api/ledger', ledgerRouter);
 app.use('/api/admin', adminRouter);
 
-app.listen(PORT, () => {
-  console.log(`🚀 CareTrace API Server running at http://localhost:${PORT}`);
-  console.log(`   - REST API: http://localhost:${PORT}/api`);
-  console.log(`   - SSE Stream: http://localhost:${PORT}/api/events`);
+async function startServer() {
+  // Await database initialization (PostgreSQL schema check & sync if configured)
+  await db.init();
+
+  // Initialize database with seed data if fresh
+  if (db.getUsers().length === 0) {
+    runSeed();
+  }
+
+  app.listen(PORT, () => {
+    console.log(`🚀 CareTrace API Server running at http://localhost:${PORT}`);
+    console.log(`   - Database Engine: ${db.getEngine()}`);
+    console.log(`   - REST API: http://localhost:${PORT}/api`);
+    console.log(`   - SSE Stream: http://localhost:${PORT}/api/events`);
+  });
+}
+
+startServer().catch((err) => {
+  console.error('❌ Fatal error during server startup:', err);
+  process.exit(1);
 });
 
 export default app;

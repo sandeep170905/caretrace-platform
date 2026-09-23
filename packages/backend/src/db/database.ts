@@ -220,6 +220,14 @@ export class Database {
     `);
   }
 
+  private initPromise?: Promise<void>;
+
+  public async init(): Promise<void> {
+    if (this.isPostgres && this.initPromise) {
+      await this.initPromise;
+    }
+  }
+
   // -------------------------------------------------------------
   // Engine Initialization: PostgreSQL (Cloud / Render Production)
   // -------------------------------------------------------------
@@ -228,20 +236,21 @@ export class Database {
       client: 'pg',
       connection: {
         connectionString: process.env.DATABASE_URL,
-        ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : undefined
+        ssl: { rejectUnauthorized: false }
       },
       pool: { min: 2, max: 10 }
     });
 
     // Run schema migrations and load initial data into memory
-    initSqlSchema(this.pgKnex)
-      .then(async () => {
+    this.initPromise = (async () => {
+      try {
+        await initSqlSchema(this.pgKnex!);
         console.log('✅ PostgreSQL schema verified & synchronized.');
         await this.syncFromPostgres();
-      })
-      .catch((err) => {
+      } catch (err) {
         console.error('❌ Failed to initialize PostgreSQL schema:', err);
-      });
+      }
+    })();
   }
 
   private async syncFromPostgres() {

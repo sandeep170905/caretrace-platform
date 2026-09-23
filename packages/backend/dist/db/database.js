@@ -181,6 +181,12 @@ class Database {
       );
     `);
     }
+    initPromise;
+    async init() {
+        if (this.isPostgres && this.initPromise) {
+            await this.initPromise;
+        }
+    }
     // -------------------------------------------------------------
     // Engine Initialization: PostgreSQL (Cloud / Render Production)
     // -------------------------------------------------------------
@@ -189,19 +195,21 @@ class Database {
             client: 'pg',
             connection: {
                 connectionString: process.env.DATABASE_URL,
-                ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : undefined
+                ssl: { rejectUnauthorized: false }
             },
             pool: { min: 2, max: 10 }
         });
         // Run schema migrations and load initial data into memory
-        (0, sqlSchema_1.initSqlSchema)(this.pgKnex)
-            .then(async () => {
-            console.log('✅ PostgreSQL schema verified & synchronized.');
-            await this.syncFromPostgres();
-        })
-            .catch((err) => {
-            console.error('❌ Failed to initialize PostgreSQL schema:', err);
-        });
+        this.initPromise = (async () => {
+            try {
+                await (0, sqlSchema_1.initSqlSchema)(this.pgKnex);
+                console.log('✅ PostgreSQL schema verified & synchronized.');
+                await this.syncFromPostgres();
+            }
+            catch (err) {
+                console.error('❌ Failed to initialize PostgreSQL schema:', err);
+            }
+        })();
     }
     async syncFromPostgres() {
         if (!this.pgKnex)
