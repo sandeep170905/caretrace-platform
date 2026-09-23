@@ -108,8 +108,8 @@ app.get('/api/announcements', (req: Request, res: Response) => {
 });
 
 // Re-seed endpoint for easy live demo resets
-app.post('/api/seed/reset', (req: Request, res: Response) => {
-  runSeed();
+app.post('/api/seed/reset', async (req: Request, res: Response) => {
+  await runSeed();
   NotificationService.broadcast('DATABASE_RESEEDED', { timestamp: new Date().toISOString() });
   res.json({ success: true, message: 'CareTrace database re-seeded to pristine demo state.' });
 });
@@ -131,7 +131,7 @@ async function startServer() {
 
   // Initialize database with seed data if fresh
   if (db.getUsers().length === 0) {
-    runSeed();
+    await runSeed();
   }
 
   app.listen(PORT, () => {

@@ -9,7 +9,7 @@ async function runTests() {
     console.log('🧪 Starting CareTrace Backend Automated Verification...\n');
     // Test 1: Run Seed
     console.log('1️⃣ Testing Database Seeder...');
-    (0, seed_1.runSeed)();
+    await (0, seed_1.runSeed)();
     const users = database_1.db.getUsers();
     const institutions = database_1.db.getInstitutions();
     const requirements = database_1.db.getRequirements();
@@ -56,7 +56,7 @@ async function runTests() {
     console.assert(tamperedVerify.corruptedBlockIndex === 1, 'Expected corruption detected at block #1');
     console.log('   ✅ Tamper-evident ledger defense PASSED: Malicious modification detected instantly.\n');
     // Restore pristine database
-    (0, seed_1.runSeed)();
+    await (0, seed_1.runSeed)();
     const restoredVerify = ledgerService_1.LedgerService.verifyChain();
     console.assert(restoredVerify.isValid === true, 'Expected valid chain after restore');
     console.log('   ✅ Database restored to valid state.\n');

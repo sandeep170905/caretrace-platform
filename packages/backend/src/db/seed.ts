@@ -11,9 +11,9 @@ import { QRService } from '../services/qrService';
 import { TransitService } from '../services/transitService';
 import { AuthService } from '../services/authService';
 
-export function runSeed() {
+export async function runSeed(): Promise<void> {
   console.log('🌱 Seeding CareTrace India/Chennai-localized demo dataset...');
-  db.reset();
+  await db.reset();
 
   const demoPasswordHash = AuthService.hashPassword('caretrace123');
 
@@ -84,12 +84,12 @@ export function runSeed() {
     passwordHash: demoPasswordHash
   };
 
-  db.upsertUser(donorUser);
-  db.upsertUser(donorSanjay);
-  db.upsertUser(donorKarthik);
-  db.upsertUser(institutionDirector);
-  db.upsertUser(pickupAgent);
-  db.upsertUser(adminUser);
+  await db.upsertUser(donorUser);
+  await db.upsertUser(donorSanjay);
+  await db.upsertUser(donorKarthik);
+  await db.upsertUser(institutionDirector);
+  await db.upsertUser(pickupAgent);
+  await db.upsertUser(adminUser);
 
   // 2. Institutions (Chennai-area, plausible fictional child shelters)
   const anbuIllam: Institution = {
@@ -158,9 +158,9 @@ export function runSeed() {
     website: 'https://nanbanyouthshelter.org'
   };
 
-  db.upsertInstitution(anbuIllam);
-  db.upsertInstitution(karunaiKarangal);
-  db.upsertInstitution(nanbanShelter);
+  await db.upsertInstitution(anbuIllam);
+  await db.upsertInstitution(karunaiKarangal);
+  await db.upsertInstitution(nanbanShelter);
 
   // 3. Localized Requirements (Chennai Climate & Common Necessities)
   const req1: Requirement = {
@@ -300,14 +300,16 @@ export function runSeed() {
     updatedAt: '2026-02-14T12:00:00.000Z'
   };
 
-  db.upsertRequirement(req1);
-  db.upsertRequirement(req2);
-  db.upsertRequirement(req3);
-  db.upsertRequirement(req4);
-  db.upsertRequirement(req5Flagged);
+  await db.upsertRequirement(req1);
+  await db.upsertRequirement(req2);
+  await db.upsertRequirement(req3);
+  await db.upsertRequirement(req4);
+  await db.upsertRequirement(req5Flagged);
 
   // Add risk flags to audit logs table
-  req5Flagged.riskFlags.forEach(flag => db.addRiskAuditLog(flag));
+  for (const flag of req5Flagged.riskFlags) {
+    await db.addRiskAuditLog(flag);
+  }
 
   // 4. Pre-seeded Fully Completed Donation (CT-2026-8801) with full 4-block Ledger Trail
   const donationDeliveredId = 'CT-2026-8801';
@@ -345,7 +347,7 @@ export function runSeed() {
     updatedAt: '2026-02-02T14:45:00.000Z'
   };
 
-  db.upsertDonation(donationDelivered);
+  await db.upsertDonation(donationDelivered);
 
   // Mine the 4 SHA-256 Ledger Blocks for CT-2026-8801
   LedgerService.recordCheckpoint(
@@ -416,7 +418,7 @@ export function runSeed() {
     updatedAt: new Date().toISOString()
   };
 
-  db.upsertDonation(donationActive);
+  await db.upsertDonation(donationActive);
 
   // Mine Blocks for CT-2026-9042
   LedgerService.recordCheckpoint(
@@ -436,7 +438,7 @@ export function runSeed() {
   );
 
   // Set active telemetry
-  db.upsertTransitTelemetry({
+  await db.upsertTransitTelemetry({
     donationId: donationActiveId,
     latitude: 12.9840,
     longitude: 80.1780,
@@ -479,7 +481,7 @@ export function runSeed() {
     createdAt: '2026-02-07T11:00:00.000Z',
     updatedAt: '2026-02-08T13:15:00.000Z'
   };
-  db.upsertDonation(donationSanjay);
+  await db.upsertDonation(donationSanjay);
 
   LedgerService.recordCheckpoint(
     donationSanjayId,
@@ -527,7 +529,7 @@ export function runSeed() {
     createdAt: '2026-02-03T16:00:00.000Z',
     updatedAt: '2026-02-04T12:30:00.000Z'
   };
-  db.upsertDonation(donationKarthik);
+  await db.upsertDonation(donationKarthik);
 
   LedgerService.recordCheckpoint(
     donationKarthikId,
@@ -577,7 +579,7 @@ export function runSeed() {
     createdAt: '2026-02-15T11:30:00.000Z',
     updatedAt: '2026-02-15T11:30:00.000Z'
   };
-  db.upsertDonation(monetaryDonation);
+  await db.upsertDonation(monetaryDonation);
 
   LedgerService.recordCheckpoint(
     monetaryDonationId,
@@ -611,7 +613,7 @@ export function runSeed() {
     active: true,
     createdBy: 'Sandeep R (Platform Admin)'
   };
-  db.upsertAnnouncement(seedAnnouncement);
+  await db.upsertAnnouncement(seedAnnouncement);
 
   console.log('✅ Chennai localized database seeded successfully with:');
   console.log(`   - 6 Users: Ajith R (Donor), Akash Kumar (Director), Sakthivel S (Agent), Sandeep R (Admin), Sanjay Verma (Donor), Karthik V (Donor)`);
@@ -623,5 +625,5 @@ export function runSeed() {
 
 // Run if called directly
 if (require.main === module) {
-  runSeed();
+  runSeed().catch(console.error);
 }

@@ -127,10 +127,20 @@ adminRouter.post('/auto-assign-all', (req: Request, res: Response) => {
   });
 });
 
+// Direct database persistence diagnostic endpoint
+adminRouter.get('/db-diagnostic', async (req: Request, res: Response) => {
+  try {
+    const diagnostic = await db.getPostgresDiagnostic();
+    res.json({ success: true, diagnostic });
+  } catch (err: any) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
 // Re-seed demo database cleanly
-adminRouter.post('/reset-seed', (req: Request, res: Response) => {
+adminRouter.post('/reset-seed', async (req: Request, res: Response) => {
   const { runSeed } = require('../db/seed');
-  runSeed();
+  await runSeed();
   res.json({ success: true, message: 'Database reset and re-seeded successfully with localized Chennai records.' });
 });
 

@@ -101,8 +101,8 @@ app.get('/api/announcements', (req, res) => {
     res.json({ success: true, count: active.length, announcements: active });
 });
 // Re-seed endpoint for easy live demo resets
-app.post('/api/seed/reset', (req, res) => {
-    (0, seed_1.runSeed)();
+app.post('/api/seed/reset', async (req, res) => {
+    await (0, seed_1.runSeed)();
     notificationService_1.NotificationService.broadcast('DATABASE_RESEEDED', { timestamp: new Date().toISOString() });
     res.json({ success: true, message: 'CareTrace database re-seeded to pristine demo state.' });
 });
@@ -121,7 +121,7 @@ async function startServer() {
     await database_1.db.init();
     // Initialize database with seed data if fresh
     if (database_1.db.getUsers().length === 0) {
-        (0, seed_1.runSeed)();
+        await (0, seed_1.runSeed)();
     }
     app.listen(PORT, () => {
         console.log(`🚀 CareTrace API Server running at http://localhost:${PORT}`);

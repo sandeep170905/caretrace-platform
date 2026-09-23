@@ -321,7 +321,7 @@ class Database {
         const row = this.sqlite.prepare('SELECT * FROM users WHERE LOWER(email) = ?').get(norm);
         return row ? (0, sqlSchema_1.rowToUser)(row) : undefined;
     }
-    upsertUser(user) {
+    async upsertUser(user) {
         const row = (0, sqlSchema_1.userToRow)(user);
         if (this.isPostgres) {
             const idx = this.pgCache.users.findIndex(u => u.id === user.id);
@@ -329,11 +329,13 @@ class Database {
                 this.pgCache.users[idx] = user;
             else
                 this.pgCache.users.push(user);
-            this.pgKnex('users')
-                .insert(row)
-                .onConflict('id')
-                .merge()
-                .catch(err => console.error('PostgreSQL upsertUser error:', err));
+            if (this.pgKnex) {
+                await this.pgKnex('users')
+                    .insert(row)
+                    .onConflict('id')
+                    .merge()
+                    .catch(err => console.error('PostgreSQL upsertUser error:', err));
+            }
             return;
         }
         const stmt = this.sqlite.prepare(`
@@ -367,7 +369,7 @@ class Database {
         const row = this.sqlite.prepare('SELECT * FROM institutions WHERE id = ?').get(id);
         return row ? (0, sqlSchema_1.rowToInstitution)(row) : undefined;
     }
-    upsertInstitution(inst) {
+    async upsertInstitution(inst) {
         const row = (0, sqlSchema_1.institutionToRow)(inst);
         if (this.isPostgres) {
             const idx = this.pgCache.institutions.findIndex(i => i.id === inst.id);
@@ -375,11 +377,13 @@ class Database {
                 this.pgCache.institutions[idx] = inst;
             else
                 this.pgCache.institutions.push(inst);
-            this.pgKnex('institutions')
-                .insert(row)
-                .onConflict('id')
-                .merge()
-                .catch(err => console.error('PostgreSQL upsertInstitution error:', err));
+            if (this.pgKnex) {
+                await this.pgKnex('institutions')
+                    .insert(row)
+                    .onConflict('id')
+                    .merge()
+                    .catch(err => console.error('PostgreSQL upsertInstitution error:', err));
+            }
             return;
         }
         const stmt = this.sqlite.prepare(`
@@ -433,7 +437,7 @@ class Database {
         const row = this.sqlite.prepare('SELECT * FROM requirements WHERE id = ?').get(id);
         return row ? (0, sqlSchema_1.rowToRequirement)(row) : undefined;
     }
-    upsertRequirement(req) {
+    async upsertRequirement(req) {
         const row = (0, sqlSchema_1.requirementToRow)(req);
         if (this.isPostgres) {
             const idx = this.pgCache.requirements.findIndex(r => r.id === req.id);
@@ -441,11 +445,13 @@ class Database {
                 this.pgCache.requirements[idx] = req;
             else
                 this.pgCache.requirements.push(req);
-            this.pgKnex('requirements')
-                .insert(row)
-                .onConflict('id')
-                .merge()
-                .catch(err => console.error('PostgreSQL upsertRequirement error:', err));
+            if (this.pgKnex) {
+                await this.pgKnex('requirements')
+                    .insert(row)
+                    .onConflict('id')
+                    .merge()
+                    .catch(err => console.error('PostgreSQL upsertRequirement error:', err));
+            }
             return;
         }
         const stmt = this.sqlite.prepare(`
@@ -479,12 +485,14 @@ class Database {
     `);
         stmt.run(row);
     }
-    deleteRequirement(id) {
+    async deleteRequirement(id) {
         if (this.isPostgres) {
             const idx = this.pgCache.requirements.findIndex(r => r.id === id);
             if (idx >= 0) {
                 this.pgCache.requirements.splice(idx, 1);
-                this.pgKnex('requirements').where({ id }).delete().catch(console.error);
+                if (this.pgKnex) {
+                    await this.pgKnex('requirements').where({ id }).delete().catch(console.error);
+                }
                 return true;
             }
             return false;
@@ -512,7 +520,7 @@ class Database {
     getDonationsByDonor(donorId) {
         return this.getDonations().filter(d => d.donorId === donorId);
     }
-    upsertDonation(donation) {
+    async upsertDonation(donation) {
         const row = (0, sqlSchema_1.donationToRow)(donation);
         if (this.isPostgres) {
             const idx = this.pgCache.donations.findIndex(d => d.id === donation.id);
@@ -520,11 +528,13 @@ class Database {
                 this.pgCache.donations[idx] = donation;
             else
                 this.pgCache.donations.push(donation);
-            this.pgKnex('donations')
-                .insert(row)
-                .onConflict('id')
-                .merge()
-                .catch(err => console.error('PostgreSQL upsertDonation error:', err));
+            if (this.pgKnex) {
+                await this.pgKnex('donations')
+                    .insert(row)
+                    .onConflict('id')
+                    .merge()
+                    .catch(err => console.error('PostgreSQL upsertDonation error:', err));
+            }
             return;
         }
         const stmt = this.sqlite.prepare(`
@@ -605,7 +615,7 @@ class Database {
         const row = this.sqlite.prepare('SELECT * FROM announcements WHERE id = ?').get(id);
         return row ? (0, sqlSchema_1.rowToAnnouncement)(row) : undefined;
     }
-    upsertAnnouncement(ann) {
+    async upsertAnnouncement(ann) {
         const row = (0, sqlSchema_1.announcementToRow)(ann);
         if (this.isPostgres) {
             const idx = this.pgCache.announcements.findIndex(a => a.id === ann.id);
@@ -613,11 +623,13 @@ class Database {
                 this.pgCache.announcements[idx] = ann;
             else
                 this.pgCache.announcements.unshift(ann);
-            this.pgKnex('announcements')
-                .insert(row)
-                .onConflict('id')
-                .merge()
-                .catch(err => console.error('PostgreSQL upsertAnnouncement error:', err));
+            if (this.pgKnex) {
+                await this.pgKnex('announcements')
+                    .insert(row)
+                    .onConflict('id')
+                    .merge()
+                    .catch(err => console.error('PostgreSQL upsertAnnouncement error:', err));
+            }
             return;
         }
         const stmt = this.sqlite.prepare(`
@@ -645,11 +657,13 @@ class Database {
         const rows = this.sqlite.prepare('SELECT * FROM risk_audit_logs ORDER BY triggered_at DESC').all();
         return rows.map(sqlSchema_1.rowToRiskFlag);
     }
-    addRiskAuditLog(flag) {
+    async addRiskAuditLog(flag) {
         const row = (0, sqlSchema_1.riskFlagToRow)(flag);
         if (this.isPostgres) {
             this.pgCache.riskAuditLogs.unshift(flag);
-            this.pgKnex('risk_audit_logs').insert(row).catch(err => console.error('PostgreSQL addRiskAuditLog error:', err));
+            if (this.pgKnex) {
+                await this.pgKnex('risk_audit_logs').insert(row).catch(err => console.error('PostgreSQL addRiskAuditLog error:', err));
+            }
             return;
         }
         const stmt = this.sqlite.prepare(`
@@ -661,7 +675,7 @@ class Database {
             resolved: row.resolved ? 1 : 0
         });
     }
-    resolveRiskFlag(ruleId, resolvedBy) {
+    async resolveRiskFlag(ruleId, resolvedBy) {
         const now = new Date().toISOString();
         if (this.isPostgres) {
             const flag = this.pgCache.riskAuditLogs.find(f => f.ruleId === ruleId && !f.resolved);
@@ -670,10 +684,12 @@ class Database {
                 flag.resolvedBy = resolvedBy;
                 flag.resolvedAt = now;
             }
-            this.pgKnex('risk_audit_logs')
-                .where({ rule_id: ruleId, resolved: false })
-                .update({ resolved: true, resolved_by: resolvedBy, resolved_at: now })
-                .catch(err => console.error('PostgreSQL resolveRiskFlag error:', err));
+            if (this.pgKnex) {
+                await this.pgKnex('risk_audit_logs')
+                    .where({ rule_id: ruleId, resolved: false })
+                    .update({ resolved: true, resolved_by: resolvedBy, resolved_at: now })
+                    .catch(err => console.error('PostgreSQL resolveRiskFlag error:', err));
+            }
             return;
         }
         this.sqlite.prepare(`
@@ -692,15 +708,17 @@ class Database {
         const row = this.sqlite.prepare('SELECT * FROM transit_telemetry WHERE donation_id = ?').get(donationId);
         return row ? (0, sqlSchema_1.rowToTelemetry)(row) : undefined;
     }
-    upsertTransitTelemetry(telemetry) {
+    async upsertTransitTelemetry(telemetry) {
         const row = (0, sqlSchema_1.telemetryToRow)(telemetry);
         if (this.isPostgres) {
             this.pgCache.transitTelemetry[telemetry.donationId] = telemetry;
-            this.pgKnex('transit_telemetry')
-                .insert(row)
-                .onConflict('donation_id')
-                .merge()
-                .catch(err => console.error('PostgreSQL upsertTransitTelemetry error:', err));
+            if (this.pgKnex) {
+                await this.pgKnex('transit_telemetry')
+                    .insert(row)
+                    .onConflict('donation_id')
+                    .merge()
+                    .catch(err => console.error('PostgreSQL upsertTransitTelemetry error:', err));
+            }
             return;
         }
         const stmt = this.sqlite.prepare(`
@@ -718,9 +736,28 @@ class Database {
         stmt.run(row);
     }
     // -------------------------------------------------------------
+    // Direct Diagnostics for Persistence Verification
+    // -------------------------------------------------------------
+    async getPostgresDiagnostic() {
+        if (!this.pgKnex) {
+            return { engine: 'sqlite', message: 'Running on SQLite' };
+        }
+        const rawUsers = await this.pgKnex('users').select('id', 'name', 'email');
+        const rawDonations = await this.pgKnex('donations').select('id', 'donor_name', 'status');
+        const rawRequirements = await this.pgKnex('requirements').select('id', 'title');
+        return {
+            engine: 'postgres',
+            rawUsersCount: rawUsers.length,
+            rawUsers,
+            rawDonationsCount: rawDonations.length,
+            rawDonations,
+            rawRequirementsCount: rawRequirements.length
+        };
+    }
+    // -------------------------------------------------------------
     // Reset database tables and ledger to empty state
     // -------------------------------------------------------------
-    reset() {
+    async reset() {
         this.ledgerBlocks = [];
         this.saveLedger();
         if (this.isPostgres) {
@@ -734,7 +771,7 @@ class Database {
                 transitTelemetry: {}
             };
             if (this.pgKnex) {
-                Promise.all([
+                await Promise.all([
                     this.pgKnex('transit_telemetry').del(),
                     this.pgKnex('risk_audit_logs').del(),
                     this.pgKnex('donations').del(),

@@ -9,7 +9,7 @@ async function runTests() {
 
   // Test 1: Run Seed
   console.log('1️⃣ Testing Database Seeder...');
-  runSeed();
+  await runSeed();
   const users = db.getUsers();
   const institutions = db.getInstitutions();
   const requirements = db.getRequirements();
@@ -64,7 +64,7 @@ async function runTests() {
   console.log('   ✅ Tamper-evident ledger defense PASSED: Malicious modification detected instantly.\n');
 
   // Restore pristine database
-  runSeed();
+  await runSeed();
   const restoredVerify = LedgerService.verifyChain();
   console.assert(restoredVerify.isValid === true, 'Expected valid chain after restore');
   console.log('   ✅ Database restored to valid state.\n');

@@ -22,7 +22,7 @@ exports.authRouter.get('/users', (req, res) => {
     res.json({ success: true, users });
 });
 // Real Donor Registration
-exports.authRouter.post('/register-donor', (req, res) => {
+exports.authRouter.post('/register-donor', async (req, res) => {
     const { name, email, password, phone } = req.body;
     if (!name || !email || !password) {
         return res.status(400).json({ success: false, error: 'Name, email, and password are required' });
@@ -41,7 +41,7 @@ exports.authRouter.post('/register-donor', (req, res) => {
         passwordHash: authService_1.AuthService.hashPassword(password),
         createdAt: new Date().toISOString()
     };
-    database_1.db.upsertUser(newUser);
+    await database_1.db.upsertUser(newUser);
     const token = authService_1.AuthService.generateToken(newUser);
     res.status(201).json({
         success: true,
@@ -51,7 +51,7 @@ exports.authRouter.post('/register-donor', (req, res) => {
     });
 });
 // Real Institution Director & Sanctuary Registration
-exports.authRouter.post('/register-institution', (req, res) => {
+exports.authRouter.post('/register-institution', async (req, res) => {
     const { directorName, email, password, phone, institutionName, registrationNumber, taxId, address, city, state, postalCode, capacity, currentChildrenCount, description, website } = req.body;
     if (!directorName || !email || !password || !institutionName || !registrationNumber) {
         return res.status(400).json({
@@ -86,7 +86,7 @@ exports.authRouter.post('/register-institution', (req, res) => {
         description: description ? description.trim() : 'Child residential care sanctuary',
         website: website ? website.trim() : undefined
     };
-    database_1.db.upsertInstitution(newInstitution);
+    await database_1.db.upsertInstitution(newInstitution);
     // Create institution director user
     const newDirector = {
         id: `user-inst-${Date.now()}`,
@@ -99,7 +99,7 @@ exports.authRouter.post('/register-institution', (req, res) => {
         passwordHash: authService_1.AuthService.hashPassword(password),
         createdAt: now
     };
-    database_1.db.upsertUser(newDirector);
+    await database_1.db.upsertUser(newDirector);
     notificationService_1.NotificationService.broadcast('INSTITUTION_REGISTERED', {
         id: newInstitution.id,
         name: newInstitution.name,

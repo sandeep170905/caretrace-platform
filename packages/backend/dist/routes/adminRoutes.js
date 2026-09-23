@@ -108,10 +108,20 @@ exports.adminRouter.post('/auto-assign-all', (req, res) => {
         message: `Successfully dispatched ${pending.length} consignments to courier ${defaultAgent.name}`
     });
 });
+// Direct database persistence diagnostic endpoint
+exports.adminRouter.get('/db-diagnostic', async (req, res) => {
+    try {
+        const diagnostic = await database_1.db.getPostgresDiagnostic();
+        res.json({ success: true, diagnostic });
+    }
+    catch (err) {
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
 // Re-seed demo database cleanly
-exports.adminRouter.post('/reset-seed', (req, res) => {
+exports.adminRouter.post('/reset-seed', async (req, res) => {
     const { runSeed } = require('../db/seed');
-    runSeed();
+    await runSeed();
     res.json({ success: true, message: 'Database reset and re-seeded successfully with localized Chennai records.' });
 });
 // ---------------- BROADCAST ANNOUNCEMENTS ----------------

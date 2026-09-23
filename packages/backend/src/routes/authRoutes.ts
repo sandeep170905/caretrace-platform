@@ -25,7 +25,7 @@ authRouter.get('/users', (req: Request, res: Response) => {
 });
 
 // Real Donor Registration
-authRouter.post('/register-donor', (req: Request, res: Response) => {
+authRouter.post('/register-donor', async (req: Request, res: Response) => {
   const { name, email, password, phone } = req.body;
 
   if (!name || !email || !password) {
@@ -48,7 +48,7 @@ authRouter.post('/register-donor', (req: Request, res: Response) => {
     createdAt: new Date().toISOString()
   };
 
-  db.upsertUser(newUser);
+  await db.upsertUser(newUser);
 
   const token = AuthService.generateToken(newUser);
   res.status(201).json({
@@ -60,7 +60,7 @@ authRouter.post('/register-donor', (req: Request, res: Response) => {
 });
 
 // Real Institution Director & Sanctuary Registration
-authRouter.post('/register-institution', (req: Request, res: Response) => {
+authRouter.post('/register-institution', async (req: Request, res: Response) => {
   const {
     directorName,
     email,
@@ -116,7 +116,7 @@ authRouter.post('/register-institution', (req: Request, res: Response) => {
     website: website ? website.trim() : undefined
   };
 
-  db.upsertInstitution(newInstitution);
+  await db.upsertInstitution(newInstitution);
 
   // Create institution director user
   const newDirector: User = {
@@ -131,7 +131,7 @@ authRouter.post('/register-institution', (req: Request, res: Response) => {
     createdAt: now
   };
 
-  db.upsertUser(newDirector);
+  await db.upsertUser(newDirector);
 
   NotificationService.broadcast('INSTITUTION_REGISTERED', {
     id: newInstitution.id,

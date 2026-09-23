@@ -5,9 +5,9 @@ const database_1 = require("./database");
 const ledgerService_1 = require("../services/ledgerService");
 const qrService_1 = require("../services/qrService");
 const authService_1 = require("../services/authService");
-function runSeed() {
+async function runSeed() {
     console.log('🌱 Seeding CareTrace India/Chennai-localized demo dataset...');
-    database_1.db.reset();
+    await database_1.db.reset();
     const demoPasswordHash = authService_1.AuthService.hashPassword('caretrace123');
     // 1. Users / Personas
     // Primary Donor for role switcher & active demo flows
@@ -70,12 +70,12 @@ function runSeed() {
         avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&auto=format&fit=crop&q=80',
         passwordHash: demoPasswordHash
     };
-    database_1.db.upsertUser(donorUser);
-    database_1.db.upsertUser(donorSanjay);
-    database_1.db.upsertUser(donorKarthik);
-    database_1.db.upsertUser(institutionDirector);
-    database_1.db.upsertUser(pickupAgent);
-    database_1.db.upsertUser(adminUser);
+    await database_1.db.upsertUser(donorUser);
+    await database_1.db.upsertUser(donorSanjay);
+    await database_1.db.upsertUser(donorKarthik);
+    await database_1.db.upsertUser(institutionDirector);
+    await database_1.db.upsertUser(pickupAgent);
+    await database_1.db.upsertUser(adminUser);
     // 2. Institutions (Chennai-area, plausible fictional child shelters)
     const anbuIllam = {
         id: 'inst-anbu',
@@ -140,9 +140,9 @@ function runSeed() {
         description: 'Provisional transit home providing emergency night shelter and nourishment for runaway and destitute youth.',
         website: 'https://nanbanyouthshelter.org'
     };
-    database_1.db.upsertInstitution(anbuIllam);
-    database_1.db.upsertInstitution(karunaiKarangal);
-    database_1.db.upsertInstitution(nanbanShelter);
+    await database_1.db.upsertInstitution(anbuIllam);
+    await database_1.db.upsertInstitution(karunaiKarangal);
+    await database_1.db.upsertInstitution(nanbanShelter);
     // 3. Localized Requirements (Chennai Climate & Common Necessities)
     const req1 = {
         id: 'req-groceries-staples',
@@ -276,13 +276,15 @@ function runSeed() {
         createdAt: '2026-02-14T12:00:00.000Z',
         updatedAt: '2026-02-14T12:00:00.000Z'
     };
-    database_1.db.upsertRequirement(req1);
-    database_1.db.upsertRequirement(req2);
-    database_1.db.upsertRequirement(req3);
-    database_1.db.upsertRequirement(req4);
-    database_1.db.upsertRequirement(req5Flagged);
+    await database_1.db.upsertRequirement(req1);
+    await database_1.db.upsertRequirement(req2);
+    await database_1.db.upsertRequirement(req3);
+    await database_1.db.upsertRequirement(req4);
+    await database_1.db.upsertRequirement(req5Flagged);
     // Add risk flags to audit logs table
-    req5Flagged.riskFlags.forEach(flag => database_1.db.addRiskAuditLog(flag));
+    for (const flag of req5Flagged.riskFlags) {
+        await database_1.db.addRiskAuditLog(flag);
+    }
     // 4. Pre-seeded Fully Completed Donation (CT-2026-8801) with full 4-block Ledger Trail
     const donationDeliveredId = 'CT-2026-8801';
     const qrPayloadDelivered = qrService_1.QRService.createPayloadString(donationDeliveredId, donorUser.id, karunaiKarangal.id);
@@ -317,7 +319,7 @@ function runSeed() {
         createdAt: '2026-02-01T15:00:00.000Z',
         updatedAt: '2026-02-02T14:45:00.000Z'
     };
-    database_1.db.upsertDonation(donationDelivered);
+    await database_1.db.upsertDonation(donationDelivered);
     // Mine the 4 SHA-256 Ledger Blocks for CT-2026-8801
     ledgerService_1.LedgerService.recordCheckpoint(donationDeliveredId, 'DONATION_MATCHED', { id: donorUser.id, role: 'DONOR', name: donorUser.name }, `Ajith R pledged 80 cotton bedsheets & mosquito net sets to Karunai Karangal Foster Sanctuary.`, { itemsCount: 80, donor: donorUser.name, totalValueInr: 50000 });
     ledgerService_1.LedgerService.recordCheckpoint(donationDeliveredId, 'PICKUP_VERIFIED', { id: pickupAgent.id, role: 'PICKUP_AGENT', name: pickupAgent.name }, `Pickup verified and sealed at Anna Nagar West logistics hub by Courier Sakthivel S.`, { agent: pickupAgent.name, pickupPoint: donationDelivered.pickupAddress });
@@ -357,12 +359,12 @@ function runSeed() {
         createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
         updatedAt: new Date().toISOString()
     };
-    database_1.db.upsertDonation(donationActive);
+    await database_1.db.upsertDonation(donationActive);
     // Mine Blocks for CT-2026-9042
     ledgerService_1.LedgerService.recordCheckpoint(donationActiveId, 'DONATION_MATCHED', { id: donorUser.id, role: 'DONOR', name: donorUser.name }, `Ajith R pledged 30 stitched school uniform & notebook sets to Karunai Karangal Sanctuary.`, { itemsCount: 30, totalValueInr: 35000 });
     ledgerService_1.LedgerService.recordCheckpoint(donationActiveId, 'PICKUP_VERIFIED', { id: pickupAgent.id, role: 'PICKUP_AGENT', name: pickupAgent.name }, `Pickup verified and scanned by Sakthivel S at T. Nagar Wholesale Hub. Consignment en route via GST Road.`, { agent: pickupAgent.name });
     // Set active telemetry
-    database_1.db.upsertTransitTelemetry({
+    await database_1.db.upsertTransitTelemetry({
         donationId: donationActiveId,
         latitude: 12.9840,
         longitude: 80.1780,
@@ -404,7 +406,7 @@ function runSeed() {
         createdAt: '2026-02-07T11:00:00.000Z',
         updatedAt: '2026-02-08T13:15:00.000Z'
     };
-    database_1.db.upsertDonation(donationSanjay);
+    await database_1.db.upsertDonation(donationSanjay);
     ledgerService_1.LedgerService.recordCheckpoint(donationSanjayId, 'DONATION_MATCHED', { id: donorSanjay.id, role: 'DONOR', name: donorSanjay.name }, `Sanjay Verma matched 20 medical kits to Anbu Illam Sanctuary.`, { itemsCount: 20, totalValueInr: 16000 });
     ledgerService_1.LedgerService.recordCheckpoint(donationSanjayId, 'DELIVERY_CONFIRMED', { id: 'user-inst-shanthi', role: 'INSTITUTION', name: 'Sister V. Shanthi (Director)' }, `Delivery verified by Director Sister V. Shanthi at Ambattur facility.`, { signature: donationSanjay.recipientSignature });
     const donationKarthikId = 'CT-2026-8650';
@@ -438,7 +440,7 @@ function runSeed() {
         createdAt: '2026-02-03T16:00:00.000Z',
         updatedAt: '2026-02-04T12:30:00.000Z'
     };
-    database_1.db.upsertDonation(donationKarthik);
+    await database_1.db.upsertDonation(donationKarthik);
     ledgerService_1.LedgerService.recordCheckpoint(donationKarthikId, 'DONATION_MATCHED', { id: donorKarthik.id, role: 'DONOR', name: donorKarthik.name }, `Karthik V matched 30 rice bags to Anbu Illam kitchen.`, { itemsCount: 30, totalValueInr: 45000 });
     ledgerService_1.LedgerService.recordCheckpoint(donationKarthikId, 'DELIVERY_CONFIRMED', { id: 'user-inst-shanthi', role: 'INSTITUTION', name: 'Sister V. Shanthi (Director)' }, `Rice sacks verified by Director Sister V. Shanthi at Ambattur facility.`, { signature: donationKarthik.recipientSignature });
     // 7. Pre-seeded Verified Monetary Contribution (CT-2026-5607) for Ajith R
@@ -474,7 +476,7 @@ function runSeed() {
         createdAt: '2026-02-15T11:30:00.000Z',
         updatedAt: '2026-02-15T11:30:00.000Z'
     };
-    database_1.db.upsertDonation(monetaryDonation);
+    await database_1.db.upsertDonation(monetaryDonation);
     ledgerService_1.LedgerService.recordCheckpoint(monetaryDonationId, 'DONATION_MATCHED', { id: donorUser.id, role: 'DONOR', name: donorUser.name }, `Ajith R initiated monetary contribution of ₹1,00,000 for ${req4.title}.`, { amountInr: 100000, institution: karunaiKarangal.name, type: 'FUNDS' });
     ledgerService_1.LedgerService.recordCheckpoint(monetaryDonationId, 'MONETARY_DONATION_CONFIRMED', { id: donorUser.id, role: 'DONOR', name: donorUser.name }, `Direct monetary contribution confirmed: ₹1,00,000 to ${karunaiKarangal.name}. 80G Tax Exemption Receipt REC-80G-2026-5607 generated (Txn Ref: TXN-2026-5607).`, {
         amountInr: 100000,
@@ -493,7 +495,7 @@ function runSeed() {
         active: true,
         createdBy: 'Sandeep R (Platform Admin)'
     };
-    database_1.db.upsertAnnouncement(seedAnnouncement);
+    await database_1.db.upsertAnnouncement(seedAnnouncement);
     console.log('✅ Chennai localized database seeded successfully with:');
     console.log(`   - 6 Users: Ajith R (Donor), Akash Kumar (Director), Sakthivel S (Agent), Sandeep R (Admin), Sanjay Verma (Donor), Karthik V (Donor)`);
     console.log(`   - 3 Institutions: Anbu Illam (Ambattur), Karunai Karangal (Tambaram), Nanban Youth Shelter (Poonamallee - Flagged)`);
@@ -503,5 +505,5 @@ function runSeed() {
 }
 // Run if called directly
 if (require.main === module) {
-    runSeed();
+    runSeed().catch(console.error);
 }
