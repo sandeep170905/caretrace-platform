@@ -74,6 +74,7 @@ app.get('/', (req: Request, res: Response) => {
       institutions: '/api/institutions'
     },
     ledgerBlocksCount: db.getLedgerBlocks().length,
+    databaseEngine: db.getEngine(),
     timestamp: new Date().toISOString()
   });
 });
@@ -84,6 +85,7 @@ app.get('/api/health', (req: Request, res: Response) => {
     status: 'healthy',
     timestamp: new Date().toISOString(),
     service: 'CareTrace Core REST API',
+    databaseEngine: db.getEngine(),
     ledgerBlocksCount: db.getLedgerBlocks().length
   });
 });

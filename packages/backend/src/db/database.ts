@@ -39,6 +39,10 @@ export class Database {
   private pgKnex?: Knex;
   private sqlite?: BetterSqlite3.Database;
 
+  public getEngine(): 'postgres' | 'sqlite' {
+    return this.isPostgres ? 'postgres' : 'sqlite';
+  }
+
   // In-memory ledger store (ISSUE 2: separate, tamper-evident hash-chain)
   private ledgerBlocks: LedgerBlock[] = [];
 

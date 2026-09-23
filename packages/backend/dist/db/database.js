@@ -16,6 +16,9 @@ class Database {
     isPostgres;
     pgKnex;
     sqlite;
+    getEngine() {
+        return this.isPostgres ? 'postgres' : 'sqlite';
+    }
     // In-memory ledger store (ISSUE 2: separate, tamper-evident hash-chain)
     ledgerBlocks = [];
     // Memory cache for PostgreSQL mode to support zero-latency reads
