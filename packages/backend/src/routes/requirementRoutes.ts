@@ -39,8 +39,9 @@ requirementRouter.get('/:id', (req: Request, res: Response) => {
 });
 
 // Post a new requirement (Institutions)
-requirementRouter.post('/', (req: Request, res: Response) => {
-  const {
+requirementRouter.post('/', async (req: Request, res: Response) => {
+  try {
+    const {
     institutionId,
     category,
     title,
@@ -113,7 +114,7 @@ requirementRouter.post('/', (req: Request, res: Response) => {
     updatedAt: now
   };
 
-  db.upsertRequirement(newRequirement);
+  await db.upsertRequirement(newRequirement);
 
   NotificationService.broadcast('REQUIREMENT_CREATED', {
     requirement: newRequirement,
@@ -126,11 +127,15 @@ requirementRouter.post('/', (req: Request, res: Response) => {
     requirement: newRequirement,
     scoring: scoringResult
   });
+  } catch (error: any) {
+    res.status(500).json({ success: false, error: error.message || 'Internal Server Error' });
+  }
 });
 
 // Admin verify or reject requirement
-requirementRouter.patch('/:id/status', (req: Request, res: Response) => {
-  const { status } = req.body;
+requirementRouter.patch('/:id/status', async (req: Request, res: Response) => {
+  try {
+    const { status } = req.body;
   const requirement = db.getRequirementById(req.params.id);
   if (!requirement) {
     return res.status(404).json({ success: false, error: 'Requirement not found' });
@@ -138,16 +143,20 @@ requirementRouter.patch('/:id/status', (req: Request, res: Response) => {
 
   requirement.status = status;
   requirement.updatedAt = new Date().toISOString();
-  db.upsertRequirement(requirement);
+  await db.upsertRequirement(requirement);
 
   NotificationService.broadcast('REQUIREMENT_STATUS_UPDATED', { requirement });
 
   res.json({ success: true, requirement });
+  } catch (error: any) {
+    res.status(500).json({ success: false, error: error.message || 'Internal Server Error' });
+  }
 });
 
 // Update / edit requirement (Institutions)
-requirementRouter.put('/:id', (req: Request, res: Response) => {
-  const requirement = db.getRequirementById(req.params.id);
+requirementRouter.put('/:id', async (req: Request, res: Response) => {
+  try {
+    const requirement = db.getRequirementById(req.params.id);
   if (!requirement) {
     return res.status(404).json({ success: false, error: 'Requirement not found' });
   }
@@ -162,35 +171,46 @@ requirementRouter.put('/:id', (req: Request, res: Response) => {
   if (category) requirement.category = category;
   requirement.updatedAt = new Date().toISOString();
 
-  db.upsertRequirement(requirement);
+  await db.upsertRequirement(requirement);
 
   NotificationService.broadcast('REQUIREMENT_UPDATED', { requirement });
   res.json({ success: true, requirement, message: 'Requirement updated successfully' });
+  } catch (error: any) {
+    res.status(500).json({ success: false, error: error.message || 'Internal Server Error' });
+  }
 });
 
 // Close requirement (Institutions / Director)
-requirementRouter.patch('/:id/close', (req: Request, res: Response) => {
-  const requirement = db.getRequirementById(req.params.id);
+requirementRouter.patch('/:id/close', async (req: Request, res: Response) => {
+  try {
+    const requirement = db.getRequirementById(req.params.id);
   if (!requirement) {
     return res.status(404).json({ success: false, error: 'Requirement not found' });
   }
 
   requirement.status = 'FULFILLED';
   requirement.updatedAt = new Date().toISOString();
-  db.upsertRequirement(requirement);
+  await db.upsertRequirement(requirement);
 
   NotificationService.broadcast('REQUIREMENT_STATUS_UPDATED', { requirement });
   res.json({ success: true, requirement, message: 'Requirement marked as closed/fulfilled' });
+  } catch (error: any) {
+    res.status(500).json({ success: false, error: error.message || 'Internal Server Error' });
+  }
 });
 
 // Delete requirement
-requirementRouter.delete('/:id', (req: Request, res: Response) => {
-  const deleted = db.deleteRequirement(req.params.id);
+requirementRouter.delete('/:id', async (req: Request, res: Response) => {
+  try {
+    const deleted = await db.deleteRequirement(req.params.id);
   if (!deleted) {
     return res.status(404).json({ success: false, error: 'Requirement not found' });
   }
 
   NotificationService.broadcast('REQUIREMENT_DELETED', { id: req.params.id });
   res.json({ success: true, message: 'Requirement deleted' });
+  } catch (error: any) {
+    res.status(500).json({ success: false, error: error.message || 'Internal Server Error' });
+  }
 });
 

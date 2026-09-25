@@ -9,7 +9,7 @@ import { FraudScoringService } from '../services/fraudScoringService';
 export const deliveryRouter = Router();
 
 // Confirm delivery handover via QR scan + recipient signature
-deliveryRouter.post('/scan', (req: Request, res: Response) => {
+deliveryRouter.post('/scan', async (req: Request, res: Response) => {
   const { qrPayload, recipientName, signature, notes, photoUrl, actorId } = req.body;
 
   if (!qrPayload) {
@@ -54,7 +54,7 @@ deliveryRouter.post('/scan', (req: Request, res: Response) => {
   donation.confirmationNotes = `${recipientName || 'Institution Staff'} - ${notes || 'Goods inspected in excellent condition.'}`;
   if (photoUrl) donation.proofPhotoUrl = photoUrl;
   donation.updatedAt = now;
-  db.upsertDonation(donation);
+  await db.upsertDonation(donation);
 
   const hasPhoto = Boolean(photoUrl);
 

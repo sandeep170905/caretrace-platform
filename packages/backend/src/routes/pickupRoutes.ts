@@ -17,7 +17,7 @@ pickupRouter.get('/assigned/:agentId', (req: Request, res: Response) => {
 });
 
 // Agent scans QR at donor location to confirm pickup
-pickupRouter.post('/scan', (req: Request, res: Response) => {
+pickupRouter.post('/scan', async (req: Request, res: Response) => {
   const { qrPayload, agentId, notes } = req.body;
 
   if (!qrPayload || !agentId) {
@@ -48,7 +48,7 @@ pickupRouter.post('/scan', (req: Request, res: Response) => {
   donation.pickupAgentId = agent.id;
   donation.pickupAgentName = agent.name;
   donation.updatedAt = now;
-  db.upsertDonation(donation);
+  await db.upsertDonation(donation);
 
   // Mine Immutable SHA-256 Ledger Block
   const ledgerBlock = LedgerService.recordCheckpoint(

@@ -40,11 +40,11 @@ exports.adminRouter.get('/risk-logs', (req, res) => {
     res.json({ success: true, count: logs.length, logs });
 });
 // Resolve risk flag
-exports.adminRouter.post('/risk-logs/resolve', (req, res) => {
+exports.adminRouter.post('/risk-logs/resolve', async (req, res) => {
     const { ruleId, adminName } = req.body;
     if (!ruleId)
         return res.status(400).json({ success: false, error: 'ruleId required' });
-    database_1.db.resolveRiskFlag(ruleId, adminName || 'Compliance Admin');
+    await database_1.db.resolveRiskFlag(ruleId, adminName || 'Compliance Admin');
     res.json({ success: true, message: `Risk flag ${ruleId} marked resolved.` });
 });
 // Get all donations awaiting pickup courier assignment
@@ -53,7 +53,7 @@ exports.adminRouter.get('/pending-courier-assignments', (req, res) => {
     res.json({ success: true, count: donations.length, donations });
 });
 // Admin manually assigns courier to a donation
-exports.adminRouter.post('/assign-courier', (req, res) => {
+exports.adminRouter.post('/assign-courier', async (req, res) => {
     const { donationId, agentId } = req.body;
     if (!donationId || !agentId) {
         return res.status(400).json({ success: false, error: 'donationId and agentId are required' });
@@ -70,7 +70,7 @@ exports.adminRouter.post('/assign-courier', (req, res) => {
     donation.pickupAgentName = agent.name;
     donation.status = 'PICKUP_SCHEDULED';
     donation.updatedAt = new Date().toISOString();
-    database_1.db.upsertDonation(donation);
+    await database_1.db.upsertDonation(donation);
     // Broadcast to live SSE stream
     const { NotificationService } = require('../services/notificationService');
     NotificationService.broadcast('DONATION_STATUS_UPDATED', {
@@ -82,7 +82,7 @@ exports.adminRouter.post('/assign-courier', (req, res) => {
     res.json({ success: true, donation, message: `Consignment ${donation.id} assigned to courier ${agent.name}` });
 });
 // Admin 1-Click Auto-Assign all pending donations to active field courier
-exports.adminRouter.post('/auto-assign-all', (req, res) => {
+exports.adminRouter.post('/auto-assign-all', async (req, res) => {
     const agents = database_1.db.getUsers().filter(u => u.role === 'PICKUP_AGENT');
     if (agents.length === 0) {
         return res.status(400).json({ success: false, error: 'No active pickup agents available' });
@@ -90,13 +90,13 @@ exports.adminRouter.post('/auto-assign-all', (req, res) => {
     const defaultAgent = agents[0]; // Sakthivel S
     const pending = database_1.db.getDonations().filter(d => !d.pickupAgentId || d.status === 'MATCHED');
     const now = new Date().toISOString();
-    pending.forEach(d => {
+    for (const d of pending) {
         d.pickupAgentId = defaultAgent.id;
         d.pickupAgentName = defaultAgent.name;
         d.status = 'PICKUP_SCHEDULED';
         d.updatedAt = now;
-        database_1.db.upsertDonation(d);
-    });
+        await database_1.db.upsertDonation(d);
+    }
     const { NotificationService } = require('../services/notificationService');
     NotificationService.broadcast('DONATION_STATUS_UPDATED', {
         message: `All ${pending.length} pending consignments auto-dispatched to ${defaultAgent.name}`
@@ -131,7 +131,7 @@ exports.adminRouter.get('/announcements', (req, res) => {
     res.json({ success: true, count: announcements.length, announcements });
 });
 // Post a new broadcast announcement
-exports.adminRouter.post('/announcements', (req, res) => {
+exports.adminRouter.post('/announcements', async (req, res) => {
     const { title, message, urgency, expiresAt, createdBy } = req.body;
     if (!title || !title.trim()) {
         return res.status(400).json({ success: false, error: 'Announcement title is required' });
@@ -150,7 +150,7 @@ exports.adminRouter.post('/announcements', (req, res) => {
         active: true,
         createdBy: createdBy || 'Sandeep R (Platform Admin)'
     };
-    database_1.db.upsertAnnouncement(announcement);
+    await database_1.db.upsertAnnouncement(announcement);
     // Broadcast live to all connected clients via SSE stream
     const { NotificationService } = require('../services/notificationService');
     NotificationService.broadcast('ANNOUNCEMENT_CREATED', announcement);
@@ -161,14 +161,14 @@ exports.adminRouter.post('/announcements', (req, res) => {
     });
 });
 // Dismiss/deactivate an announcement early
-exports.adminRouter.patch('/announcements/:id/dismiss', (req, res) => {
+exports.adminRouter.patch('/announcements/:id/dismiss', async (req, res) => {
     const { id } = req.params;
     const announcement = database_1.db.getAnnouncementById(id);
     if (!announcement) {
         return res.status(404).json({ success: false, error: 'Announcement not found' });
     }
     announcement.active = false;
-    database_1.db.upsertAnnouncement(announcement);
+    await database_1.db.upsertAnnouncement(announcement);
     // Broadcast dismissal event
     const { NotificationService } = require('../services/notificationService');
     NotificationService.broadcast('ANNOUNCEMENT_DISMISSED', {

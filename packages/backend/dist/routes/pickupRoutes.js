@@ -15,7 +15,7 @@ exports.pickupRouter.get('/assigned/:agentId', (req, res) => {
     res.json({ success: true, count: donations.length, donations });
 });
 // Agent scans QR at donor location to confirm pickup
-exports.pickupRouter.post('/scan', (req, res) => {
+exports.pickupRouter.post('/scan', async (req, res) => {
     const { qrPayload, agentId, notes } = req.body;
     if (!qrPayload || !agentId) {
         return res.status(400).json({ success: false, error: 'qrPayload and agentId are required' });
@@ -40,7 +40,7 @@ exports.pickupRouter.post('/scan', (req, res) => {
     donation.pickupAgentId = agent.id;
     donation.pickupAgentName = agent.name;
     donation.updatedAt = now;
-    database_1.db.upsertDonation(donation);
+    await database_1.db.upsertDonation(donation);
     // Mine Immutable SHA-256 Ledger Block
     const ledgerBlock = ledgerService_1.LedgerService.recordCheckpoint(donation.id, 'PICKUP_VERIFIED', { id: agent.id, role: 'PICKUP_AGENT', name: agent.name }, `Physical pickup authenticated via QR scan by Agent ${agent.name}. Consignment in transit.`, {
         agent: agent.name,

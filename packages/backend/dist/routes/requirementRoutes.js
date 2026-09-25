@@ -34,129 +34,154 @@ exports.requirementRouter.get('/:id', (req, res) => {
     res.json({ success: true, requirement });
 });
 // Post a new requirement (Institutions)
-exports.requirementRouter.post('/', (req, res) => {
-    const { institutionId, category, title, description, targetQuantity, unit, urgency, documents } = req.body;
-    if (!institutionId || !category || !title || !targetQuantity) {
-        return res.status(400).json({ success: false, error: 'Missing required fields' });
-    }
-    const inst = database_1.db.getInstitutionById(institutionId);
-    if (!inst) {
-        return res.status(404).json({ success: false, error: 'Institution not found' });
-    }
-    if (!inst.verified) {
-        return res.status(403).json({
-            success: false,
-            error: 'Institution is unverified. Legal accreditation must be approved by Admin before posting requirements.'
+exports.requirementRouter.post('/', async (req, res) => {
+    try {
+        const { institutionId, category, title, description, targetQuantity, unit, urgency, documents } = req.body;
+        if (!institutionId || !category || !title || !targetQuantity) {
+            return res.status(400).json({ success: false, error: 'Missing required fields' });
+        }
+        const inst = database_1.db.getInstitutionById(institutionId);
+        if (!inst) {
+            return res.status(404).json({ success: false, error: 'Institution not found' });
+        }
+        if (!inst.verified) {
+            return res.status(403).json({
+                success: false,
+                error: 'Institution is unverified. Legal accreditation must be approved by Admin before posting requirements.'
+            });
+        }
+        const now = new Date().toISOString();
+        const partialReq = {
+            institutionId,
+            category,
+            title,
+            description: description || '',
+            targetQuantity: Number(targetQuantity),
+            unit: unit || 'units',
+            urgency: urgency || 'MEDIUM',
+            documents: documents || []
+        };
+        // Run Rule-Based Authenticity & Fraud Scoring Engine
+        const scoringResult = fraudScoringService_1.FraudScoringService.evaluateAndLogRequirement(partialReq, institutionId);
+        // Run ML Secondary Classifier (Logistic Regression)
+        const pastReqs = database_1.db.getRequirements().filter(r => r.institutionId === institutionId);
+        const mlPrediction = mlRiskService_1.MLRiskService.predictRisk(partialReq, inst, pastReqs);
+        // Auto-verify if score >= 70 and institution is verified; otherwise mark PENDING review
+        let status = 'PENDING';
+        if (inst.verified && scoringResult.isApproved) {
+            status = 'VERIFIED';
+        }
+        const newRequirement = {
+            id: `req-${Date.now()}`,
+            institutionId,
+            institutionName: inst.name,
+            category,
+            title,
+            description: description || '',
+            targetQuantity: Number(targetQuantity),
+            unit: unit || 'units',
+            fulfilledQuantity: 0,
+            urgency: urgency || 'MEDIUM',
+            status,
+            authenticityScore: scoringResult.score,
+            mlRiskScore: mlPrediction.mlRiskScore,
+            mlRiskTier: mlPrediction.mlRiskTier,
+            riskFlags: scoringResult.flags,
+            documents: documents || [],
+            createdAt: now,
+            updatedAt: now
+        };
+        await database_1.db.upsertRequirement(newRequirement);
+        notificationService_1.NotificationService.broadcast('REQUIREMENT_CREATED', {
+            requirement: newRequirement,
+            scoringResult,
+            mlPrediction
+        });
+        res.status(201).json({
+            success: true,
+            requirement: newRequirement,
+            scoring: scoringResult
         });
     }
-    const now = new Date().toISOString();
-    const partialReq = {
-        institutionId,
-        category,
-        title,
-        description: description || '',
-        targetQuantity: Number(targetQuantity),
-        unit: unit || 'units',
-        urgency: urgency || 'MEDIUM',
-        documents: documents || []
-    };
-    // Run Rule-Based Authenticity & Fraud Scoring Engine
-    const scoringResult = fraudScoringService_1.FraudScoringService.evaluateAndLogRequirement(partialReq, institutionId);
-    // Run ML Secondary Classifier (Logistic Regression)
-    const pastReqs = database_1.db.getRequirements().filter(r => r.institutionId === institutionId);
-    const mlPrediction = mlRiskService_1.MLRiskService.predictRisk(partialReq, inst, pastReqs);
-    // Auto-verify if score >= 70 and institution is verified; otherwise mark PENDING review
-    let status = 'PENDING';
-    if (inst.verified && scoringResult.isApproved) {
-        status = 'VERIFIED';
+    catch (error) {
+        res.status(500).json({ success: false, error: error.message || 'Internal Server Error' });
     }
-    const newRequirement = {
-        id: `req-${Date.now()}`,
-        institutionId,
-        institutionName: inst.name,
-        category,
-        title,
-        description: description || '',
-        targetQuantity: Number(targetQuantity),
-        unit: unit || 'units',
-        fulfilledQuantity: 0,
-        urgency: urgency || 'MEDIUM',
-        status,
-        authenticityScore: scoringResult.score,
-        mlRiskScore: mlPrediction.mlRiskScore,
-        mlRiskTier: mlPrediction.mlRiskTier,
-        riskFlags: scoringResult.flags,
-        documents: documents || [],
-        createdAt: now,
-        updatedAt: now
-    };
-    database_1.db.upsertRequirement(newRequirement);
-    notificationService_1.NotificationService.broadcast('REQUIREMENT_CREATED', {
-        requirement: newRequirement,
-        scoringResult,
-        mlPrediction
-    });
-    res.status(201).json({
-        success: true,
-        requirement: newRequirement,
-        scoring: scoringResult
-    });
 });
 // Admin verify or reject requirement
-exports.requirementRouter.patch('/:id/status', (req, res) => {
-    const { status } = req.body;
-    const requirement = database_1.db.getRequirementById(req.params.id);
-    if (!requirement) {
-        return res.status(404).json({ success: false, error: 'Requirement not found' });
+exports.requirementRouter.patch('/:id/status', async (req, res) => {
+    try {
+        const { status } = req.body;
+        const requirement = database_1.db.getRequirementById(req.params.id);
+        if (!requirement) {
+            return res.status(404).json({ success: false, error: 'Requirement not found' });
+        }
+        requirement.status = status;
+        requirement.updatedAt = new Date().toISOString();
+        await database_1.db.upsertRequirement(requirement);
+        notificationService_1.NotificationService.broadcast('REQUIREMENT_STATUS_UPDATED', { requirement });
+        res.json({ success: true, requirement });
     }
-    requirement.status = status;
-    requirement.updatedAt = new Date().toISOString();
-    database_1.db.upsertRequirement(requirement);
-    notificationService_1.NotificationService.broadcast('REQUIREMENT_STATUS_UPDATED', { requirement });
-    res.json({ success: true, requirement });
+    catch (error) {
+        res.status(500).json({ success: false, error: error.message || 'Internal Server Error' });
+    }
 });
 // Update / edit requirement (Institutions)
-exports.requirementRouter.put('/:id', (req, res) => {
-    const requirement = database_1.db.getRequirementById(req.params.id);
-    if (!requirement) {
-        return res.status(404).json({ success: false, error: 'Requirement not found' });
+exports.requirementRouter.put('/:id', async (req, res) => {
+    try {
+        const requirement = database_1.db.getRequirementById(req.params.id);
+        if (!requirement) {
+            return res.status(404).json({ success: false, error: 'Requirement not found' });
+        }
+        const { title, description, targetQuantity, unit, urgency, category } = req.body;
+        if (title)
+            requirement.title = title.trim();
+        if (description !== undefined)
+            requirement.description = description.trim();
+        if (targetQuantity)
+            requirement.targetQuantity = Number(targetQuantity);
+        if (unit)
+            requirement.unit = unit.trim();
+        if (urgency)
+            requirement.urgency = urgency;
+        if (category)
+            requirement.category = category;
+        requirement.updatedAt = new Date().toISOString();
+        await database_1.db.upsertRequirement(requirement);
+        notificationService_1.NotificationService.broadcast('REQUIREMENT_UPDATED', { requirement });
+        res.json({ success: true, requirement, message: 'Requirement updated successfully' });
     }
-    const { title, description, targetQuantity, unit, urgency, category } = req.body;
-    if (title)
-        requirement.title = title.trim();
-    if (description !== undefined)
-        requirement.description = description.trim();
-    if (targetQuantity)
-        requirement.targetQuantity = Number(targetQuantity);
-    if (unit)
-        requirement.unit = unit.trim();
-    if (urgency)
-        requirement.urgency = urgency;
-    if (category)
-        requirement.category = category;
-    requirement.updatedAt = new Date().toISOString();
-    database_1.db.upsertRequirement(requirement);
-    notificationService_1.NotificationService.broadcast('REQUIREMENT_UPDATED', { requirement });
-    res.json({ success: true, requirement, message: 'Requirement updated successfully' });
+    catch (error) {
+        res.status(500).json({ success: false, error: error.message || 'Internal Server Error' });
+    }
 });
 // Close requirement (Institutions / Director)
-exports.requirementRouter.patch('/:id/close', (req, res) => {
-    const requirement = database_1.db.getRequirementById(req.params.id);
-    if (!requirement) {
-        return res.status(404).json({ success: false, error: 'Requirement not found' });
+exports.requirementRouter.patch('/:id/close', async (req, res) => {
+    try {
+        const requirement = database_1.db.getRequirementById(req.params.id);
+        if (!requirement) {
+            return res.status(404).json({ success: false, error: 'Requirement not found' });
+        }
+        requirement.status = 'FULFILLED';
+        requirement.updatedAt = new Date().toISOString();
+        await database_1.db.upsertRequirement(requirement);
+        notificationService_1.NotificationService.broadcast('REQUIREMENT_STATUS_UPDATED', { requirement });
+        res.json({ success: true, requirement, message: 'Requirement marked as closed/fulfilled' });
     }
-    requirement.status = 'FULFILLED';
-    requirement.updatedAt = new Date().toISOString();
-    database_1.db.upsertRequirement(requirement);
-    notificationService_1.NotificationService.broadcast('REQUIREMENT_STATUS_UPDATED', { requirement });
-    res.json({ success: true, requirement, message: 'Requirement marked as closed/fulfilled' });
+    catch (error) {
+        res.status(500).json({ success: false, error: error.message || 'Internal Server Error' });
+    }
 });
 // Delete requirement
-exports.requirementRouter.delete('/:id', (req, res) => {
-    const deleted = database_1.db.deleteRequirement(req.params.id);
-    if (!deleted) {
-        return res.status(404).json({ success: false, error: 'Requirement not found' });
+exports.requirementRouter.delete('/:id', async (req, res) => {
+    try {
+        const deleted = await database_1.db.deleteRequirement(req.params.id);
+        if (!deleted) {
+            return res.status(404).json({ success: false, error: 'Requirement not found' });
+        }
+        notificationService_1.NotificationService.broadcast('REQUIREMENT_DELETED', { id: req.params.id });
+        res.json({ success: true, message: 'Requirement deleted' });
     }
-    notificationService_1.NotificationService.broadcast('REQUIREMENT_DELETED', { id: req.params.id });
-    res.json({ success: true, message: 'Requirement deleted' });
+    catch (error) {
+        res.status(500).json({ success: false, error: error.message || 'Internal Server Error' });
+    }
 });

@@ -10,7 +10,7 @@ const transitService_1 = require("../services/transitService");
 const fraudScoringService_1 = require("../services/fraudScoringService");
 exports.deliveryRouter = (0, express_1.Router)();
 // Confirm delivery handover via QR scan + recipient signature
-exports.deliveryRouter.post('/scan', (req, res) => {
+exports.deliveryRouter.post('/scan', async (req, res) => {
     const { qrPayload, recipientName, signature, notes, photoUrl, actorId } = req.body;
     if (!qrPayload) {
         return res.status(400).json({ success: false, error: 'qrPayload is required' });
@@ -45,7 +45,7 @@ exports.deliveryRouter.post('/scan', (req, res) => {
     if (photoUrl)
         donation.proofPhotoUrl = photoUrl;
     donation.updatedAt = now;
-    database_1.db.upsertDonation(donation);
+    await database_1.db.upsertDonation(donation);
     const hasPhoto = Boolean(photoUrl);
     // 5. Mine Final Immutable Proof-of-Delivery Block on Ledger
     const ledgerBlock = ledgerService_1.LedgerService.recordCheckpoint(donation.id, 'DELIVERY_CONFIRMED', { id: actor.id, role: actor.role, name: actor.name }, `Delivery verified and accepted at ${donation.institutionName}. Proof of delivery authenticated${hasPhoto ? ' with attached handover photo proof.' : '.'}`, {

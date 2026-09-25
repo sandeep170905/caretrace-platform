@@ -104,7 +104,7 @@ donationRouter.post('/', async (req: Request, res: Response) => {
     updatedAt: now
   };
 
-  db.upsertDonation(newDonation);
+  await db.upsertDonation(newDonation);
 
   // Record Genesis / Creation Block on Cryptographic Ledger
   const ledgerBlock = LedgerService.recordCheckpoint(
@@ -132,7 +132,7 @@ donationRouter.post('/', async (req: Request, res: Response) => {
   if (requirement.fulfilledQuantity >= requirement.targetQuantity) {
     requirement.status = 'FULFILLED';
   }
-  db.upsertRequirement(requirement);
+  await db.upsertRequirement(requirement);
 
   // Real-time broadcast
   NotificationService.broadcast('DONATION_CREATED', {
@@ -211,7 +211,7 @@ donationRouter.post('/monetary', async (req: Request, res: Response) => {
     updatedAt: now
   };
 
-  db.upsertDonation(newDonation);
+  await db.upsertDonation(newDonation);
 
   // Record MONETARY_DONATION_CONFIRMED on the Cryptographic Ledger
   const ledgerBlock = LedgerService.recordCheckpoint(
@@ -260,7 +260,7 @@ donationRouter.post('/monetary', async (req: Request, res: Response) => {
   if (requirement.fulfilledQuantity >= requirement.targetQuantity) {
     requirement.status = 'FULFILLED';
   }
-  db.upsertRequirement(requirement);
+  await db.upsertRequirement(requirement);
 
   // Broadcast real-time events via SSE
   NotificationService.broadcast('DONATION_CREATED', {

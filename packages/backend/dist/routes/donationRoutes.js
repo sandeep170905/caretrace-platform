@@ -88,7 +88,7 @@ exports.donationRouter.post('/', async (req, res) => {
         createdAt: now,
         updatedAt: now
     };
-    database_1.db.upsertDonation(newDonation);
+    await database_1.db.upsertDonation(newDonation);
     // Record Genesis / Creation Block on Cryptographic Ledger
     const ledgerBlock = ledgerService_1.LedgerService.recordCheckpoint(donationId, 'DONATION_MATCHED', { id: donor.id, role: 'DONOR', name: donor.name }, `Donation initiated and matched to verified requirement: "${requirement.title}"`, {
         items,
@@ -104,7 +104,7 @@ exports.donationRouter.post('/', async (req, res) => {
     if (requirement.fulfilledQuantity >= requirement.targetQuantity) {
         requirement.status = 'FULFILLED';
     }
-    database_1.db.upsertRequirement(requirement);
+    await database_1.db.upsertRequirement(requirement);
     // Real-time broadcast
     notificationService_1.NotificationService.broadcast('DONATION_CREATED', {
         donation: newDonation,
@@ -174,7 +174,7 @@ exports.donationRouter.post('/monetary', async (req, res) => {
         createdAt: now,
         updatedAt: now
     };
-    database_1.db.upsertDonation(newDonation);
+    await database_1.db.upsertDonation(newDonation);
     // Record MONETARY_DONATION_CONFIRMED on the Cryptographic Ledger
     const ledgerBlock = ledgerService_1.LedgerService.recordCheckpoint(donationId, 'MONETARY_DONATION_CONFIRMED', { id: donor.id, role: 'DONOR', name: donor.name }, `Monetary contribution of ₹${parsedAmount.toLocaleString('en-IN')} confirmed for ${institution.name} (Receipt #${receiptNumber})`, {
         amountInr: parsedAmount,
@@ -211,7 +211,7 @@ exports.donationRouter.post('/monetary', async (req, res) => {
     if (requirement.fulfilledQuantity >= requirement.targetQuantity) {
         requirement.status = 'FULFILLED';
     }
-    database_1.db.upsertRequirement(requirement);
+    await database_1.db.upsertRequirement(requirement);
     // Broadcast real-time events via SSE
     notificationService_1.NotificationService.broadcast('DONATION_CREATED', {
         donation: newDonation,

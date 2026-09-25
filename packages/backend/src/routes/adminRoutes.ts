@@ -44,11 +44,11 @@ adminRouter.get('/risk-logs', (req: Request, res: Response) => {
 });
 
 // Resolve risk flag
-adminRouter.post('/risk-logs/resolve', (req: Request, res: Response) => {
+adminRouter.post('/risk-logs/resolve', async (req: Request, res: Response) => {
   const { ruleId, adminName } = req.body;
   if (!ruleId) return res.status(400).json({ success: false, error: 'ruleId required' });
 
-  db.resolveRiskFlag(ruleId, adminName || 'Compliance Admin');
+  await db.resolveRiskFlag(ruleId, adminName || 'Compliance Admin');
   res.json({ success: true, message: `Risk flag ${ruleId} marked resolved.` });
 });
 
@@ -61,7 +61,7 @@ adminRouter.get('/pending-courier-assignments', (req: Request, res: Response) =>
 });
 
 // Admin manually assigns courier to a donation
-adminRouter.post('/assign-courier', (req: Request, res: Response) => {
+adminRouter.post('/assign-courier', async (req: Request, res: Response) => {
   const { donationId, agentId } = req.body;
   if (!donationId || !agentId) {
     return res.status(400).json({ success: false, error: 'donationId and agentId are required' });
@@ -81,7 +81,7 @@ adminRouter.post('/assign-courier', (req: Request, res: Response) => {
   donation.pickupAgentName = agent.name;
   donation.status = 'PICKUP_SCHEDULED';
   donation.updatedAt = new Date().toISOString();
-  db.upsertDonation(donation);
+  await db.upsertDonation(donation);
 
   // Broadcast to live SSE stream
   const { NotificationService } = require('../services/notificationService');
@@ -96,7 +96,7 @@ adminRouter.post('/assign-courier', (req: Request, res: Response) => {
 });
 
 // Admin 1-Click Auto-Assign all pending donations to active field courier
-adminRouter.post('/auto-assign-all', (req: Request, res: Response) => {
+adminRouter.post('/auto-assign-all', async (req: Request, res: Response) => {
   const agents = db.getUsers().filter(u => u.role === 'PICKUP_AGENT');
   if (agents.length === 0) {
     return res.status(400).json({ success: false, error: 'No active pickup agents available' });
@@ -106,13 +106,13 @@ adminRouter.post('/auto-assign-all', (req: Request, res: Response) => {
   const pending = db.getDonations().filter(d => !d.pickupAgentId || d.status === 'MATCHED');
 
   const now = new Date().toISOString();
-  pending.forEach(d => {
+  for (const d of pending) {
     d.pickupAgentId = defaultAgent.id;
     d.pickupAgentName = defaultAgent.name;
     d.status = 'PICKUP_SCHEDULED';
     d.updatedAt = now;
-    db.upsertDonation(d);
-  });
+    await db.upsertDonation(d);
+  }
 
   const { NotificationService } = require('../services/notificationService');
   NotificationService.broadcast('DONATION_STATUS_UPDATED', {
@@ -153,7 +153,7 @@ adminRouter.get('/announcements', (req: Request, res: Response) => {
 });
 
 // Post a new broadcast announcement
-adminRouter.post('/announcements', (req: Request, res: Response) => {
+adminRouter.post('/announcements', async (req: Request, res: Response) => {
   const { title, message, urgency, expiresAt, createdBy } = req.body;
 
   if (!title || !title.trim()) {
@@ -176,7 +176,7 @@ adminRouter.post('/announcements', (req: Request, res: Response) => {
     createdBy: createdBy || 'Sandeep R (Platform Admin)'
   };
 
-  db.upsertAnnouncement(announcement);
+  await db.upsertAnnouncement(announcement);
 
   // Broadcast live to all connected clients via SSE stream
   const { NotificationService } = require('../services/notificationService');
@@ -190,7 +190,7 @@ adminRouter.post('/announcements', (req: Request, res: Response) => {
 });
 
 // Dismiss/deactivate an announcement early
-adminRouter.patch('/announcements/:id/dismiss', (req: Request, res: Response) => {
+adminRouter.patch('/announcements/:id/dismiss', async (req: Request, res: Response) => {
   const { id } = req.params;
   const announcement = db.getAnnouncementById(id);
 
@@ -199,7 +199,7 @@ adminRouter.patch('/announcements/:id/dismiss', (req: Request, res: Response) =>
   }
 
   announcement.active = false;
-  db.upsertAnnouncement(announcement);
+  await db.upsertAnnouncement(announcement);
 
   // Broadcast dismissal event
   const { NotificationService } = require('../services/notificationService');
