@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Donation, TransitTelemetry } from '@caretrace/shared';
-import { Truck, MapPin, Navigation, Gauge, Clock, ChevronRight, Play, RefreshCw, CheckCircle2, ShieldCheck, Building2, Info } from 'lucide-react';
+import { Truck, MapPin, Navigation, Clock, ChevronRight, Play, RefreshCw, CheckCircle2, ShieldCheck, Building2, Info } from 'lucide-react';
 import { fetchTransitTelemetry, stepTransitSimulation } from '../api/client';
 import L from 'leaflet';
 
@@ -318,51 +318,41 @@ export const LiveTransitMap: React.FC<LiveTransitMapProps> = ({
       </div>
 
       {/* Simulated Telemetry Disclosure Caption */}
-      <div className="mt-3 flex items-start space-x-2 p-3 bg-amber-50/70 border border-amber-200/80 rounded-xl text-xs font-sans text-amber-900">
+      <div className="mt-3.5 flex items-start space-x-2.5 p-3.5 bg-amber-50/90 border border-amber-300/80 rounded-xl text-xs font-sans text-amber-950 shadow-xs">
         <Info className="w-4 h-4 text-amber-700 shrink-0 mt-0.5" />
         <p className="leading-relaxed">
-          <strong className="font-bold">Simulated Telemetry (Phase 1 Evaluation):</strong> Vehicle position and transit metrics along Chennai corridors are computed via deterministic route interpolation. Production rollout interfaces with courier OBD-II GPS hardware or third-party logistics APIs.
+          <strong className="font-bold text-amber-900">Simulated Telemetry (Phase 1 Evaluation):</strong> Vehicle position and milestone ETA along Chennai corridors are computed via deterministic route interpolation. Production rollout interfaces with courier OBD-II GPS hardware or logistics partner webhook APIs.
         </p>
       </div>
 
-      {/* Telemetry Metrics Bar */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-4">
-        <div className="p-3.5 rounded-2xl bg-surface-canvas border border-surface-border shadow-xs">
-          <span className="text-[11px] font-sans text-slate-500 font-bold uppercase tracking-wider flex items-center space-x-1.5">
-            <Gauge className="w-3.5 h-3.5 text-teal-600" />
-            <span>Courier Speed</span>
-          </span>
-          <p className="text-lg font-display font-bold text-slate-900 mt-1 font-mono">
-            {progress >= 100 ? '0' : telemetry?.speedKmh || 42} <span className="text-xs font-sans font-normal text-slate-500">km/h</span>
-          </p>
-        </div>
-
-        <div className="p-3.5 rounded-2xl bg-surface-canvas border border-surface-border shadow-xs">
+      {/* Telemetry Metrics Bar (ETA, Progress, Sector - No Overclaimed Speed) */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 mt-4">
+        <div className="p-4 rounded-2xl bg-surface-canvas border border-surface-border shadow-xs">
           <span className="text-[11px] font-sans text-slate-500 font-bold uppercase tracking-wider flex items-center space-x-1.5">
             <Clock className="w-3.5 h-3.5 text-amber-600" />
             <span>ETA Remaining</span>
           </span>
-          <p className="text-lg font-display font-bold text-slate-900 mt-1 font-mono">
-            {progress >= 100 ? 'Docked' : `${telemetry?.estimatedArrivalMinutes || 12} mins`}
+          <p className="text-xl font-display font-bold text-slate-900 mt-1 font-mono">
+            {progress >= 100 ? 'Docked at Facility' : `${telemetry?.estimatedArrivalMinutes || 12} mins`}
           </p>
         </div>
 
-        <div className="p-3.5 rounded-2xl bg-surface-canvas border border-surface-border shadow-xs">
+        <div className="p-4 rounded-2xl bg-surface-canvas border border-surface-border shadow-xs">
           <span className="text-[11px] font-sans text-slate-500 font-bold uppercase tracking-wider flex items-center space-x-1.5">
             <Navigation className="w-3.5 h-3.5 text-teal-700" />
             <span>Corridor Progress</span>
           </span>
-          <p className="text-lg font-display font-bold text-teal-800 mt-1 font-mono">
+          <p className="text-xl font-display font-bold text-teal-800 mt-1 font-mono">
             {progress}%
           </p>
         </div>
 
-        <div className="p-3.5 rounded-2xl bg-surface-canvas border border-surface-border shadow-xs">
+        <div className="p-4 rounded-2xl bg-surface-canvas border border-surface-border shadow-xs">
           <span className="text-[11px] font-sans text-slate-500 font-bold uppercase tracking-wider flex items-center space-x-1.5">
             <MapPin className="w-3.5 h-3.5 text-emerald-600" />
             <span>Current Sector</span>
           </span>
-          <p className="text-xs font-sans font-bold text-slate-800 mt-1.5 truncate" title={telemetry?.currentAddress}>
+          <p className="text-sm font-sans font-bold text-slate-800 mt-1 truncate" title={telemetry?.currentAddress}>
             {telemetry?.currentAddress || 'Kathipara Corridor, Chennai'}
           </p>
         </div>

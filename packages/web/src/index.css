@@ -78,6 +78,10 @@
   background: linear-gradient(135deg, #115E59 0%, #134E4A 100%);
 }
 
+.gradient-accent {
+  background: linear-gradient(135deg, #78350F 0%, #B45309 50%, #92400E 100%);
+}
+
 .hover-lift {
   transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }

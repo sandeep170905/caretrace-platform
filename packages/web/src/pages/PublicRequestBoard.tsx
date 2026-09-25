@@ -190,25 +190,25 @@ export const PublicRequestBoard: React.FC<PublicRequestBoardProps> = ({
       {/* Broadcast Announcements Banner */}
       <AnnouncementBanner refreshKey={refreshKey} />
 
-      {/* Asymmetric Hero Banner */}
-      <div className="relative overflow-hidden rounded-[2.5rem] bg-slate-950 text-white shadow-elevated">
+      {/* Asymmetric Hero Banner (Teal / Emerald Gradient Direction) */}
+      <div className="relative overflow-hidden rounded-[2.5rem] gradient-hero text-white shadow-elevated border border-teal-700/50">
         <div className="absolute inset-0 opacity-40 mix-blend-color-dodge pointer-events-none">
-          <div className="absolute top-[-20%] right-[-10%] w-[60%] h-[120%] bg-teal-600/30 blur-[100px] rounded-full rotate-12" />
-          <div className="absolute bottom-[-20%] left-[-10%] w-[50%] h-[80%] bg-emerald-600/20 blur-[80px] rounded-full" />
+          <div className="absolute top-[-20%] right-[-10%] w-[60%] h-[120%] bg-teal-400/25 blur-[100px] rounded-full rotate-12" />
+          <div className="absolute bottom-[-20%] left-[-10%] w-[50%] h-[80%] bg-emerald-400/20 blur-[80px] rounded-full" />
         </div>
         
         <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-          <div className="lg:col-span-7 p-8 sm:p-12 lg:pr-4">
-            <div className="inline-flex items-center space-x-2 px-3.5 py-1.5 rounded-full bg-teal-500/10 border border-teal-400/20 text-xs font-sans font-bold tracking-wide text-teal-300 mb-6 shadow-sm">
-              <ShieldCheck className="w-4 h-4 text-teal-400" />
+          <div className="lg:col-span-7 p-8 sm:p-12 lg:pr-6">
+            <div className="inline-flex items-center space-x-2.5 px-4 py-1.5 rounded-full bg-teal-500/20 border border-teal-300/30 text-xs font-sans font-bold tracking-wide text-teal-200 mb-6 shadow-sm">
+              <ShieldCheck className="w-4 h-4 text-teal-300" />
               <span>Public Ledger Verified Childcare Needs</span>
             </div>
             
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-display font-bold tracking-tight leading-[1.1] mb-5 text-transparent bg-clip-text bg-gradient-to-br from-white via-slate-100 to-slate-400">
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-display font-bold tracking-tight leading-[1.1] mb-5 text-white">
               Direct, Audited Needs for Children in Care
             </h1>
             
-            <p className="text-base font-sans text-slate-300 mb-8 max-w-xl leading-relaxed">
+            <p className="text-base sm:text-lg font-sans text-teal-100/90 mb-8 max-w-xl leading-relaxed">
               Every listed item is legally vetted, scored for demand authenticity, and cryptographically tracked from donor depot to verified child institution handover.
             </p>
 
@@ -216,38 +216,38 @@ export const PublicRequestBoard: React.FC<PublicRequestBoardProps> = ({
               <button
                 type="button"
                 onClick={() => onNavigateToVerify()}
-                className="inline-flex items-center space-x-2.5 px-6 py-3.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-sans font-bold text-sm rounded-xl transition-all shadow-[0_0_20px_rgba(16,185,129,0.3)] hover:shadow-[0_0_25px_rgba(16,185,129,0.5)] press-effect hover-lift"
+                className="inline-flex items-center space-x-2.5 px-6 py-3.5 bg-white hover:bg-teal-50 text-teal-950 font-sans font-bold text-sm rounded-xl transition-all shadow-glass press-effect hover-lift"
               >
-                <ShieldCheck className="w-4.5 h-4.5 text-slate-950" />
+                <ShieldCheck className="w-4.5 h-4.5 text-teal-800" />
                 <span>Verify a Donation on Public Ledger</span>
-                <ArrowRight className="w-4 h-4 ml-1" />
+                <ArrowRight className="w-4 h-4 ml-1 text-teal-700" />
               </button>
             )}
           </div>
           
-          <div className="lg:col-span-5 p-8 sm:p-12 lg:pl-4 flex flex-col justify-center h-full border-t lg:border-t-0 lg:border-l border-white/10 bg-white/5 backdrop-blur-sm">
+          <div className="lg:col-span-5 p-8 sm:p-12 lg:pl-8 flex flex-col justify-center h-full border-t lg:border-t-0 lg:border-l border-teal-700/50 bg-teal-950/20 backdrop-blur-md">
             <div className="space-y-6">
               <div className="group">
-                <span className="text-[10px] font-sans font-bold uppercase tracking-widest text-teal-300/80 block mb-1">Verified Sanctuaries</span>
-                <p className="text-3xl font-display font-bold text-white group-hover:text-teal-200 transition-colors">
+                <span className="text-xs font-sans font-bold uppercase tracking-widest text-teal-200/90 block mb-1.5">Verified Sanctuaries</span>
+                <p className="text-4xl font-display font-bold text-white group-hover:text-teal-200 transition-colors">
                   {institutions.filter(i => i.verified).length}
                 </p>
               </div>
               
-              <div className="w-full h-px bg-gradient-to-r from-white/20 to-transparent" />
+              <div className="w-full h-px bg-teal-700/60" />
               
               <div className="group">
-                <span className="text-[10px] font-sans font-bold uppercase tracking-widest text-teal-300/80 block mb-1">Open Verified Needs</span>
-                <p className="text-3xl font-display font-bold text-emerald-400 group-hover:text-emerald-300 transition-colors">
+                <span className="text-xs font-sans font-bold uppercase tracking-widest text-teal-200/90 block mb-1.5">Open Verified Needs</span>
+                <p className="text-4xl font-display font-bold text-emerald-300 group-hover:text-emerald-200 transition-colors">
                   {requirements.filter(r => r.status === 'VERIFIED').length}
                 </p>
               </div>
               
-              <div className="w-full h-px bg-gradient-to-r from-white/20 to-transparent" />
+              <div className="w-full h-px bg-teal-700/60" />
               
               <div className="group">
-                <span className="text-[10px] font-sans font-bold uppercase tracking-widest text-teal-300/80 block mb-1">Custody Ledger</span>
-                <p className="text-2xl font-display font-bold text-amber-300 flex items-center space-x-2">
+                <span className="text-xs font-sans font-bold uppercase tracking-widest text-teal-200/90 block mb-1.5">Custody Ledger</span>
+                <p className="text-2xl sm:text-3xl font-display font-bold text-amber-300 flex items-center space-x-2">
                   <Sparkles className="w-5 h-5 text-amber-400" />
                   <span>100% On-Chain</span>
                 </p>
