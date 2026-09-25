@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { User, Requirement } from '@caretrace/shared';
-import { fetchPersonas, resetDatabase, useRealTimeEvents, getCurrentUser, clearAuthToken } from './api/client';
+import { fetchPersonas, resetDatabase, useRealTimeEvents, getCurrentUser, clearAuthToken, loginUser } from './api/client';
 import { Navbar } from './components/Navbar';
 import { AuthModal } from './components/AuthModal';
 import { PublicRequestBoard } from './pages/PublicRequestBoard';
@@ -173,6 +173,18 @@ export const App: React.FC = () => {
     }
   };
 
+  const handleSelectPersona = async (persona: User) => {
+    try {
+      const res = await loginUser(persona.email, 'caretrace123');
+      setCurrentPersona(res.user);
+      setIsAuthenticated(true);
+    } catch {
+      setCurrentPersona(persona);
+      setIsAuthenticated(true);
+    }
+    handleSelectNavTab('PORTAL');
+  };
+
   const handleLogout = () => {
     clearAuthToken();
     setIsAuthenticated(false);
@@ -191,10 +203,7 @@ export const App: React.FC = () => {
       <Navbar
         personas={personas}
         currentPersona={currentPersona}
-        onSelectPersona={(persona) => {
-          setCurrentPersona(persona);
-          handleSelectNavTab('PORTAL');
-        }}
+        onSelectPersona={handleSelectPersona}
         sseConnected={sseConnected}
         onResetDatabase={handleReset}
         isResetting={isResetting}
@@ -340,7 +349,7 @@ export const App: React.FC = () => {
                       <button
                         key={p.id}
                         onClick={() => {
-                          setCurrentPersona(p);
+                          handleSelectPersona(p);
                         }}
                         className="p-4 bg-white hover:bg-teal-50/50 border border-slate-200 hover:border-teal-300 rounded-2xl text-left transition-all shadow-xs group"
                       >

@@ -186,82 +186,99 @@ export const PublicRequestBoard: React.FC<PublicRequestBoardProps> = ({
   };
 
   return (
-    <div className="space-y-8 animate-fade-in pb-12">
+    <div className="space-y-8 animate-fade-in pb-16">
       {/* Broadcast Announcements Banner */}
       <AnnouncementBanner refreshKey={refreshKey} />
 
-      {/* Public Hero Banner */}
-      <div className="bg-gradient-to-br from-teal-900 via-teal-800 to-slate-900 rounded-3xl p-6 sm:p-10 text-white shadow-xl relative overflow-hidden">
-        <div className="relative z-10 max-w-2xl">
-          <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-teal-500/30 border border-teal-300/30 text-xs text-teal-200 font-semibold mb-4">
-            <ShieldCheck className="w-4 h-4 text-teal-300" />
-            <span>Public Ledger Verified Childcare Needs</span>
-          </div>
-          <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight leading-tight">
-            Direct, Audited Needs for Children in Care
-          </h1>
-          <p className="text-sm text-teal-100/90 mt-2.5 leading-relaxed">
-            Every listed item is legally vetted, scored for demand authenticity, and cryptographically tracked from donor depot to verified child institution handover.
-          </p>
+      {/* Asymmetric Hero Banner */}
+      <div className="relative overflow-hidden rounded-[2.5rem] bg-slate-950 text-white shadow-elevated">
+        <div className="absolute inset-0 opacity-40 mix-blend-color-dodge pointer-events-none">
+          <div className="absolute top-[-20%] right-[-10%] w-[60%] h-[120%] bg-teal-600/30 blur-[100px] rounded-full rotate-12" />
+          <div className="absolute bottom-[-20%] left-[-10%] w-[50%] h-[80%] bg-emerald-600/20 blur-[80px] rounded-full" />
+        </div>
+        
+        <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+          <div className="lg:col-span-7 p-8 sm:p-12 lg:pr-4">
+            <div className="inline-flex items-center space-x-2 px-3.5 py-1.5 rounded-full bg-teal-500/10 border border-teal-400/20 text-xs font-sans font-bold tracking-wide text-teal-300 mb-6 shadow-sm">
+              <ShieldCheck className="w-4 h-4 text-teal-400" />
+              <span>Public Ledger Verified Childcare Needs</span>
+            </div>
+            
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-display font-bold tracking-tight leading-[1.1] mb-5 text-transparent bg-clip-text bg-gradient-to-br from-white via-slate-100 to-slate-400">
+              Direct, Audited Needs for Children in Care
+            </h1>
+            
+            <p className="text-base font-sans text-slate-300 mb-8 max-w-xl leading-relaxed">
+              Every listed item is legally vetted, scored for demand authenticity, and cryptographically tracked from donor depot to verified child institution handover.
+            </p>
 
-          {onNavigateToVerify && (
-            <div className="mt-5 flex items-center space-x-3">
+            {onNavigateToVerify && (
               <button
                 type="button"
                 onClick={() => onNavigateToVerify()}
-                className="flex items-center space-x-2 px-4 py-2 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs rounded-xl transition-all shadow-md"
+                className="inline-flex items-center space-x-2.5 px-6 py-3.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-sans font-bold text-sm rounded-xl transition-all shadow-[0_0_20px_rgba(16,185,129,0.3)] hover:shadow-[0_0_25px_rgba(16,185,129,0.5)] press-effect hover-lift"
               >
-                <ShieldCheck className="w-4 h-4 text-slate-950" />
-                <span>Verify a Donation on Public Ledger &rarr;</span>
+                <ShieldCheck className="w-4.5 h-4.5 text-slate-950" />
+                <span>Verify a Donation on Public Ledger</span>
+                <ArrowRight className="w-4 h-4 ml-1" />
               </button>
+            )}
+          </div>
+          
+          <div className="lg:col-span-5 p-8 sm:p-12 lg:pl-4 flex flex-col justify-center h-full border-t lg:border-t-0 lg:border-l border-white/10 bg-white/5 backdrop-blur-sm">
+            <div className="space-y-6">
+              <div className="group">
+                <span className="text-[10px] font-sans font-bold uppercase tracking-widest text-teal-300/80 block mb-1">Verified Sanctuaries</span>
+                <p className="text-3xl font-display font-bold text-white group-hover:text-teal-200 transition-colors">
+                  {institutions.filter(i => i.verified).length}
+                </p>
+              </div>
+              
+              <div className="w-full h-px bg-gradient-to-r from-white/20 to-transparent" />
+              
+              <div className="group">
+                <span className="text-[10px] font-sans font-bold uppercase tracking-widest text-teal-300/80 block mb-1">Open Verified Needs</span>
+                <p className="text-3xl font-display font-bold text-emerald-400 group-hover:text-emerald-300 transition-colors">
+                  {requirements.filter(r => r.status === 'VERIFIED').length}
+                </p>
+              </div>
+              
+              <div className="w-full h-px bg-gradient-to-r from-white/20 to-transparent" />
+              
+              <div className="group">
+                <span className="text-[10px] font-sans font-bold uppercase tracking-widest text-teal-300/80 block mb-1">Custody Ledger</span>
+                <p className="text-2xl font-display font-bold text-amber-300 flex items-center space-x-2">
+                  <Sparkles className="w-5 h-5 text-amber-400" />
+                  <span>100% On-Chain</span>
+                </p>
+              </div>
             </div>
-          )}
-        </div>
-
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mt-8 pt-6 border-t border-teal-700/60 relative z-10">
-          <div className="bg-white/10 backdrop-blur-md rounded-2xl p-3 sm:p-4 border border-white/10">
-            <span className="text-[11px] text-teal-200 font-medium">Verified Sanctuaries</span>
-            <p className="text-2xl font-bold font-mono text-white mt-0.5">
-              {institutions.filter(i => i.verified).length}
-            </p>
-          </div>
-          <div className="bg-white/10 backdrop-blur-md rounded-2xl p-3 sm:p-4 border border-white/10">
-            <span className="text-[11px] text-teal-200 font-medium">Open Verified Needs</span>
-            <p className="text-2xl font-bold font-mono text-emerald-300 mt-0.5">
-              {requirements.filter(r => r.status === 'VERIFIED').length}
-            </p>
-          </div>
-          <div className="bg-white/10 backdrop-blur-md rounded-2xl p-3 sm:p-4 border border-white/10 col-span-2 sm:col-span-1">
-            <span className="text-[11px] text-teal-200 font-medium">Custody Ledger</span>
-            <p className="text-2xl font-bold font-mono text-amber-300 mt-0.5">
-              100% On-Chain
-            </p>
           </div>
         </div>
       </div>
 
       {/* Filter & Search Toolbar */}
-      <div className="bg-white rounded-2xl p-4 sm:p-6 border border-[#E7E8E2] shadow-sm space-y-4">
-        <div className="flex flex-col md:flex-row gap-3 items-center justify-between">
+      <div className="bg-surface-card rounded-2xl p-5 border border-surface-border shadow-sm space-y-4">
+        <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
           {/* Keyword Search */}
           <div className="relative w-full md:w-96">
-            <Search className="w-4 h-4 absolute left-3.5 top-3 text-slate-400" />
+            <Search className="w-4.5 h-4.5 absolute left-3.5 top-3 text-slate-400" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search needs, items, or orphanages..."
-              className="w-full pl-10 pr-4 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-700"
+              className="w-full pl-10 pr-4 py-2.5 text-sm font-sans bg-surface-canvas border border-surface-border rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-600 shadow-inner transition-all"
             />
           </div>
 
           {/* Quick Filters */}
-          <div className="flex flex-wrap items-center gap-2 w-full md:w-auto">
+          <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
             {/* Category */}
             <select
               value={selectedCategory}
               onChange={(e) => setSelectedCategory(e.target.value)}
-              className="px-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl font-medium text-slate-700 focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-700"
+              className="px-4 py-2.5 text-xs font-sans bg-surface-canvas border border-surface-border rounded-xl font-bold text-slate-700 focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-600 shadow-sm cursor-pointer hover:border-teal-300 transition-all"
             >
               <option value="ALL">All Categories</option>
               <option value="FOOD">Food & Nutrition</option>
@@ -275,7 +292,7 @@ export const PublicRequestBoard: React.FC<PublicRequestBoardProps> = ({
             <select
               value={selectedUrgency}
               onChange={(e) => setSelectedUrgency(e.target.value)}
-              className="px-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl font-medium text-slate-700 focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-700"
+              className="px-4 py-2.5 text-xs font-sans bg-surface-canvas border border-surface-border rounded-xl font-bold text-slate-700 focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-600 shadow-sm cursor-pointer hover:border-teal-300 transition-all"
             >
               <option value="ALL">All Urgencies</option>
               <option value="CRITICAL">Critical Need</option>
@@ -288,7 +305,7 @@ export const PublicRequestBoard: React.FC<PublicRequestBoardProps> = ({
             <select
               value={selectedLocality}
               onChange={(e) => setSelectedLocality(e.target.value)}
-              className="px-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl font-medium text-slate-700 focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-700"
+              className="px-4 py-2.5 text-xs font-sans bg-surface-canvas border border-surface-border rounded-xl font-bold text-slate-700 focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-600 shadow-sm cursor-pointer hover:border-teal-300 transition-all"
             >
               <option value="ALL">All Localities</option>
               <option value="Tambaram">Tambaram</option>
@@ -306,14 +323,14 @@ export const PublicRequestBoard: React.FC<PublicRequestBoardProps> = ({
 
       {/* Needs Cards Grid */}
       {isLoading ? (
-        <div className="flex items-center justify-center py-16">
-          <div className="animate-spin w-8 h-8 border-4 border-teal-700 border-t-transparent rounded-full" />
+        <div className="flex items-center justify-center py-20">
+          <div className="animate-spin w-10 h-10 border-4 border-teal-700 border-t-transparent rounded-full" />
         </div>
       ) : filteredRequirements.length === 0 ? (
-        <div className="bg-white rounded-2xl p-12 text-center border border-slate-200 space-y-3">
-          <Building2 className="w-10 h-10 text-slate-300 mx-auto" />
-          <h3 className="text-base font-bold text-slate-800">No matching requirements found</h3>
-          <p className="text-xs text-slate-500 max-w-sm mx-auto">
+        <div className="bg-surface-card rounded-2xl p-16 text-center border border-surface-border shadow-sm space-y-4">
+          <Building2 className="w-12 h-12 text-slate-300 mx-auto" />
+          <h3 className="text-xl font-display font-bold text-slate-800">No matching requirements found</h3>
+          <p className="text-sm font-sans text-slate-500 max-w-sm mx-auto">
             Try resetting your locality, category, or search filters to view other verified childcare needs.
           </p>
           <button
@@ -323,14 +340,14 @@ export const PublicRequestBoard: React.FC<PublicRequestBoardProps> = ({
               setSelectedUrgency('ALL');
               setSelectedLocality('ALL');
             }}
-            className="px-4 py-2 bg-teal-50 text-teal-800 hover:bg-teal-100 rounded-xl text-xs font-semibold"
+            className="px-5 py-2.5 bg-surface-subtle text-teal-800 hover:bg-teal-50 hover:text-teal-900 border border-surface-border rounded-xl text-xs font-sans font-bold transition-colors shadow-sm press-effect mt-2"
           >
             Clear All Filters
           </button>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredRequirements.map((req) => {
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+          {filteredRequirements.map((req, i) => {
             const inst = verifiedInstMap.get(req.institutionId);
             const progress = Math.min(100, Math.round((req.fulfilledQuantity / req.targetQuantity) * 100));
             const remaining = Math.max(0, req.targetQuantity - req.fulfilledQuantity);
@@ -338,51 +355,51 @@ export const PublicRequestBoard: React.FC<PublicRequestBoardProps> = ({
             return (
               <div
                 key={req.id}
-                className="bg-white rounded-2xl border border-[#E7E8E2] hover:border-teal-400 hover:shadow-md transition-all p-5 flex flex-col justify-between"
+                className={`card-premium p-6 flex flex-col justify-between animate-fade-up bg-surface-card border border-surface-border rounded-2xl hover:border-teal-300 hover:shadow-card-hover transition-all duration-300 stagger-${(i % 6) + 1}`}
               >
                 <div>
                   {/* Top Badges */}
-                  <div className="flex items-center justify-between gap-2">
-                    <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded bg-slate-100 text-slate-700">
+                  <div className="flex items-center justify-between gap-2 mb-4">
+                    <span className="text-[10px] font-sans uppercase font-bold tracking-widest px-2.5 py-1 rounded-md bg-surface-subtle text-slate-600 border border-surface-border shadow-sm">
                       {req.category}
                     </span>
 
-                    <div className="flex items-center space-x-1.5">
+                    <div className="flex items-center space-x-2">
                       <span
-                        className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                        className={`text-[10px] font-sans font-bold px-2.5 py-1 rounded-full shadow-sm ${
                           req.urgency === 'CRITICAL'
                             ? 'bg-rose-100 text-rose-800 border border-rose-200'
                             : req.urgency === 'HIGH'
                             ? 'bg-amber-100 text-amber-800 border border-amber-200'
-                            : 'bg-slate-100 text-slate-700'
+                            : 'bg-slate-100 text-slate-700 border border-slate-200'
                         }`}
                       >
                         {req.urgency}
                       </span>
 
-                      <span className="text-[10px] font-mono font-bold bg-emerald-50 text-emerald-800 border border-emerald-200 px-2 py-0.5 rounded-full flex items-center space-x-1">
-                        <ShieldCheck className="w-3 h-3 text-emerald-600" />
+                      <span className="text-[10px] font-mono font-bold bg-emerald-50 text-emerald-800 border border-emerald-200 px-2.5 py-1 rounded-full flex items-center space-x-1 shadow-sm">
+                        <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
                         <span>{req.authenticityScore}% Score</span>
                       </span>
                     </div>
                   </div>
 
                   {/* Title & Description */}
-                  <h3 className="text-base font-bold text-slate-900 mt-3 leading-snug">
+                  <h3 className="text-xl font-display font-bold text-slate-900 leading-tight">
                     {req.title}
                   </h3>
-                  <p className="text-xs text-slate-500 mt-1.5 line-clamp-3 leading-relaxed">
+                  <p className="text-sm font-sans text-slate-600 mt-2 line-clamp-2 leading-relaxed">
                     {req.description}
                   </p>
 
                   {/* Institution Locality Card */}
                   {inst && (
-                    <div className="mt-4 p-3 bg-slate-50 rounded-xl border border-slate-100 flex items-start space-x-2.5">
-                      <Building2 className="w-4 h-4 text-teal-700 flex-shrink-0 mt-0.5" />
+                    <div className="mt-5 p-3.5 bg-surface-canvas rounded-xl border border-surface-border flex items-start space-x-3 shadow-inner">
+                      <Building2 className="w-5 h-5 text-teal-700 flex-shrink-0 mt-0.5" />
                       <div className="truncate">
-                        <p className="text-xs font-bold text-slate-800 truncate">{inst.name}</p>
-                        <p className="text-[11px] text-slate-500 flex items-center space-x-1 mt-0.5">
-                          <MapPin className="w-3 h-3 text-slate-400" />
+                        <p className="text-sm font-sans font-bold text-slate-800 truncate">{inst.name}</p>
+                        <p className="text-xs font-sans font-medium text-slate-500 flex items-center space-x-1.5 mt-1">
+                          <MapPin className="w-3.5 h-3.5 text-slate-400" />
                           <span className="truncate">{inst.address}, {inst.city}</span>
                         </p>
                       </div>
@@ -390,14 +407,14 @@ export const PublicRequestBoard: React.FC<PublicRequestBoardProps> = ({
                   )}
 
                   {/* Fulfillment Progress */}
-                  <div className="mt-4 space-y-1.5">
-                    <div className="flex justify-between text-xs text-slate-600">
-                      <span className="font-medium">Needed: <strong className="text-slate-900 font-mono">{remaining} {req.unit}</strong></span>
-                      <span className="font-mono text-[11px] text-slate-500">{progress}% Fulfilled</span>
+                  <div className="mt-5 space-y-2">
+                    <div className="flex justify-between text-xs font-sans text-slate-600">
+                      <span className="font-medium">Needed: <strong className="text-slate-900 font-mono font-bold">{remaining} {req.unit}</strong></span>
+                      <span className="font-mono font-bold text-[11px] text-teal-700">{progress}% Fulfilled</span>
                     </div>
-                    <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
+                    <div className="w-full h-2.5 bg-surface-subtle rounded-full overflow-hidden border border-surface-border/50 shadow-inner">
                       <div
-                        className="h-full bg-teal-700 rounded-full transition-all"
+                        className="h-full bg-teal-600 rounded-full transition-all duration-1000 ease-out"
                         style={{ width: `${progress}%` }}
                       />
                     </div>
@@ -405,24 +422,24 @@ export const PublicRequestBoard: React.FC<PublicRequestBoardProps> = ({
                 </div>
 
                 {/* Donate CTA Buttons: UPI & Goods */}
-                <div className="mt-5 pt-4 border-t border-slate-100 flex items-center justify-between gap-2">
-                  <span className="text-[11px] text-slate-400 font-mono truncate max-w-[100px]">
+                <div className="mt-6 pt-5 border-t border-surface-border flex items-center justify-between gap-3">
+                  <span className="text-[10px] font-bold text-slate-400 font-mono truncate max-w-[90px] bg-surface-subtle px-1.5 py-0.5 rounded border border-surface-border">
                     {req.id.slice(0, 14)}
                   </span>
-                  <div className="flex items-center space-x-1.5 shrink-0">
+                  <div className="flex items-center space-x-2 shrink-0">
                     <button
                       onClick={() => handleMonetaryClick(req)}
-                      className="px-3 py-2 min-h-[40px] sm:min-h-[36px] bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 rounded-xl text-xs font-semibold shadow-xs transition-colors flex items-center space-x-1"
+                      className="px-3.5 py-2 min-h-[40px] bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 rounded-xl text-xs font-sans font-bold shadow-sm transition-colors flex items-center space-x-1.5 press-effect hover-lift"
                       title="Pledge Monetary Contribution"
                     >
-                      <span className="font-bold">₹</span>
+                      <span className="font-display font-bold text-sm">₹</span>
                       <span>Contribute Funds</span>
                     </button>
                     <button
                       onClick={() => handleDonateClick(req)}
-                      className="flex items-center space-x-1.5 px-3.5 py-2 min-h-[40px] sm:min-h-[36px] bg-teal-800 hover:bg-teal-900 text-white rounded-xl text-xs font-semibold shadow-xs hover:shadow transition-all active:scale-95"
+                      className="flex items-center space-x-1.5 px-4 py-2 min-h-[40px] gradient-primary text-white rounded-xl text-xs font-sans font-bold shadow-glow-teal hover-lift transition-all press-effect"
                     >
-                      <HeartHandshake className="w-3.5 h-3.5" />
+                      <HeartHandshake className="w-4 h-4" />
                       <span>Pledge Goods</span>
                     </button>
                   </div>
@@ -435,52 +452,52 @@ export const PublicRequestBoard: React.FC<PublicRequestBoardProps> = ({
 
       {/* Pledge Donation Modal */}
       {pledgingReq && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-sm animate-fade-in">
-          <div className="bg-white rounded-3xl max-w-md w-full p-6 sm:p-7 shadow-2xl border border-slate-200 relative max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-md animate-fade-in">
+          <div className="bg-surface-card rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-elevated border border-surface-border relative max-h-[90vh] overflow-y-auto animate-slide-up card-premium">
             <button
               onClick={() => { setPledgingReq(null); setPledgeSuccessId(null); }}
-              className="absolute top-5 right-5 text-slate-400 hover:text-slate-600 p-1"
+              className="absolute top-5 right-5 text-slate-400 hover:text-slate-600 p-2 rounded-xl hover:bg-surface-subtle transition-colors press-effect"
             >
               <X className="w-5 h-5" />
             </button>
 
             {pledgeSuccessId ? (
-              <div className="text-center py-4 space-y-3">
-                <div className="w-12 h-12 bg-emerald-100 text-emerald-700 rounded-2xl flex items-center justify-center mx-auto">
-                  <PackageCheck className="w-7 h-7" />
+              <div className="text-center py-6 space-y-4">
+                <div className="w-16 h-16 bg-emerald-50 border border-emerald-200 text-emerald-600 rounded-2xl flex items-center justify-center mx-auto shadow-sm">
+                  <PackageCheck className="w-8 h-8" />
                 </div>
-                <h3 className="text-lg font-bold text-slate-900">Donation Pledged Successfully!</h3>
-                <p className="text-xs text-slate-600">
-                  Consignment <span className="font-mono font-bold text-teal-800">{pledgeSuccessId}</span> has been entered onto the ledger and is awaiting courier dispatch.
+                <h3 className="text-2xl font-display font-bold text-slate-900">Donation Pledged Successfully!</h3>
+                <p className="text-sm font-sans text-slate-600 leading-relaxed">
+                  Consignment <span className="font-mono font-bold text-teal-800 bg-teal-50 px-1.5 py-0.5 rounded border border-teal-200">{pledgeSuccessId}</span> has been entered onto the ledger and is awaiting courier dispatch.
                 </p>
-                <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs text-left text-slate-600 space-y-1">
-                  <p>• Genesis block sealed with SHA-256 hash.</p>
-                  <p>• QR code generated for courier pickup authentication.</p>
-                  <p>• Track live progress in your Donor Dashboard.</p>
+                <div className="p-4 bg-surface-subtle border border-surface-border rounded-xl text-xs font-sans text-left text-slate-600 space-y-2 shadow-inner">
+                  <p className="flex items-center space-x-2"><CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" /><span>Genesis block sealed with SHA-256 hash.</span></p>
+                  <p className="flex items-center space-x-2"><CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" /><span>QR code generated for courier pickup authentication.</span></p>
+                  <p className="flex items-center space-x-2"><CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" /><span>Track live progress in your Donor Dashboard.</span></p>
                 </div>
                 <button
                   onClick={() => { setPledgingReq(null); setPledgeSuccessId(null); }}
-                  className="w-full py-2.5 bg-teal-800 hover:bg-teal-900 text-white rounded-xl text-xs font-bold shadow transition-all"
+                  className="w-full py-3 mt-2 gradient-primary text-white rounded-xl text-xs font-sans font-bold shadow-glow-teal hover-lift transition-all press-effect"
                 >
                   Close & View Consignments
                 </button>
               </div>
             ) : (
-              <form onSubmit={handleConfirmPledge} className="space-y-4">
+              <form onSubmit={handleConfirmPledge} className="space-y-5">
                 <div>
-                  <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-teal-50 text-teal-700 border border-teal-200">
+                  <span className="text-[10px] font-sans font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-teal-50 text-teal-800 border border-teal-200 shadow-sm">
                     Pledge Donation
                   </span>
-                  <h3 className="text-lg font-bold text-slate-900 mt-2">
+                  <h3 className="text-2xl font-display font-bold text-slate-900 mt-3">
                     {pledgingReq.title}
                   </h3>
-                  <p className="text-xs text-slate-500 mt-0.5">
-                    Destination: <strong className="text-slate-800">{pledgingReq.institutionName}</strong>
+                  <p className="text-sm font-sans text-slate-500 mt-1 flex items-center space-x-1.5">
+                    <span>Destination:</span> <Building2 className="w-4 h-4 text-slate-400" /> <strong className="text-slate-800">{pledgingReq.institutionName}</strong>
                   </p>
                 </div>
 
-                <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                <div className="space-y-1.5">
+                  <label className="block text-xs font-sans font-bold text-slate-700">
                     Pledge Quantity ({pledgingReq.unit})
                   </label>
                   <input
@@ -490,15 +507,15 @@ export const PublicRequestBoard: React.FC<PublicRequestBoardProps> = ({
                     required
                     value={pledgeQuantity}
                     onChange={(e) => setPledgeQuantity(Number(e.target.value))}
-                    className="w-full px-3.5 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-700 font-mono font-bold text-slate-800"
+                    className="w-full px-4 py-3 text-sm bg-surface-canvas border border-surface-border rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-600 font-mono font-bold text-slate-900 shadow-inner transition-all"
                   />
-                  <span className="text-[11px] text-slate-400 mt-1 block">
-                    Needed to complete requirement: {pledgingReq.targetQuantity - pledgingReq.fulfilledQuantity} {pledgingReq.unit}
+                  <span className="text-[11px] font-sans font-medium text-slate-500 mt-1 block">
+                    Needed to complete requirement: <strong className="text-slate-700">{pledgingReq.targetQuantity - pledgingReq.fulfilledQuantity} {pledgingReq.unit}</strong>
                   </span>
                 </div>
 
-                <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                <div className="space-y-1.5">
+                  <label className="block text-xs font-sans font-bold text-slate-700">
                     Pickup Depot / Collection Address
                   </label>
                   <input
@@ -507,16 +524,16 @@ export const PublicRequestBoard: React.FC<PublicRequestBoardProps> = ({
                     value={pickupAddress}
                     onChange={(e) => setPickupAddress(e.target.value)}
                     placeholder="e.g. Adyar Depot, LB Road, Chennai 600020"
-                    className="w-full px-3.5 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-700 font-medium"
+                    className="w-full px-4 py-3 text-sm font-sans bg-surface-canvas border border-surface-border rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-600 text-slate-800 font-medium shadow-inner transition-all"
                   />
                 </div>
 
-                <div className="p-3 bg-teal-50/60 border border-teal-200/60 rounded-xl text-xs text-teal-900 space-y-1">
-                  <p className="font-semibold flex items-center space-x-1">
-                    <ShieldCheck className="w-3.5 h-3.5 text-teal-700" />
+                <div className="p-4 bg-teal-50/80 border border-teal-200/80 rounded-xl text-xs text-teal-950 space-y-2 shadow-sm">
+                  <p className="font-sans font-bold flex items-center space-x-1.5 text-teal-900">
+                    <ShieldCheck className="w-4.5 h-4.5 text-teal-700" />
                     <span>Cryptographic Chain-of-Custody:</span>
                   </p>
-                  <p className="text-[11px] text-teal-800">
+                  <p className="text-[11px] font-sans font-medium text-teal-800/90 leading-relaxed pl-6">
                     Your pledge will generate block #0 on the tamper-resistant ledger and enter the courier dispatch queue.
                   </p>
                 </div>
@@ -524,9 +541,14 @@ export const PublicRequestBoard: React.FC<PublicRequestBoardProps> = ({
                 <button
                   type="submit"
                   disabled={isSubmittingPledge}
-                  className="w-full py-3 bg-teal-800 hover:bg-teal-900 text-white rounded-xl text-xs font-bold shadow-md hover:shadow-lg transition-all disabled:opacity-50"
+                  className="w-full py-3.5 gradient-primary text-white rounded-xl text-sm font-sans font-bold shadow-glow-teal hover-lift transition-all disabled:opacity-50 press-effect flex justify-center items-center space-x-2"
                 >
-                  {isSubmittingPledge ? 'Sealing on Ledger...' : 'Confirm & Commit Pledge'}
+                  {isSubmittingPledge ? (
+                    <>
+                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                      <span>Sealing on Ledger...</span>
+                    </>
+                  ) : 'Confirm & Commit Pledge'}
                 </button>
               </form>
             )}

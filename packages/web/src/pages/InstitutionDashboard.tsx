@@ -327,7 +327,7 @@ export const InstitutionDashboard: React.FC<InstitutionDashboardProps> = ({ user
 
   if (isLoading && !institution) {
     return (
-      <div className="space-y-6 animate-fade-in">
+      <div className="space-y-8 animate-fade-in pb-16">
         <AnnouncementBanner refreshKey={refreshKey} />
         <DashboardSkeleton type="INSTITUTION" />
       </div>
@@ -335,67 +335,77 @@ export const InstitutionDashboard: React.FC<InstitutionDashboardProps> = ({ user
   }
 
   return (
-    <div className="space-y-8 animate-fade-in">
+    <div className="space-y-8 animate-fade-in pb-16">
       {/* Broadcast Announcements Banner */}
       <AnnouncementBanner refreshKey={refreshKey} />
 
       {/* Institution Banner */}
-      <div className="bg-gradient-to-br from-emerald-800 via-teal-900 to-slate-900 rounded-3xl p-6 sm:p-8 text-white shadow-xl relative overflow-hidden">
+      <div className="gradient-hero rounded-[2.5rem] p-8 sm:p-12 text-white shadow-elevated relative overflow-hidden">
+        <div className="absolute inset-0 opacity-40 mix-blend-color-dodge pointer-events-none">
+          <div className="absolute top-[-20%] right-[-10%] w-[60%] h-[120%] bg-emerald-600/30 blur-[100px] rounded-full rotate-12" />
+        </div>
+        
         <div className="relative z-10 max-w-2xl">
-          <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-emerald-700/60 border border-emerald-500/40 text-xs text-emerald-200 font-medium mb-3">
-            <Building2 className="w-3.5 h-3.5 text-emerald-300" />
+          <div className="inline-flex items-center space-x-2.5 px-4 py-1.5 rounded-full bg-emerald-500/20 border border-emerald-400/30 text-xs font-sans font-bold tracking-wide text-emerald-200 mb-5 shadow-sm">
+            <Building2 className="w-4 h-4 text-emerald-300" />
             <span>Accredited Childcare Sanctuary Portal</span>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">
+          <h1 className="text-3xl sm:text-5xl font-display font-bold tracking-tight mb-3">
             {institution?.name || "Anbu Illam Children's Sanctuary"}
           </h1>
-          <p className="text-xs text-emerald-200/90 mt-1 font-mono">
-            License: {institution?.registrationNumber} • {institution?.address}, {institution?.city}
+          <p className="text-sm font-sans font-medium text-emerald-100/90 flex items-center space-x-2">
+            <span className="font-mono bg-emerald-950/40 px-2 py-0.5 rounded border border-white/10">Lic: {institution?.registrationNumber}</span> 
+            <span>•</span>
+            <span>{institution?.address}, {institution?.city}</span>
           </p>
         </div>
 
         {/* Institution Stats */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-6 pt-6 border-t border-emerald-700/60 relative z-10">
-          <div className="bg-white/10 backdrop-blur-md rounded-2xl p-4 border border-white/10">
-            <span className="text-xs text-emerald-200 font-medium">Children in Care</span>
-            <p className="text-2xl font-bold text-white mt-1 font-mono">
-              {institution?.currentChildrenCount} <span className="text-xs font-normal text-emerald-300">/ {institution?.capacity}</span>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-5 mt-10 pt-8 border-t border-emerald-700/60 relative z-10">
+          <div className="bg-white/10 backdrop-blur-md rounded-2xl p-5 border border-white/10 shadow-glass">
+            <span className="text-xs font-sans font-bold uppercase tracking-wider text-emerald-200/90 block mb-1.5">Children in Care</span>
+            <p className="text-4xl font-display font-bold text-white mb-2">
+              {institution?.currentChildrenCount} <span className="text-lg font-sans font-medium text-emerald-300">/ {institution?.capacity}</span>
             </p>
           </div>
 
-          <div className="bg-white/10 backdrop-blur-md rounded-2xl p-4 border border-white/10">
-            <span className="text-xs text-emerald-200 font-medium">Trust Rating</span>
-            <p className="text-2xl font-bold text-emerald-300 mt-1 font-mono">{institution?.trustScore}%</p>
-            <span className="text-[10px] text-emerald-200 flex items-center space-x-1 mt-0.5">
-              <ShieldCheck className="w-3 h-3" />
+          <div className="bg-white/10 backdrop-blur-md rounded-2xl p-5 border border-white/10 shadow-glass">
+            <span className="text-xs font-sans font-bold uppercase tracking-wider text-emerald-200/90 block mb-1.5">Trust Rating</span>
+            <p className="text-4xl font-display font-bold text-emerald-300 mb-2">{institution?.trustScore}%</p>
+            <span className="text-[11px] font-sans font-medium text-emerald-200 flex items-center space-x-1.5 bg-emerald-950/40 px-2 py-1 rounded w-fit">
+              <ShieldCheck className="w-3.5 h-3.5" />
               <span>Identity Verified</span>
             </span>
           </div>
 
-          <div className="bg-white/10 backdrop-blur-md rounded-2xl p-4 border border-white/10">
-            <span className="text-xs text-emerald-200 font-medium">Incoming Deliveries</span>
-            <p className="text-2xl font-bold text-amber-300 mt-1 font-mono">{incomingDonations.length}</p>
-            <span className="text-[10px] text-teal-200">En Route via Courier</span>
+          <div className="bg-white/10 backdrop-blur-md rounded-2xl p-5 border border-white/10 shadow-glass">
+            <span className="text-xs font-sans font-bold uppercase tracking-wider text-emerald-200/90 block mb-1.5">Incoming Deliveries</span>
+            <p className="text-4xl font-display font-bold text-amber-300 mb-2">{incomingDonations.length}</p>
+            <span className="text-[11px] font-sans font-medium text-emerald-200 bg-amber-950/40 text-amber-200 px-2 py-1 rounded w-fit inline-block">
+              En Route via Courier
+            </span>
           </div>
 
-          <div className="bg-white/10 backdrop-blur-md rounded-2xl p-4 border border-white/10">
-            <span className="text-xs text-emerald-200 font-medium">Ledger Confirmed</span>
-            <p className="text-2xl font-bold text-white mt-1 font-mono">{completedDonations.length}</p>
-            <span className="text-[10px] text-emerald-200">Sealed Receipts</span>
+          <div className="bg-white/10 backdrop-blur-md rounded-2xl p-5 border border-white/10 shadow-glass">
+            <span className="text-xs font-sans font-bold uppercase tracking-wider text-emerald-200/90 block mb-1.5">Ledger Confirmed</span>
+            <p className="text-4xl font-display font-bold text-white mb-2">{completedDonations.length}</p>
+            <span className="text-[11px] font-sans font-medium text-emerald-200 bg-emerald-950/40 px-2 py-1 rounded w-fit inline-block">
+              Sealed Receipts
+            </span>
           </div>
         </div>
       </div>
 
       {/* Success Notification Alert */}
       {handoverSuccessBanner && (
-        <div className="p-4 bg-emerald-50 border border-emerald-200 text-emerald-900 rounded-2xl flex items-center justify-between shadow-sm animate-fade-in">
-          <div className="flex items-center space-x-2 text-xs font-medium">
+        <div className="p-5 bg-emerald-50 border border-emerald-200 text-emerald-900 rounded-2xl flex items-center justify-between shadow-sm animate-fade-in card-premium">
+          <div className="flex items-center space-x-3 text-sm font-sans font-bold">
             <CheckCircle2 className="w-5 h-5 text-emerald-600 flex-shrink-0" />
             <span>{handoverSuccessBanner}</span>
           </div>
           <button
             onClick={() => setHandoverSuccessBanner(null)}
-            className="text-xs text-emerald-700 font-bold hover:underline"
+            className="text-xs text-emerald-700 font-bold hover:underline px-3 py-1.5 bg-white rounded-lg border border-emerald-200 press-effect"
           >
             Dismiss
           </button>
@@ -403,22 +413,22 @@ export const InstitutionDashboard: React.FC<InstitutionDashboardProps> = ({ user
       )}
 
       {/* Navigation Sub-Tabs & Action Bar */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-200 pb-2">
-        <div className="flex items-center space-x-2 bg-slate-100/90 p-1 rounded-2xl border border-slate-200 overflow-x-auto max-w-full">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-surface-border pb-4">
+        <div className="flex items-center space-x-2 bg-surface-subtle p-1.5 rounded-2xl border border-surface-border overflow-x-auto max-w-full shadow-inner">
           <button
             onClick={() => handleTabSwitch('DELIVERIES')}
-            className={`px-4 py-2 rounded-xl text-xs font-semibold transition-all flex items-center space-x-2 shrink-0 min-h-[44px] ${
+            className={`px-5 py-2.5 rounded-xl text-sm font-sans font-bold transition-all flex items-center space-x-2 shrink-0 min-h-[44px] ${
               activeTab === 'DELIVERIES'
-                ? 'bg-white text-teal-900 shadow-sm'
-                : 'text-slate-600 hover:text-slate-900'
+                ? 'bg-surface-card text-teal-900 shadow-sm'
+                : 'text-slate-500 hover:text-slate-800'
             }`}
           >
-            <ArrowDownLeft className="w-3.5 h-3.5 text-teal-700" />
+            <ArrowDownLeft className="w-4 h-4 text-teal-700" />
             <span>Active Deliveries & Handover</span>
-            <span className={`text-[10px] font-mono px-1.5 py-0.2 rounded-full font-bold ${
+            <span className={`text-[11px] font-mono px-2 py-0.5 rounded-lg border shadow-sm ml-1 ${
               incomingDonations.length > 0
-                ? 'bg-amber-100 text-amber-900 border border-amber-300'
-                : 'bg-slate-200 text-slate-700'
+                ? 'bg-amber-100 text-amber-900 border-amber-300'
+                : 'bg-slate-200 text-slate-700 border-slate-300'
             }`}>
               {incomingDonations.length}
             </span>
@@ -426,30 +436,30 @@ export const InstitutionDashboard: React.FC<InstitutionDashboardProps> = ({ user
 
           <button
             onClick={() => handleTabSwitch('REQUIREMENTS')}
-            className={`px-4 py-2 rounded-xl text-xs font-semibold transition-all flex items-center space-x-2 shrink-0 min-h-[44px] ${
+            className={`px-5 py-2.5 rounded-xl text-sm font-sans font-bold transition-all flex items-center space-x-2 shrink-0 min-h-[44px] ${
               activeTab === 'REQUIREMENTS'
-                ? 'bg-white text-teal-900 shadow-sm'
-                : 'text-slate-600 hover:text-slate-900'
+                ? 'bg-surface-card text-teal-900 shadow-sm'
+                : 'text-slate-500 hover:text-slate-800'
             }`}
           >
-            <Package className="w-3.5 h-3.5 text-teal-700" />
+            <Package className="w-4 h-4 text-teal-700" />
             <span>Requirements & Needs</span>
-            <span className="text-[10px] font-mono px-1.5 py-0.2 rounded-full bg-teal-50 text-teal-700 font-bold border border-teal-200">
+            <span className="text-[11px] font-mono px-2 py-0.5 rounded-lg bg-teal-50 text-teal-700 border border-teal-200 shadow-sm ml-1">
               {requirements.length}
             </span>
           </button>
 
           <button
             onClick={() => handleTabSwitch('CERTIFICATES')}
-            className={`px-4 py-2 rounded-xl text-xs font-semibold transition-all flex items-center space-x-2 shrink-0 min-h-[44px] ${
+            className={`px-5 py-2.5 rounded-xl text-sm font-sans font-bold transition-all flex items-center space-x-2 shrink-0 min-h-[44px] ${
               activeTab === 'CERTIFICATES'
-                ? 'bg-white text-teal-900 shadow-sm'
-                : 'text-slate-600 hover:text-slate-900'
+                ? 'bg-surface-card text-teal-900 shadow-sm'
+                : 'text-slate-500 hover:text-slate-800'
             }`}
           >
-            <Award className="w-3.5 h-3.5 text-teal-700" />
+            <Award className="w-4 h-4 text-teal-700" />
             <span>Verified Certificates</span>
-            <span className="text-[10px] font-mono px-1.5 py-0.2 rounded-full bg-slate-200 text-slate-700 font-bold">
+            <span className="text-[11px] font-mono px-2 py-0.5 rounded-lg bg-slate-200 text-slate-700 border border-slate-300 shadow-sm ml-1">
               {completedDonations.length}
             </span>
           </button>
@@ -459,9 +469,9 @@ export const InstitutionDashboard: React.FC<InstitutionDashboardProps> = ({ user
         {activeTab === 'DELIVERIES' && (
           <button
             onClick={() => setIsScannerOpen(true)}
-            className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-teal-700 to-teal-800 hover:from-teal-800 hover:to-teal-900 text-white rounded-xl text-xs font-bold shadow-sm transition-all self-start sm:self-center"
+            className="flex items-center space-x-2 px-5 py-2.5 gradient-primary text-white rounded-xl text-sm font-sans font-bold shadow-glow-teal hover-lift transition-all self-start sm:self-center press-effect"
           >
-            <QrCode className="w-4 h-4" />
+            <QrCode className="w-4.5 h-4.5" />
             <span>Scan Handover QR</span>
           </button>
         )}
@@ -472,13 +482,13 @@ export const InstitutionDashboard: React.FC<InstitutionDashboardProps> = ({ user
               if (institution?.verified) setIsNewReqOpen(true);
             }}
             disabled={!institution?.verified}
-            className={`flex items-center space-x-2 px-4 py-2 rounded-xl text-xs font-bold shadow-sm transition-all self-start sm:self-center ${
+            className={`flex items-center space-x-2 px-5 py-2.5 rounded-xl text-sm font-sans font-bold shadow-sm transition-all self-start sm:self-center ${
               institution?.verified
-                ? 'bg-gradient-to-r from-teal-700 to-teal-800 hover:from-teal-800 hover:to-teal-900 text-white cursor-pointer'
-                : 'bg-slate-100 text-slate-400 cursor-not-allowed border border-slate-200'
+                ? 'gradient-primary text-white cursor-pointer hover-lift shadow-glow-teal press-effect'
+                : 'bg-surface-subtle text-slate-400 cursor-not-allowed border border-surface-border'
             }`}
           >
-            <Plus className="w-4 h-4" />
+            <Plus className="w-4.5 h-4.5" />
             <span>{!institution?.verified ? 'Posting Locked' : 'Post New Requirement'}</span>
           </button>
         )}
@@ -491,68 +501,68 @@ export const InstitutionDashboard: React.FC<InstitutionDashboardProps> = ({ user
         <>
           {/* Section 1: Incoming Consignments & Handover QR Scan */}
           {activeTab === 'DELIVERIES' && (
-        <div className="bg-white rounded-2xl p-6 border border-[#E7E8E2] shadow-sm space-y-4">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100">
+        <div className="bg-surface-card rounded-[2rem] p-6 sm:p-8 border border-surface-border shadow-sm space-y-5 animate-fade-in">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-surface-border">
             <div>
-              <h2 className="text-base font-bold text-slate-900 flex items-center space-x-2">
+              <h2 className="text-xl font-display font-bold text-slate-900 flex items-center space-x-2.5">
                 <ArrowDownLeft className="w-5 h-5 text-teal-700" />
                 <span>Incoming Deliveries Awaiting Handover Confirmation</span>
               </h2>
-              <p className="text-xs text-slate-500 mt-0.5">
+              <p className="text-sm font-sans text-slate-500 mt-1">
                 Inspect incoming courier shipments and authenticate arrival via QR scan
               </p>
             </div>
 
             <button
               onClick={() => setIsScannerOpen(true)}
-              className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-teal-700 to-teal-800 hover:from-teal-800 hover:to-teal-900 text-white rounded-xl text-xs font-bold shadow-sm transition-all"
+              className="flex items-center space-x-2 px-5 py-2.5 gradient-primary text-white rounded-xl text-sm font-sans font-bold shadow-glow-teal hover-lift transition-all press-effect"
             >
-              <QrCode className="w-4 h-4" />
+              <QrCode className="w-4.5 h-4.5" />
               <span>Scan Handover QR</span>
             </button>
           </div>
 
         {incomingDonations.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {incomingDonations.map((d) => (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {incomingDonations.map((d, i) => (
               <div
                 key={d.id}
-                className="p-4 rounded-xl bg-amber-50/50 border border-amber-200/80 flex flex-col justify-between"
+                className={`card-premium p-6 rounded-2xl bg-amber-50/40 border border-amber-200 flex flex-col justify-between hover:shadow-card-hover transition-all animate-fade-up stagger-${(i % 6) + 1}`}
               >
                 <div>
-                  <div className="flex items-center justify-between">
-                    <span className="font-mono text-xs font-bold text-teal-900 bg-white px-2 py-0.5 rounded border border-amber-200">
+                  <div className="flex items-center justify-between mb-4">
+                    <span className="font-mono text-xs font-bold text-teal-900 bg-white px-2 py-0.5 rounded border border-amber-200 shadow-sm">
                       {d.id}
                     </span>
-                    <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-amber-100 text-amber-800">
+                    <span className="text-[10px] font-sans font-bold uppercase tracking-widest px-2.5 py-1 rounded-full bg-amber-100 text-amber-800 shadow-sm">
                       {d.status.replace('_', ' ')}
                     </span>
                   </div>
 
-                  <h4 className="text-sm font-bold text-slate-900 mt-2">{d.requirementTitle}</h4>
-                  <p className="text-xs text-slate-600 mt-0.5">
-                    Donor: <span className="font-semibold">{d.donorName}</span>
+                  <h4 className="text-lg font-display font-bold text-slate-900 mt-2 leading-snug">{d.requirementTitle}</h4>
+                  <p className="text-xs font-sans text-slate-600 mt-1.5 flex items-center space-x-1.5">
+                    <span>Donor:</span> <strong className="font-bold bg-white px-1.5 py-0.5 rounded border border-amber-100">{d.donorName}</strong>
                   </p>
 
-                  <div className="mt-3 p-2 bg-white rounded-lg border border-slate-200 text-xs">
-                    <span className="text-slate-500 font-medium">Consignment Items:</span>
-                    <p className="font-semibold text-slate-800 mt-0.5">
+                  <div className="mt-4 p-3 bg-white rounded-xl border border-amber-100 text-sm font-sans shadow-inner">
+                    <span className="text-slate-500 font-bold block mb-1">Consignment Items:</span>
+                    <p className="font-bold text-slate-800">
                       {d.items.map(it => `${it.quantity} ${it.unit} ${it.name}`).join(', ')}
                     </p>
                   </div>
                 </div>
 
-                <div className="mt-4 pt-3 border-t border-amber-200/60 flex items-center justify-between">
-                  <span className="text-[11px] text-slate-500">
+                <div className="mt-5 pt-4 border-t border-amber-200/60 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <span className="text-[11px] font-sans font-bold text-slate-500 bg-white px-2 py-1 rounded border border-amber-100 truncate max-w-[140px]">
                     Courier: {d.pickupAgentName || 'Sakthivel S'}
                   </span>
                   <button
                     onClick={() => {
                       setPendingHandoverDonationId(d.id);
                     }}
-                    className="px-3 py-1.5 bg-teal-800 hover:bg-teal-900 text-white rounded-lg text-xs font-semibold shadow-sm flex items-center space-x-1"
+                    className="px-4 py-2 bg-teal-800 hover:bg-teal-900 text-white rounded-xl text-xs font-sans font-bold shadow-sm flex items-center justify-center space-x-1.5 press-effect hover-lift transition-all"
                   >
-                    <CheckCircle2 className="w-3.5 h-3.5" />
+                    <CheckCircle2 className="w-4 h-4" />
                     <span>Confirm Receipt</span>
                   </button>
                 </div>
@@ -560,35 +570,40 @@ export const InstitutionDashboard: React.FC<InstitutionDashboardProps> = ({ user
             ))}
           </div>
         ) : (
-          <div className="text-center py-8 text-slate-500 text-xs">
-            No incoming deliveries pending handover scan.
+          <div className="text-center py-16">
+            <div className="w-16 h-16 bg-surface-subtle rounded-2xl flex items-center justify-center mx-auto mb-4 border border-surface-border">
+              <Package className="w-8 h-8 text-slate-300" />
+            </div>
+            <p className="text-lg font-display font-bold text-slate-700">No incoming deliveries</p>
+            <p className="text-sm font-sans text-slate-500 mt-1">All consignments have been scanned and authenticated.</p>
           </div>
         )}
       </div>
       )}
 
+
       {/* Section 2: Posted Institutional Requirements */}
       {activeTab === 'REQUIREMENTS' && (
-        <div className="bg-white rounded-2xl p-6 border border-[#E7E8E2] shadow-sm space-y-4">
+        <div className="bg-surface-card rounded-[2rem] p-6 sm:p-8 border border-surface-border shadow-sm space-y-5 animate-fade-in card-premium">
         {institution && !institution.verified && (
           <div className="p-4 bg-amber-50 border border-amber-300 text-amber-950 rounded-2xl flex items-start space-x-3 shadow-sm">
             <AlertTriangle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
             <div>
-              <h4 className="text-xs font-bold text-amber-950">Accreditation Pending Admin Verification</h4>
-              <p className="text-xs text-amber-800 mt-0.5 leading-relaxed">
-                Institution <strong>{institution.name}</strong> (License: <code>{institution.registrationNumber}</code>) is unverified. Legal accreditation must be approved by Compliance Admin (Sandeep) before requirement postings can be published.
+              <h4 className="text-sm font-sans font-bold text-amber-950">Accreditation Pending Admin Verification</h4>
+              <p className="text-xs font-sans text-amber-800 mt-1 leading-relaxed">
+                Institution <strong>{institution.name}</strong> (License: <code className="font-mono bg-amber-100 px-1 rounded">{institution.registrationNumber}</code>) is unverified. Legal accreditation must be approved by Compliance Admin before requirement postings can be published.
               </p>
             </div>
           </div>
         )}
 
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-surface-border">
           <div>
-            <h2 className="text-base font-bold text-slate-900 flex items-center space-x-2">
+            <h2 className="text-xl font-display font-bold text-slate-900 flex items-center space-x-2.5">
               <FileCheck2 className="w-5 h-5 text-emerald-700" />
               <span>Authenticity-Audited Requirements</span>
             </h2>
-            <p className="text-xs text-slate-500 mt-0.5">
+            <p className="text-sm font-sans text-slate-500 mt-1">
               Requirements evaluated by the CareTrace automated rule-based scoring engine
             </p>
           </div>
@@ -599,34 +614,34 @@ export const InstitutionDashboard: React.FC<InstitutionDashboardProps> = ({ user
             }}
             disabled={!institution?.verified}
             title={!institution?.verified ? 'Accreditation approval required to post requirements' : 'Post requirement'}
-            className={`flex items-center space-x-2 px-3.5 py-2 rounded-xl text-xs font-semibold shadow-sm transition-all ${
+            className={`flex items-center space-x-2 px-5 py-2.5 rounded-xl text-sm font-sans font-bold shadow-sm transition-all ${
               institution?.verified
-                ? 'bg-emerald-700 hover:bg-emerald-800 text-white cursor-pointer'
-                : 'bg-slate-100 text-slate-400 cursor-not-allowed border border-slate-200'
+                ? 'gradient-primary text-white cursor-pointer hover-lift shadow-glow-teal press-effect'
+                : 'bg-surface-subtle text-slate-400 cursor-not-allowed border border-surface-border'
             }`}
           >
             <Plus className="w-4 h-4" />
-            <span>{!institution?.verified ? 'Posting Locked (Pending Approval)' : 'Post New Requirement'}</span>
+            <span>{!institution?.verified ? 'Posting Locked' : 'Post New Requirement'}</span>
           </button>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {requirements.map((req) => {
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {requirements.map((req, i) => {
             const isApproved = req.status === 'VERIFIED' || req.status === 'FULFILLED';
             const progress = Math.min(100, Math.round((req.fulfilledQuantity / req.targetQuantity) * 100));
 
             return (
               <div
                 key={req.id}
-                className="p-4 rounded-xl border border-slate-200 bg-white hover:border-emerald-300 transition-all flex flex-col justify-between"
+                className={`card-premium p-6 rounded-2xl border border-surface-border bg-surface-card hover:border-emerald-300 transition-all duration-300 flex flex-col justify-between hover:shadow-card-hover animate-fade-up stagger-${(i % 6) + 1}`}
               >
                 <div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-slate-100 text-slate-700">
+                  <div className="flex items-center justify-between mb-4">
+                    <span className="text-[10px] font-sans font-bold uppercase tracking-widest px-2.5 py-1 rounded-md bg-surface-subtle text-slate-700 shadow-sm">
                       {req.category}
                     </span>
                     <span
-                      className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                      className={`text-[10px] font-sans font-bold uppercase tracking-widest px-2.5 py-1 rounded-full shadow-sm ${
                         req.status === 'FULFILLED'
                           ? 'bg-emerald-100 text-emerald-800'
                           : req.status === 'VERIFIED'
@@ -638,19 +653,19 @@ export const InstitutionDashboard: React.FC<InstitutionDashboardProps> = ({ user
                     </span>
                   </div>
 
-                  <h3 className="text-sm font-bold text-slate-900 mt-2.5">{req.title}</h3>
-                  <p className="text-xs text-slate-500 mt-1 line-clamp-2">{req.description}</p>
+                  <h3 className="text-lg font-display font-bold text-slate-900 mt-2 leading-snug">{req.title}</h3>
+                  <p className="text-sm font-sans text-slate-500 mt-1.5 line-clamp-2 leading-relaxed">{req.description}</p>
 
                   {/* Authenticity Score Badge */}
-                  <div className="mt-3 p-2.5 bg-slate-50 rounded-lg border border-slate-100 flex items-center justify-between text-xs">
-                    <span className="text-slate-500 font-medium">Authenticity Score:</span>
+                  <div className="mt-4 p-3 bg-surface-subtle rounded-xl border border-surface-border flex items-center justify-between text-xs font-sans shadow-inner">
+                    <span className="text-slate-600 font-bold">Authenticity Score:</span>
                     <span
-                      className={`font-mono font-bold text-xs px-2 py-0.5 rounded ${
+                      className={`font-mono font-bold text-xs px-2 py-0.5 rounded shadow-sm border ${
                         req.authenticityScore >= 75
-                          ? 'bg-emerald-100 text-emerald-800'
+                          ? 'bg-emerald-100 text-emerald-800 border-emerald-200'
                           : req.authenticityScore >= 60
-                          ? 'bg-amber-100 text-amber-800'
-                          : 'bg-rose-100 text-rose-800'
+                          ? 'bg-amber-100 text-amber-800 border-amber-200'
+                          : 'bg-rose-100 text-rose-800 border-rose-200'
                       }`}
                     >
                       {req.authenticityScore}/100
@@ -658,40 +673,40 @@ export const InstitutionDashboard: React.FC<InstitutionDashboardProps> = ({ user
                   </div>
 
                   {/* Progress Bar */}
-                  <div className="mt-3">
-                    <div className="flex justify-between text-[11px] text-slate-500 mb-1">
+                  <div className="mt-4">
+                    <div className="flex justify-between text-xs font-sans font-medium text-slate-600 mb-1.5">
                       <span>Fulfilled:</span>
-                      <span className="font-mono font-semibold text-slate-700">
+                      <span className="font-bold text-slate-800">
                         {req.fulfilledQuantity} / {req.targetQuantity} {req.unit}
                       </span>
                     </div>
-                    <div className="w-full h-1.5 bg-slate-200 rounded-full overflow-hidden">
+                    <div className="w-full h-2 bg-surface-subtle border border-surface-border/50 rounded-full overflow-hidden shadow-inner">
                       <div
-                        className={`h-full rounded-full ${req.status === 'FULFILLED' ? 'bg-emerald-600' : 'bg-teal-700'}`}
+                        className={`h-full rounded-full transition-all duration-1000 ease-out ${req.status === 'FULFILLED' ? 'bg-emerald-600' : 'bg-teal-600'}`}
                         style={{ width: `${progress}%` }}
                       />
                     </div>
                   </div>
                 </div>
 
-                <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between">
-                  <span className="text-[11px] text-slate-400">
+                <div className="mt-5 pt-4 border-t border-surface-border flex items-center justify-between">
+                  <span className="text-[11px] font-mono text-slate-400">
                     {formatRelativeTime(req.createdAt)}
                   </span>
-                  <div className="flex items-center space-x-1.5">
+                  <div className="flex items-center space-x-2">
                     <button
                       onClick={() => handleOpenEditModal(req)}
-                      className="px-2.5 py-1 bg-slate-50 hover:bg-slate-100 text-slate-700 rounded-lg text-xs font-medium border border-slate-200 flex items-center space-x-1 transition-colors"
+                      className="px-3 py-1.5 bg-surface-subtle hover:bg-white text-slate-700 rounded-lg text-xs font-sans font-bold border border-surface-border flex items-center space-x-1.5 transition-colors shadow-sm press-effect"
                     >
-                      <Edit3 className="w-3 h-3 text-slate-500" />
+                      <Edit3 className="w-3.5 h-3.5 text-slate-500" />
                       <span>Edit</span>
                     </button>
                     {req.status !== 'FULFILLED' && (
                       <button
                         onClick={() => handleCloseRequirement(req.id)}
-                        className="px-2.5 py-1 bg-rose-50 hover:bg-rose-100 text-rose-700 rounded-lg text-xs font-medium border border-rose-200 flex items-center space-x-1 transition-colors"
+                        className="px-3 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-700 rounded-lg text-xs font-sans font-bold border border-rose-200 flex items-center space-x-1.5 transition-colors shadow-sm press-effect"
                       >
-                        <XCircle className="w-3 h-3 text-rose-500" />
+                        <XCircle className="w-3.5 h-3.5 text-rose-500" />
                         <span>Close</span>
                       </button>
                     )}
@@ -706,38 +721,38 @@ export const InstitutionDashboard: React.FC<InstitutionDashboardProps> = ({ user
 
       {/* Section 3: Completed Receipts & Delivery Proofs */}
       {activeTab === 'CERTIFICATES' && (
-        <div className="bg-white rounded-2xl p-6 border border-[#E7E8E2] shadow-sm space-y-4">
-          <h2 className="text-base font-bold text-slate-900 flex items-center space-x-2">
+        <div className="bg-surface-card rounded-[2rem] p-6 sm:p-8 border border-surface-border shadow-sm space-y-5 animate-fade-in card-premium">
+          <h2 className="text-xl font-display font-bold text-slate-900 flex items-center space-x-2.5">
             <Award className="w-5 h-5 text-teal-700" />
             <span>Ledger-Confirmed Handover Proofs</span>
           </h2>
 
-          <div className="divide-y divide-slate-100">
+          <div className="divide-y divide-surface-border">
             {completedDonations.map((d) => (
-              <div key={d.id} className="py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+              <div key={d.id} className="py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-surface-subtle/50 px-2 rounded-xl transition-colors">
                 <div>
-                  <div className="flex items-center space-x-2">
-                    <span className="font-mono text-xs font-bold text-slate-900">{d.id}</span>
-                    <span className="text-xs text-slate-600 font-semibold">{d.requirementTitle}</span>
+                  <div className="flex items-center space-x-3">
+                    <span className="font-mono text-sm font-bold text-slate-900 bg-white border border-surface-border px-2 py-0.5 rounded shadow-sm">{d.id}</span>
+                    <span className="text-sm font-sans text-slate-700 font-bold">{d.requirementTitle}</span>
                   </div>
-                  <div className="flex flex-wrap items-center gap-2 mt-1">
-                    <span className="text-xs text-slate-500">
+                  <div className="flex flex-wrap items-center gap-2 mt-2">
+                    <span className="text-xs font-sans font-medium text-slate-500">
                       Delivered {formatRelativeTime(d.deliveryTimestamp || d.updatedAt, { includeTime: true })}
                     </span>
                     <span className="text-slate-300">•</span>
-                    <span className="inline-flex items-center space-x-1.5 px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-800 border border-emerald-200 text-[11px]">
-                      <CheckCircle2 className="w-3 h-3 text-emerald-600 flex-shrink-0" />
-                      <span className="text-slate-500 text-[10px] font-sans">Digital Signature:</span>
-                      <span className="font-mono font-semibold text-[10px] tracking-tight">{d.recipientSignature}</span>
+                    <span className="inline-flex items-center space-x-1.5 px-2.5 py-1 rounded-md bg-emerald-50 text-emerald-800 border border-emerald-200 text-[11px] shadow-sm">
+                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 flex-shrink-0" />
+                      <span className="text-slate-600 text-[10px] font-sans font-bold">Digital Signature:</span>
+                      <span className="font-mono font-bold text-[10px] tracking-tight">{d.recipientSignature}</span>
                     </span>
                   </div>
                 </div>
 
                 <button
                   onClick={() => handleViewCert(d.id)}
-                  className="self-start sm:self-auto px-3 py-1.5 bg-teal-50 hover:bg-teal-100 text-teal-800 rounded-lg text-xs font-semibold border border-teal-200 flex items-center space-x-1"
+                  className="self-start sm:self-auto px-4 py-2 bg-teal-50 hover:bg-teal-100 text-teal-800 rounded-xl text-xs font-sans font-bold border border-teal-200 flex items-center space-x-1.5 shadow-sm press-effect"
                 >
-                  <Award className="w-3.5 h-3.5" />
+                  <Award className="w-4 h-4 text-teal-600" />
                   <span>View Certificate</span>
                 </button>
               </div>
@@ -750,33 +765,33 @@ export const InstitutionDashboard: React.FC<InstitutionDashboardProps> = ({ user
 
       {/* Post New Requirement Modal */}
       {isNewReqOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-sm animate-fade-in">
-          <div className="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl border border-slate-200 max-h-[90vh] overflow-y-auto">
-            <h3 className="text-base font-bold text-slate-900">Post Institutional Childcare Need</h3>
-            <p className="text-xs text-slate-500 mt-0.5">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-md animate-fade-in">
+          <div className="bg-surface-card rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-elevated border border-surface-border max-h-[90vh] overflow-y-auto animate-slide-up card-premium custom-scrollbar">
+            <h3 className="text-2xl font-display font-bold text-slate-900">Post Institutional Childcare Need</h3>
+            <p className="text-sm font-sans text-slate-500 mt-1">
               The submission will be evaluated live by the CareTrace fraud & demand scoring engine.
             </p>
 
-            <form onSubmit={handleCreateRequirement} className="mt-4 space-y-3 text-xs">
+            <form onSubmit={handleCreateRequirement} className="mt-6 space-y-4 text-sm font-sans">
               <div>
-                <label className="block text-slate-700 font-medium mb-1">Requirement Title:</label>
+                <label className="block text-slate-700 font-bold mb-1.5">Requirement Title:</label>
                 <input
                   type="text"
                   required
                   placeholder="e.g. 50 Bags Ponni Boiled Rice & Toor Dal"
                   value={reqTitle}
                   onChange={(e) => setReqTitle(e.target.value)}
-                  className="w-full px-3 py-2 border border-slate-300 rounded-xl focus:outline-none focus:border-teal-600"
+                  className="w-full px-4 py-3 bg-surface-canvas border border-surface-border rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-600 shadow-inner transition-all"
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-slate-700 font-medium mb-1">Category:</label>
+                  <label className="block text-slate-700 font-bold mb-1.5">Category:</label>
                   <select
                     value={reqCategory}
                     onChange={(e: any) => setReqCategory(e.target.value)}
-                    className="w-full px-3 py-2 border border-slate-300 rounded-xl focus:outline-none focus:border-teal-600 bg-white"
+                    className="w-full px-4 py-3 bg-surface-canvas border border-surface-border rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-600 shadow-inner transition-all font-medium"
                   >
                     <option value="FOOD">Food & Nutrition</option>
                     <option value="CLOTHING">Clothing & Wear</option>
@@ -787,11 +802,11 @@ export const InstitutionDashboard: React.FC<InstitutionDashboardProps> = ({ user
                 </div>
 
                 <div>
-                  <label className="block text-slate-700 font-medium mb-1">Urgency:</label>
+                  <label className="block text-slate-700 font-bold mb-1.5">Urgency:</label>
                   <select
                     value={reqUrgency}
                     onChange={(e: any) => setReqUrgency(e.target.value)}
-                    className="w-full px-3 py-2 border border-slate-300 rounded-xl focus:outline-none focus:border-teal-600 bg-white"
+                    className="w-full px-4 py-3 bg-surface-canvas border border-surface-border rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-600 shadow-inner transition-all font-medium"
                   >
                     <option value="LOW">Low</option>
                     <option value="MEDIUM">Medium</option>
@@ -801,59 +816,59 @@ export const InstitutionDashboard: React.FC<InstitutionDashboardProps> = ({ user
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-slate-700 font-medium mb-1">Quantity Needed:</label>
+                  <label className="block text-slate-700 font-bold mb-1.5">Quantity Needed:</label>
                   <input
                     type="number"
                     min="1"
                     required
                     value={reqQuantity}
                     onChange={(e) => setReqQuantity(Number(e.target.value))}
-                    className="w-full px-3 py-2 border border-slate-300 rounded-xl focus:outline-none focus:border-teal-600 font-mono"
+                    className="w-full px-4 py-3 bg-surface-canvas border border-surface-border rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-600 shadow-inner transition-all font-mono font-bold"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-slate-700 font-medium mb-1">Unit of Measure:</label>
+                  <label className="block text-slate-700 font-bold mb-1.5">Unit of Measure:</label>
                   <input
                     type="text"
                     required
                     placeholder="e.g. boxes, jackets, sets"
                     value={reqUnit}
                     onChange={(e) => setReqUnit(e.target.value)}
-                    className="w-full px-3 py-2 border border-slate-300 rounded-xl focus:outline-none focus:border-teal-600"
+                    className="w-full px-4 py-3 bg-surface-canvas border border-surface-border rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-600 shadow-inner transition-all"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-slate-700 font-medium mb-1">Clinical / Need Description:</label>
+                <label className="block text-slate-700 font-bold mb-1.5">Clinical / Need Description:</label>
                 <textarea
                   rows={2}
                   placeholder="Explain why this allocation is requested and for which age cohort..."
                   value={reqDescription}
                   onChange={(e) => setReqDescription(e.target.value)}
-                  className="w-full px-3 py-2 border border-slate-300 rounded-xl focus:outline-none focus:border-teal-600"
+                  className="w-full px-4 py-3 bg-surface-canvas border border-surface-border rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-600 shadow-inner transition-all"
                 />
               </div>
 
               {liveScoring && (
-                <div className={`p-3.5 rounded-2xl border transition-all ${
+                <div className={`p-4 rounded-2xl border transition-all shadow-sm ${
                   liveScoring.score >= 80
                     ? 'bg-emerald-50/90 border-emerald-200 text-emerald-950'
                     : liveScoring.score >= 60
                     ? 'bg-amber-50/90 border-amber-200 text-amber-950'
                     : 'bg-rose-50/90 border-rose-200 text-rose-950'
                 }`}>
-                  <div className="flex items-center justify-between mb-1.5">
-                    <div className="flex items-center space-x-1.5 font-bold text-xs">
-                      <ShieldCheck className={`w-4 h-4 ${
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center space-x-2 font-sans font-bold text-sm">
+                      <ShieldCheck className={`w-4.5 h-4.5 ${
                         liveScoring.score >= 80 ? 'text-emerald-600' : liveScoring.score >= 60 ? 'text-amber-600' : 'text-rose-600'
                       }`} />
                       <span>Live Authenticity & Fraud Risk Preview</span>
                     </div>
-                    <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                    <span className={`px-2.5 py-1 rounded-full text-[10px] font-sans font-bold uppercase tracking-wider ${
                       liveScoring.score >= 80
                         ? 'bg-emerald-100 text-emerald-800'
                         : liveScoring.score >= 60
@@ -865,9 +880,9 @@ export const InstitutionDashboard: React.FC<InstitutionDashboardProps> = ({ user
                   </div>
 
                   {/* Real-time score meter bar */}
-                  <div className="w-full h-1.5 bg-slate-200/80 rounded-full overflow-hidden my-2">
+                  <div className="w-full h-2 bg-white/50 border border-black/5 rounded-full overflow-hidden my-3 shadow-inner">
                     <div
-                      className={`h-full transition-all duration-300 ${
+                      className={`h-full transition-all duration-300 ease-out ${
                         liveScoring.score >= 80 ? 'bg-emerald-600' : liveScoring.score >= 60 ? 'bg-amber-500' : 'bg-rose-500'
                       }`}
                       style={{ width: `${liveScoring.score}%` }}
@@ -876,35 +891,35 @@ export const InstitutionDashboard: React.FC<InstitutionDashboardProps> = ({ user
 
                   {/* Dynamic Rule Feedback / Detected Anomalies */}
                   {liveScoring.flags.length > 0 ? (
-                    <div className="space-y-1 mt-1 pt-1.5 border-t border-rose-200/60 text-[11px]">
+                    <div className="space-y-1.5 mt-2 pt-2 border-t border-rose-200/60 text-xs font-sans font-medium">
                       {liveScoring.flags.map((flag, idx) => (
-                        <p key={idx} className="flex items-start space-x-1.5 text-rose-800">
-                          <AlertTriangle className="w-3.5 h-3.5 shrink-0 text-rose-600 mt-0.5" />
+                        <p key={idx} className="flex items-start space-x-2 text-rose-800">
+                          <AlertTriangle className="w-4 h-4 shrink-0 text-rose-600 mt-0.5" />
                           <span>{flag.message}</span>
                         </p>
                       ))}
                     </div>
                   ) : (
-                    <p className="text-[11px] text-emerald-800 flex items-center space-x-1">
-                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                    <p className="text-xs font-sans font-bold text-emerald-800 flex items-center space-x-1.5">
+                      <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
                       <span>Claim matches registered capacity ({institution?.capacity || 48} children). Direct verified donor listing!</span>
                     </p>
                   )}
                 </div>
               )}
 
-              <div className="mt-5 flex justify-end space-x-2 pt-3 border-t border-slate-100">
+              <div className="mt-8 flex justify-end space-x-3 pt-4 border-t border-surface-border">
                 <button
                   type="button"
                   onClick={() => setIsNewReqOpen(false)}
-                  className="px-4 py-2 font-semibold text-slate-600 hover:bg-slate-100 rounded-xl"
+                  className="px-5 py-2.5 font-sans font-bold text-slate-600 hover:text-slate-900 hover:bg-surface-subtle rounded-xl transition-colors press-effect"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={isSubmittingReq || !reqTitle}
-                  className="px-5 py-2 font-semibold bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl shadow-sm disabled:opacity-50"
+                  className="px-6 py-2.5 font-sans font-bold gradient-primary text-white rounded-xl shadow-glow-teal hover-lift transition-all disabled:opacity-50 press-effect"
                 >
                   {isSubmittingReq ? 'Auditing Request...' : 'Audit & Post Need'}
                 </button>
@@ -916,32 +931,32 @@ export const InstitutionDashboard: React.FC<InstitutionDashboardProps> = ({ user
 
       {/* Edit Requirement Modal */}
       {editingReq && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-sm animate-fade-in">
-          <div className="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl border border-slate-200 max-h-[90vh] overflow-y-auto">
-            <h3 className="text-base font-bold text-slate-900">Edit Institutional Requirement</h3>
-            <p className="text-xs text-slate-500 mt-0.5">
-              Update requirement details and parameters for ID <span className="font-mono text-teal-800">{editingReq.id}</span>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-md animate-fade-in">
+          <div className="bg-surface-card rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-elevated border border-surface-border max-h-[90vh] overflow-y-auto animate-slide-up card-premium custom-scrollbar">
+            <h3 className="text-2xl font-display font-bold text-slate-900">Edit Institutional Requirement</h3>
+            <p className="text-sm font-sans text-slate-500 mt-1">
+              Update requirement details and parameters for ID <span className="font-mono font-bold text-teal-800 bg-teal-50 px-1.5 py-0.5 rounded border border-teal-100">{editingReq.id}</span>
             </p>
 
-            <form onSubmit={handleUpdateRequirementSubmit} className="mt-4 space-y-3 text-xs">
+            <form onSubmit={handleUpdateRequirementSubmit} className="mt-6 space-y-4 text-sm font-sans">
               <div>
-                <label className="block text-slate-700 font-medium mb-1">Requirement Title:</label>
+                <label className="block text-slate-700 font-bold mb-1.5">Requirement Title:</label>
                 <input
                   type="text"
                   required
                   value={editTitle}
                   onChange={(e) => setEditTitle(e.target.value)}
-                  className="w-full px-3 py-2 border border-slate-300 rounded-xl focus:outline-none focus:border-teal-600"
+                  className="w-full px-4 py-3 bg-surface-canvas border border-surface-border rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-600 shadow-inner transition-all"
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-slate-700 font-medium mb-1">Category:</label>
+                  <label className="block text-slate-700 font-bold mb-1.5">Category:</label>
                   <select
                     value={editCategory}
                     onChange={(e: any) => setEditCategory(e.target.value)}
-                    className="w-full px-3 py-2 border border-slate-300 rounded-xl focus:outline-none focus:border-teal-600 bg-white"
+                    className="w-full px-4 py-3 bg-surface-canvas border border-surface-border rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-600 shadow-inner transition-all font-medium"
                   >
                     <option value="FOOD">FOOD</option>
                     <option value="CLOTHING">CLOTHING</option>
@@ -952,11 +967,11 @@ export const InstitutionDashboard: React.FC<InstitutionDashboardProps> = ({ user
                 </div>
 
                 <div>
-                  <label className="block text-slate-700 font-medium mb-1">Urgency:</label>
+                  <label className="block text-slate-700 font-bold mb-1.5">Urgency:</label>
                   <select
                     value={editUrgency}
                     onChange={(e: any) => setEditUrgency(e.target.value)}
-                    className="w-full px-3 py-2 border border-slate-300 rounded-xl focus:outline-none focus:border-teal-600 bg-white"
+                    className="w-full px-4 py-3 bg-surface-canvas border border-surface-border rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-600 shadow-inner transition-all font-medium"
                   >
                     <option value="LOW">LOW</option>
                     <option value="MEDIUM">MEDIUM</option>
@@ -966,53 +981,53 @@ export const InstitutionDashboard: React.FC<InstitutionDashboardProps> = ({ user
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-slate-700 font-medium mb-1">Target Quantity:</label>
+                  <label className="block text-slate-700 font-bold mb-1.5">Target Quantity:</label>
                   <input
                     type="number"
                     min={1}
                     required
                     value={editQuantity}
                     onChange={(e) => setEditQuantity(Number(e.target.value))}
-                    className="w-full px-3 py-2 border border-slate-300 rounded-xl focus:outline-none focus:border-teal-600 font-mono"
+                    className="w-full px-4 py-3 bg-surface-canvas border border-surface-border rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-600 shadow-inner transition-all font-mono font-bold"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-slate-700 font-medium mb-1">Unit of Measure:</label>
+                  <label className="block text-slate-700 font-bold mb-1.5">Unit of Measure:</label>
                   <input
                     type="text"
                     required
                     value={editUnit}
                     onChange={(e) => setEditUnit(e.target.value)}
-                    className="w-full px-3 py-2 border border-slate-300 rounded-xl focus:outline-none focus:border-teal-600"
+                    className="w-full px-4 py-3 bg-surface-canvas border border-surface-border rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-600 shadow-inner transition-all"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-slate-700 font-medium mb-1">Need Description:</label>
+                <label className="block text-slate-700 font-bold mb-1.5">Need Description:</label>
                 <textarea
                   rows={2}
                   value={editDescription}
                   onChange={(e) => setEditDescription(e.target.value)}
-                  className="w-full px-3 py-2 border border-slate-300 rounded-xl focus:outline-none focus:border-teal-600"
+                  className="w-full px-4 py-3 bg-surface-canvas border border-surface-border rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-600 shadow-inner transition-all"
                 />
               </div>
 
-              <div className="mt-5 flex justify-end space-x-2 pt-3 border-t border-slate-100">
+              <div className="mt-8 flex justify-end space-x-3 pt-4 border-t border-surface-border">
                 <button
                   type="button"
                   onClick={() => setEditingReq(null)}
-                  className="px-4 py-2 font-semibold text-slate-600 hover:bg-slate-100 rounded-xl"
+                  className="px-5 py-2.5 font-sans font-bold text-slate-600 hover:text-slate-900 hover:bg-surface-subtle rounded-xl transition-colors press-effect"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={isUpdatingReq}
-                  className="px-5 py-2 font-semibold bg-teal-800 hover:bg-teal-900 text-white rounded-xl shadow-sm disabled:opacity-50"
+                  className="px-6 py-2.5 font-sans font-bold gradient-primary text-white rounded-xl shadow-glow-teal hover-lift transition-all disabled:opacity-50 press-effect"
                 >
                   {isUpdatingReq ? 'Saving Changes...' : 'Save Changes'}
                 </button>
@@ -1039,77 +1054,77 @@ export const InstitutionDashboard: React.FC<InstitutionDashboardProps> = ({ user
 
       {/* Handover Signature & Receipt Verification Dialog */}
       {pendingHandoverDonationId && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-sm animate-fade-in">
-          <div className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-200 max-h-[90vh] overflow-y-auto">
-            <h3 className="text-base font-bold text-slate-900 flex items-center space-x-2">
-              <CheckCircle2 className="w-5 h-5 text-emerald-600" />
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-md animate-fade-in">
+          <div className="bg-surface-card rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-elevated border border-surface-border max-h-[90vh] overflow-y-auto animate-slide-up card-premium custom-scrollbar">
+            <h3 className="text-2xl font-display font-bold text-slate-900 flex items-center space-x-2.5">
+              <CheckCircle2 className="w-6 h-6 text-emerald-600" />
               <span>Confirm Consignment Handover</span>
             </h3>
-            <p className="text-xs text-slate-500 mt-0.5">
-              Authenticating receipt of <span className="font-mono font-bold text-teal-800">{pendingHandoverDonationId}</span>
+            <p className="text-sm font-sans text-slate-500 mt-1">
+              Authenticating receipt of <span className="font-mono font-bold text-teal-800 bg-teal-50 px-1.5 py-0.5 rounded border border-teal-100">{pendingHandoverDonationId}</span>
             </p>
 
-            <div className="mt-4 space-y-3 text-xs">
+            <div className="mt-6 space-y-4 text-sm font-sans">
               <div>
-                <label className="block text-slate-700 font-medium mb-1">Receiving Official:</label>
+                <label className="block text-slate-700 font-bold mb-1.5">Receiving Official:</label>
                 <input
                   type="text"
                   value={handoverRecipientName}
                   onChange={(e) => setHandoverRecipientName(e.target.value)}
-                  className="w-full px-3 py-2 border border-slate-300 rounded-xl focus:outline-none focus:border-teal-600 font-semibold"
+                  className="w-full px-4 py-3 bg-surface-canvas border border-surface-border rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-600 shadow-inner transition-all font-bold"
                 />
               </div>
 
               <div>
-                <label className="block text-slate-700 font-medium mb-1">Inspection Notes:</label>
+                <label className="block text-slate-700 font-bold mb-1.5">Inspection Notes:</label>
                 <textarea
                   rows={2}
                   value={handoverNotes}
                   onChange={(e) => setHandoverNotes(e.target.value)}
-                  className="w-full px-3 py-2 border border-slate-300 rounded-xl focus:outline-none focus:border-teal-600"
+                  className="w-full px-4 py-3 bg-surface-canvas border border-surface-border rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-600 shadow-inner transition-all"
                 />
               </div>
 
               {/* Optional Photo Proof Upload */}
-              <div className="p-3 bg-slate-50 rounded-xl border border-slate-200">
-                <div className="flex items-center justify-between mb-1.5">
-                  <label className="block text-slate-800 font-semibold flex items-center space-x-1.5 text-xs">
-                    <Camera className="w-3.5 h-3.5 text-teal-700" />
-                    <span>Handover Photo Proof (Optional)</span>
+              <div className="p-4 bg-surface-subtle rounded-xl border border-surface-border shadow-inner">
+                <div className="flex items-center justify-between mb-2">
+                  <label className="text-slate-800 font-bold flex items-center space-x-2 text-sm">
+                    <Camera className="w-4 h-4 text-teal-700" />
+                    <span>Handover Photo Proof</span>
                   </label>
-                  <span className="text-[10px] text-slate-500 font-medium">Optional</span>
+                  <span className="text-[10px] font-sans font-bold uppercase tracking-wider text-slate-500 bg-white px-2 py-0.5 rounded shadow-sm border border-surface-border">Optional</span>
                 </div>
-                <p className="text-[11px] text-slate-500 mb-2">
+                <p className="text-xs font-medium text-slate-500 mb-3">
                   Attach photo evidence of received consignment to anchor on the immutable delivery ledger block.
                 </p>
 
                 {handoverPhoto ? (
-                  <div className="relative rounded-xl overflow-hidden border border-emerald-300 bg-slate-900">
+                  <div className="relative rounded-xl overflow-hidden border border-emerald-300 bg-slate-900 shadow-sm">
                     <img
                       src={handoverPhoto}
                       alt="Handover Preview"
-                      className="w-full h-32 object-cover"
+                      className="w-full h-40 object-cover"
                     />
-                    <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent p-2 flex justify-between items-center text-white text-[11px]">
-                      <span className="font-semibold flex items-center space-x-1 text-emerald-300">
-                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                    <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent p-3 flex justify-between items-center text-white text-xs">
+                      <span className="font-bold flex items-center space-x-1.5 text-emerald-300">
+                        <CheckCircle2 className="w-4 h-4 text-emerald-400" />
                         <span>Photo Attached</span>
                       </span>
                       <button
                         type="button"
                         onClick={() => setHandoverPhoto(null)}
-                        className="px-2 py-0.5 bg-red-600/90 hover:bg-red-700 rounded text-white text-[10px] flex items-center space-x-1 font-semibold"
+                        className="px-2.5 py-1 bg-rose-600 hover:bg-rose-700 rounded-lg text-white font-bold flex items-center space-x-1.5 transition-colors press-effect"
                       >
-                        <Trash2 className="w-3 h-3" />
+                        <Trash2 className="w-3.5 h-3.5" />
                         <span>Remove</span>
                       </button>
                     </div>
                   </div>
                 ) : (
-                  <div className="flex flex-col sm:flex-row gap-2">
-                    <label className="flex-1 flex items-center justify-center space-x-2 px-3 py-2 border border-dashed border-slate-300 hover:border-teal-600 rounded-xl cursor-pointer text-slate-600 hover:text-teal-800 transition-colors bg-white">
-                      <Upload className="w-3.5 h-3.5 text-slate-400" />
-                      <span className="text-xs font-medium">Upload Local Photo</span>
+                  <div className="flex flex-col sm:flex-row gap-3">
+                    <label className="flex-1 flex items-center justify-center space-x-2 px-4 py-3 border-2 border-dashed border-surface-border hover:border-teal-500 rounded-xl cursor-pointer text-slate-600 hover:text-teal-800 transition-colors bg-white hover:bg-teal-50 press-effect">
+                      <Upload className="w-4 h-4 text-slate-400" />
+                      <span className="text-sm font-bold">Upload Local Photo</span>
                       <input
                         type="file"
                         accept="image/*"
@@ -1135,37 +1150,37 @@ export const InstitutionDashboard: React.FC<InstitutionDashboardProps> = ({ user
                         const sample = generateSamplePhoto(pendingHandoverDonationId);
                         setHandoverPhoto(sample);
                       }}
-                      className="px-3 py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 rounded-xl text-xs font-semibold flex items-center justify-center space-x-1.5 transition-colors"
+                      className="px-4 py-3 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 rounded-xl text-sm font-bold flex items-center justify-center space-x-2 transition-colors shadow-sm press-effect"
                     >
-                      <Camera className="w-3.5 h-3.5 text-emerald-600" />
+                      <Camera className="w-4 h-4 text-emerald-600" />
                       <span>Use Sample Photo</span>
                     </button>
                   </div>
                 )}
               </div>
 
-              <div className="p-3 bg-emerald-50 rounded-xl text-[11px] text-emerald-900 space-y-1">
-                <span className="font-bold block">Ledger Finalization:</span>
-                <p>1. Mines final <code className="bg-emerald-100 px-1 rounded">DELIVERY_CONFIRMED</code> block.</p>
-                <p>2. Generates immutable cryptographic Proof of Delivery Certificate.</p>
-                <p>3. Pushes instant push notification to the Donor.</p>
+              <div className="p-4 bg-emerald-50/80 rounded-xl border border-emerald-100 text-xs font-sans text-emerald-950 space-y-2 shadow-inner">
+                <span className="font-bold block text-sm">Ledger Finalization:</span>
+                <p className="flex items-start space-x-2"><span className="text-emerald-700 font-bold">1.</span> <span>Mines final <code className="bg-emerald-100 px-1 rounded font-mono font-bold text-[10px]">DELIVERY_CONFIRMED</code> block.</span></p>
+                <p className="flex items-start space-x-2"><span className="text-emerald-700 font-bold">2.</span> <span>Generates immutable cryptographic Proof of Delivery Certificate.</span></p>
+                <p className="flex items-start space-x-2"><span className="text-emerald-700 font-bold">3.</span> <span>Pushes instant push notification to the Donor.</span></p>
               </div>
             </div>
 
-            <div className="mt-6 flex justify-end space-x-2">
+            <div className="mt-8 flex justify-end space-x-3 pt-4 border-t border-surface-border">
               <button
                 onClick={() => {
                   setPendingHandoverDonationId(null);
                   setHandoverPhoto(null);
                 }}
-                className="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-xl"
+                className="px-5 py-2.5 font-sans font-bold text-slate-600 hover:text-slate-900 hover:bg-surface-subtle rounded-xl transition-colors press-effect"
               >
                 Cancel
               </button>
               <button
                 onClick={handleConfirmDelivery}
                 disabled={isConfirmingHandover}
-                className="px-5 py-2 text-xs font-semibold bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl shadow-sm disabled:opacity-50"
+                className="px-6 py-2.5 font-sans font-bold bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl shadow-md hover:shadow-lg transition-all disabled:opacity-50 press-effect"
               >
                 {isConfirmingHandover ? 'Sealing on Ledger...' : 'Sign & Confirm Receipt'}
               </button>
@@ -1184,3 +1199,4 @@ export const InstitutionDashboard: React.FC<InstitutionDashboardProps> = ({ user
     </div>
   );
 };
+

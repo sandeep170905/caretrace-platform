@@ -90,15 +90,15 @@ export const Navbar: React.FC<NavbarProps> = ({
   const getRoleBadge = (role: string) => {
     switch (role) {
       case 'DONOR':
-        return 'bg-teal-50 text-teal-700 border-teal-200';
+        return 'pill-teal';
       case 'INSTITUTION':
-        return 'bg-emerald-50 text-emerald-700 border-emerald-200';
+        return 'pill-emerald';
       case 'PICKUP_AGENT':
-        return 'bg-amber-50 text-amber-800 border-amber-200';
+        return 'pill-amber';
       case 'ADMIN':
-        return 'bg-purple-50 text-purple-700 border-purple-200';
+        return 'pill-slate';
       default:
-        return 'bg-slate-50 text-slate-700 border-slate-200';
+        return 'pill-slate';
     }
   };
 
@@ -114,36 +114,36 @@ export const Navbar: React.FC<NavbarProps> = ({
   };
 
   return (
-    <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-[#E7E8E2] shadow-sm">
+    <header className="sticky top-0 z-40 glass-solid shadow-sm border-b border-surface-border">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 gap-3">
           {/* Brand Logo & Name (Always visible on all viewports) */}
           <div
-            className="flex items-center space-x-2.5 sm:space-x-3 cursor-pointer shrink-0"
+            className="flex items-center space-x-2.5 sm:space-x-3 cursor-pointer shrink-0 press-effect hover-lift"
             onClick={() => handleMobileNavClick('PUBLIC_BOARD')}
           >
-            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-teal-700 to-teal-900 flex items-center justify-center text-white shadow-md flex-shrink-0">
+            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl gradient-primary flex items-center justify-center text-white shadow-glow-teal flex-shrink-0">
               <ShieldCheck className="w-5 h-5 sm:w-6 sm:h-6" />
             </div>
             <div>
               <div className="flex items-center space-x-1.5 sm:space-x-2">
-                <span className="font-bold text-base sm:text-lg tracking-tight text-slate-900">CareTrace</span>
-                <span className="text-[9px] sm:text-[10px] font-semibold tracking-wider uppercase px-1.5 sm:px-2 py-0.5 rounded-full bg-teal-50 text-teal-700 border border-teal-200">
+                <span className="font-display font-bold text-xl sm:text-2xl tracking-tight text-slate-900">CareTrace</span>
+                <span className="text-[9px] sm:text-[10px] font-sans font-semibold tracking-wider uppercase px-1.5 sm:px-2 py-0.5 rounded-full pill-teal">
                   Verifiable Ledger
                 </span>
               </div>
-              <p className="text-[11px] text-slate-500 hidden md:block">Tamper-Proof Childcare Donation Logistics</p>
+              <p className="text-[11px] text-slate-500 hidden md:block font-sans">Tamper-Proof Childcare Donation Logistics</p>
             </div>
           </div>
 
           {/* Desktop Primary View Switcher: Public Board vs Verify a Donation vs Platform Portal */}
-          <div className="hidden md:flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200 text-xs font-semibold">
+          <div className="hidden md:flex items-center bg-surface-subtle p-1 rounded-xl border border-surface-border text-xs font-sans font-semibold shadow-inner">
             <button
               onClick={() => onSelectNavTab('PUBLIC_BOARD')}
               className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-lg transition-all ${
                 activeNavTab === 'PUBLIC_BOARD'
                   ? 'bg-white text-teal-900 shadow-sm font-bold'
-                  : 'text-slate-600 hover:text-slate-900'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-white/50'
               }`}
             >
               <Globe className="w-3.5 h-3.5 text-teal-700" />
@@ -154,7 +154,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-lg transition-all ${
                 activeNavTab === 'VERIFY'
                   ? 'bg-white text-teal-900 shadow-sm font-bold'
-                  : 'text-slate-600 hover:text-slate-900'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-white/50'
               }`}
             >
               <ShieldCheck className="w-3.5 h-3.5 text-teal-700" />
@@ -165,7 +165,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-lg transition-all ${
                 activeNavTab === 'PORTAL'
                   ? 'bg-white text-teal-900 shadow-sm font-bold'
-                  : 'text-slate-600 hover:text-slate-900'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-white/50'
               }`}
             >
               <LayoutDashboard className="w-3.5 h-3.5 text-teal-700" />
@@ -177,19 +177,19 @@ export const Navbar: React.FC<NavbarProps> = ({
           <div className="hidden md:flex items-center space-x-2 sm:space-x-3">
             {/* Live SSE Status */}
             <div
-              className={`flex items-center space-x-1.5 px-2.5 py-1 rounded-full text-xs font-medium border ${
+              className={`flex items-center space-x-1.5 px-2.5 py-1 rounded-full text-xs font-sans font-medium border ${
                 sseConnected
-                  ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                  : 'bg-amber-50 text-amber-700 border-amber-200'
+                  ? 'pill-emerald'
+                  : 'pill-amber'
               }`}
               title={sseConnected ? 'Real-time WebSocket/SSE connected' : 'Connecting to live events stream...'}
             >
-              <Radio className={`w-3 h-3 ${sseConnected ? 'text-emerald-600 animate-pulse' : 'text-amber-500'}`} />
+              <Radio className={`w-3 h-3 ${sseConnected ? 'text-emerald-600 animate-pulse-soft' : 'text-amber-500'}`} />
               <span className="hidden lg:inline">{sseConnected ? 'Live Updates' : 'Connecting'}</span>
             </div>
 
             {/* Instant Demo Role Switcher */}
-            <div className="hidden lg:flex items-center bg-[#F3F4F0] p-1 rounded-xl border border-[#E7E8E2]">
+            <div className="hidden lg:flex items-center bg-surface-subtle p-1 rounded-xl border border-surface-border">
               {personas.map((persona) => {
                 const isActive = currentPersona?.id === persona.id;
                 return (
@@ -200,7 +200,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                       onSelectNavTab('PORTAL');
                     }}
                     title={`Switch demo role to ${persona.name} (${persona.role})`}
-                    className={`flex items-center space-x-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                    className={`flex items-center space-x-1.5 px-2.5 py-1.5 rounded-lg text-xs font-sans font-medium transition-all ${
                       isActive
                         ? 'bg-white text-slate-900 shadow-sm border border-slate-200/80 font-semibold'
                         : 'text-slate-600 hover:text-slate-900 hover:bg-white/60'
@@ -215,11 +215,11 @@ export const Navbar: React.FC<NavbarProps> = ({
 
             {/* Auth Action: Login / Register OR Logged In Account Badge */}
             {isAuthenticated && currentPersona ? (
-              <div className="flex items-center space-x-2">
-                <div className="hidden xl:flex items-center space-x-2 pl-2 border-l border-slate-200">
+              <div className="flex items-center space-x-2 animate-fade-in">
+                <div className="hidden xl:flex items-center space-x-2 pl-2 border-l border-surface-border">
                   <div className="text-right">
-                    <p className="text-xs font-bold text-slate-800 leading-tight">{currentPersona.name}</p>
-                    <span className={`text-[10px] px-1.5 py-0.2 rounded border font-medium ${getRoleBadge(currentPersona.role)}`}>
+                    <p className="text-xs font-sans font-bold text-slate-800 leading-tight">{currentPersona.name}</p>
+                    <span className={`text-[10px] px-1.5 py-0.2 rounded border font-sans font-medium ${getRoleBadge(currentPersona.role)}`}>
                       {currentPersona.role.replace('_', ' ')}
                     </span>
                   </div>
@@ -227,16 +227,16 @@ export const Navbar: React.FC<NavbarProps> = ({
                 <button
                   onClick={onLogout}
                   title="Sign Out"
-                  className="p-2 text-slate-500 hover:text-rose-700 hover:bg-rose-50 rounded-xl transition-colors border border-slate-200"
+                  className="p-2 text-slate-500 hover:text-rose-700 hover:bg-rose-50 rounded-xl transition-colors border border-transparent hover:border-rose-200 press-effect"
                 >
                   <LogOut className="w-4 h-4" />
                 </button>
               </div>
             ) : (
-              <div className="flex items-center space-x-1.5">
+              <div className="flex items-center space-x-1.5 animate-fade-in">
                 <button
                   onClick={() => onOpenAuthModal('DONOR_LOGIN')}
-                  className="flex items-center space-x-1 px-3 py-1.5 text-xs font-semibold text-teal-800 bg-teal-50 hover:bg-teal-100 border border-teal-200 rounded-xl shadow-sm transition-all"
+                  className="flex items-center space-x-1 px-4 py-2 text-xs font-sans font-semibold text-white gradient-primary rounded-xl shadow-glow-teal hover-lift transition-all press-effect"
                 >
                   <LogIn className="w-3.5 h-3.5" />
                   <span>Sign In</span>
@@ -244,7 +244,7 @@ export const Navbar: React.FC<NavbarProps> = ({
 
                 <button
                   onClick={() => onOpenAuthModal('INSTITUTION_REGISTER')}
-                  className="hidden lg:flex items-center space-x-1 px-3 py-1.5 text-xs font-semibold text-slate-700 hover:text-slate-900 bg-white hover:bg-slate-50 border border-slate-200 rounded-xl shadow-sm transition-all"
+                  className="hidden lg:flex items-center space-x-1 px-3 py-1.5 text-xs font-sans font-semibold text-slate-700 hover:text-slate-900 bg-white hover:bg-surface-subtle border border-surface-border rounded-xl shadow-sm hover-lift transition-all press-effect"
                 >
                   <UserPlus className="w-3.5 h-3.5" />
                   <span>Register NGO</span>
@@ -257,7 +257,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               onClick={onResetDatabase}
               disabled={isResetting}
               title="Reset demo data to pristine initial state"
-              className="flex items-center space-x-1 p-2 text-xs text-slate-600 hover:text-teal-800 bg-white hover:bg-slate-50 border border-slate-200 rounded-xl transition-colors shadow-sm disabled:opacity-50"
+              className="flex items-center space-x-1 p-2 text-xs text-slate-600 hover:text-teal-800 bg-white hover:bg-slate-50 border border-surface-border rounded-xl transition-colors shadow-sm disabled:opacity-50 press-effect hover-lift"
             >
               <RefreshCw className={`w-3.5 h-3.5 ${isResetting ? 'animate-spin text-teal-600' : ''}`} />
             </button>
@@ -269,12 +269,12 @@ export const Navbar: React.FC<NavbarProps> = ({
             <div
               className={`flex items-center justify-center w-7 h-7 rounded-full border ${
                 sseConnected
-                  ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                  : 'bg-amber-50 text-amber-700 border-amber-200'
+                  ? 'pill-emerald'
+                  : 'pill-amber'
               }`}
               title={sseConnected ? 'Real-time SSE Connected' : 'Connecting...'}
             >
-              <Radio className={`w-3 h-3 ${sseConnected ? 'text-emerald-600 animate-pulse' : 'text-amber-500'}`} />
+              <Radio className={`w-3 h-3 ${sseConnected ? 'text-emerald-600 animate-pulse-soft' : 'text-amber-500'}`} />
             </div>
 
             {/* Reset Demo Data Button on Mobile */}
@@ -282,7 +282,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               onClick={onResetDatabase}
               disabled={isResetting}
               title="Reset demo dataset"
-              className="p-2.5 text-slate-600 hover:text-teal-800 bg-slate-50 border border-slate-200 rounded-xl min-h-[44px] min-w-[44px] flex items-center justify-center transition-colors disabled:opacity-50"
+              className="p-2.5 text-slate-600 hover:text-teal-800 bg-surface-subtle border border-surface-border rounded-xl min-h-[44px] min-w-[44px] flex items-center justify-center transition-colors disabled:opacity-50 press-effect"
               aria-label="Reset demo dataset"
             >
               <RefreshCw className={`w-4 h-4 ${isResetting ? 'animate-spin text-teal-600' : ''}`} />
@@ -291,7 +291,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             {/* Hamburger Menu Toggle (Thumb-friendly >= 44px target) */}
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="p-2.5 text-slate-700 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 border border-slate-200 rounded-xl min-h-[44px] min-w-[44px] flex items-center justify-center transition-colors focus:outline-none focus:ring-2 focus:ring-teal-700"
+              className="p-2.5 text-slate-700 hover:text-slate-900 bg-surface-subtle hover:bg-slate-200 border border-surface-border rounded-xl min-h-[44px] min-w-[44px] flex items-center justify-center transition-colors focus:outline-none focus:ring-2 focus:ring-teal-700 press-effect"
               aria-label={isMobileMenuOpen ? 'Close navigation menu' : 'Open navigation menu'}
               aria-expanded={isMobileMenuOpen}
             >
@@ -308,7 +308,7 @@ export const Navbar: React.FC<NavbarProps> = ({
       {/* Mobile Backdrop Overlay */}
       {isMobileMenuOpen && (
         <div
-          className="fixed inset-0 top-16 bg-slate-950/50 backdrop-blur-xs z-30 md:hidden animate-fade-in"
+          className="fixed inset-0 top-16 bg-slate-950/40 backdrop-blur-md z-30 md:hidden animate-fade-in"
           onClick={() => setIsMobileMenuOpen(false)}
           aria-hidden="true"
         />
@@ -317,32 +317,32 @@ export const Navbar: React.FC<NavbarProps> = ({
       {/* Mobile Slide-Out Drawer / Dropdown Menu */}
       {isMobileMenuOpen && (
         <div
-          className="fixed top-16 inset-x-0 bg-white border-b border-slate-200 shadow-2xl z-40 md:hidden max-h-[calc(100vh-4rem)] overflow-y-auto animate-slide-down"
+          className="fixed top-16 inset-x-0 bg-white border-b border-surface-border shadow-elevated z-40 md:hidden max-h-[calc(100vh-4rem)] overflow-y-auto animate-slide-up"
           role="dialog"
           aria-label="Mobile Navigation Menu"
         >
           <div className="p-4 sm:p-5 space-y-5 max-w-md mx-auto">
             {/* Section 1: Primary Navigation */}
             <div>
-              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-2 px-1">
+              <span className="text-[10px] font-sans font-bold uppercase tracking-wider text-slate-400 block mb-2 px-1">
                 Navigation Views
               </span>
               <div className="space-y-1.5">
                 <button
                   onClick={() => handleMobileNavClick('PUBLIC_BOARD')}
-                  className={`w-full min-h-[46px] px-3.5 py-2.5 rounded-xl text-left flex items-center justify-between transition-all ${
+                  className={`w-full min-h-[46px] px-3.5 py-2.5 rounded-xl text-left flex items-center justify-between transition-all press-effect ${
                     activeNavTab === 'PUBLIC_BOARD'
-                      ? 'bg-teal-50 text-teal-950 font-bold border border-teal-200 shadow-xs'
-                      : 'text-slate-700 hover:bg-slate-50 border border-transparent'
+                      ? 'bg-teal-50 text-teal-950 font-bold border border-teal-200 shadow-sm'
+                      : 'text-slate-700 hover:bg-surface-subtle border border-transparent'
                   }`}
                 >
                   <div className="flex items-center space-x-3">
-                    <div className={`p-2 rounded-lg ${activeNavTab === 'PUBLIC_BOARD' ? 'bg-teal-700 text-white' : 'bg-slate-100 text-slate-600'}`}>
+                    <div className={`p-2 rounded-lg ${activeNavTab === 'PUBLIC_BOARD' ? 'gradient-primary text-white shadow-glow-teal' : 'bg-slate-100 text-slate-600'}`}>
                       <Globe className="w-4 h-4" />
                     </div>
                     <div>
-                      <span className="text-sm block">Public Needs Board</span>
-                      <span className="text-[11px] text-slate-500 font-normal">Browse verified childcare requirements</span>
+                      <span className="text-sm block font-sans">Public Needs Board</span>
+                      <span className="text-[11px] text-slate-500 font-sans font-normal">Browse verified childcare requirements</span>
                     </div>
                   </div>
                   {activeNavTab === 'PUBLIC_BOARD' && (
@@ -352,19 +352,19 @@ export const Navbar: React.FC<NavbarProps> = ({
 
                 <button
                   onClick={() => handleMobileNavClick('VERIFY')}
-                  className={`w-full min-h-[46px] px-3.5 py-2.5 rounded-xl text-left flex items-center justify-between transition-all ${
+                  className={`w-full min-h-[46px] px-3.5 py-2.5 rounded-xl text-left flex items-center justify-between transition-all press-effect ${
                     activeNavTab === 'VERIFY'
-                      ? 'bg-teal-50 text-teal-950 font-bold border border-teal-200 shadow-xs'
-                      : 'text-slate-700 hover:bg-slate-50 border border-transparent'
+                      ? 'bg-teal-50 text-teal-950 font-bold border border-teal-200 shadow-sm'
+                      : 'text-slate-700 hover:bg-surface-subtle border border-transparent'
                   }`}
                 >
                   <div className="flex items-center space-x-3">
-                    <div className={`p-2 rounded-lg ${activeNavTab === 'VERIFY' ? 'bg-teal-700 text-white' : 'bg-slate-100 text-slate-600'}`}>
+                    <div className={`p-2 rounded-lg ${activeNavTab === 'VERIFY' ? 'gradient-primary text-white shadow-glow-teal' : 'bg-slate-100 text-slate-600'}`}>
                       <ShieldCheck className="w-4 h-4" />
                     </div>
                     <div>
-                      <span className="text-sm block">Verify a Donation</span>
-                      <span className="text-[11px] text-slate-500 font-normal">Inspect SHA-256 chain of custody</span>
+                      <span className="text-sm block font-sans">Verify a Donation</span>
+                      <span className="text-[11px] text-slate-500 font-sans font-normal">Inspect SHA-256 chain of custody</span>
                     </div>
                   </div>
                   {activeNavTab === 'VERIFY' && (
@@ -374,19 +374,19 @@ export const Navbar: React.FC<NavbarProps> = ({
 
                 <button
                   onClick={() => handleMobileNavClick('PORTAL')}
-                  className={`w-full min-h-[46px] px-3.5 py-2.5 rounded-xl text-left flex items-center justify-between transition-all ${
+                  className={`w-full min-h-[46px] px-3.5 py-2.5 rounded-xl text-left flex items-center justify-between transition-all press-effect ${
                     activeNavTab === 'PORTAL'
-                      ? 'bg-teal-50 text-teal-950 font-bold border border-teal-200 shadow-xs'
-                      : 'text-slate-700 hover:bg-slate-50 border border-transparent'
+                      ? 'bg-teal-50 text-teal-950 font-bold border border-teal-200 shadow-sm'
+                      : 'text-slate-700 hover:bg-surface-subtle border border-transparent'
                   }`}
                 >
                   <div className="flex items-center space-x-3">
-                    <div className={`p-2 rounded-lg ${activeNavTab === 'PORTAL' ? 'bg-teal-700 text-white' : 'bg-slate-100 text-slate-600'}`}>
+                    <div className={`p-2 rounded-lg ${activeNavTab === 'PORTAL' ? 'gradient-primary text-white shadow-glow-teal' : 'bg-slate-100 text-slate-600'}`}>
                       <LayoutDashboard className="w-4 h-4" />
                     </div>
                     <div>
-                      <span className="text-sm block">Operations Portal</span>
-                      <span className="text-[11px] text-slate-500 font-normal">Active role dashboard & consignments</span>
+                      <span className="text-sm block font-sans">Operations Portal</span>
+                      <span className="text-[11px] text-slate-500 font-sans font-normal">Active role dashboard & consignments</span>
                     </div>
                   </div>
                   {activeNavTab === 'PORTAL' && (
@@ -399,10 +399,10 @@ export const Navbar: React.FC<NavbarProps> = ({
             {/* Section 2: Demo Role Switcher */}
             <div className="pt-3 border-t border-slate-100">
               <div className="flex items-center justify-between mb-2 px-1">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
+                <span className="text-[10px] font-sans font-bold uppercase tracking-wider text-slate-400 block">
                   Demo Persona Switcher
                 </span>
-                <span className="text-[10px] text-teal-700 bg-teal-50 px-2 py-0.5 rounded-full border border-teal-200 font-semibold">
+                <span className="text-[10px] pill-teal px-2 py-0.5 rounded-full border font-sans font-semibold">
                   1-Tap Role Test
                 </span>
               </div>
@@ -413,14 +413,14 @@ export const Navbar: React.FC<NavbarProps> = ({
                     <button
                       key={persona.id}
                       onClick={() => handleMobilePersonaClick(persona)}
-                      className={`p-3 rounded-xl text-left border min-h-[56px] flex flex-col justify-between transition-all ${
+                      className={`p-3 rounded-xl text-left border min-h-[56px] flex flex-col justify-between transition-all press-effect ${
                         isActive
-                          ? 'bg-teal-50/80 border-teal-600 ring-2 ring-teal-200 shadow-xs'
-                          : 'bg-slate-50 hover:bg-slate-100 border-slate-200'
+                          ? 'bg-teal-50/80 border-teal-600 ring-2 ring-teal-200 shadow-sm'
+                          : 'bg-surface-canvas hover:bg-surface-subtle border-surface-border'
                       }`}
                     >
                       <div className="flex items-center justify-between">
-                        <span className="p-1 rounded-md bg-white border border-slate-200">
+                        <span className="p-1 rounded-md bg-white border border-surface-border">
                           {getRoleIcon(persona.role)}
                         </span>
                         {isActive && (
@@ -428,8 +428,8 @@ export const Navbar: React.FC<NavbarProps> = ({
                         )}
                       </div>
                       <div className="mt-1.5">
-                        <p className="text-xs font-bold text-slate-900 truncate">{persona.name}</p>
-                        <p className="text-[10px] text-slate-500 font-medium truncate capitalize">
+                        <p className="text-xs font-sans font-bold text-slate-900 truncate">{persona.name}</p>
+                        <p className="text-[10px] text-slate-500 font-sans font-medium truncate capitalize">
                           {persona.role.replace('_', ' ').toLowerCase()}
                         </p>
                       </div>
@@ -441,16 +441,16 @@ export const Navbar: React.FC<NavbarProps> = ({
 
             {/* Section 3: Auth & Profile */}
             <div className="pt-3 border-t border-slate-100">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-2 px-1">
+              <span className="text-[10px] font-sans font-bold uppercase tracking-wider text-slate-400 block mb-2 px-1">
                 Account & Access
               </span>
               {isAuthenticated && currentPersona ? (
                 <div className="space-y-3">
-                  <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 flex items-center justify-between">
+                  <div className="p-3 bg-surface-canvas rounded-xl border border-surface-border flex items-center justify-between shadow-sm">
                     <div>
-                      <p className="text-xs font-bold text-slate-900">{currentPersona.name}</p>
+                      <p className="text-xs font-sans font-bold text-slate-900">{currentPersona.name}</p>
                       <p className="text-[11px] text-slate-500 font-mono">{currentPersona.email}</p>
-                      <span className={`inline-block text-[10px] px-2 py-0.5 rounded border font-semibold mt-1 ${getRoleBadge(currentPersona.role)}`}>
+                      <span className={`inline-block text-[10px] px-2 py-0.5 rounded border font-sans font-semibold mt-1 ${getRoleBadge(currentPersona.role)}`}>
                         {currentPersona.role.replace('_', ' ')}
                       </span>
                     </div>
@@ -460,7 +460,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                       onLogout();
                       setIsMobileMenuOpen(false);
                     }}
-                    className="w-full min-h-[44px] py-2.5 px-4 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 rounded-xl text-xs font-bold shadow-xs flex items-center justify-center space-x-2 transition-colors"
+                    className="w-full min-h-[44px] py-2.5 px-4 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 rounded-xl text-xs font-sans font-bold shadow-sm flex items-center justify-center space-x-2 transition-colors press-effect"
                   >
                     <LogOut className="w-4 h-4" />
                     <span>Sign Out of CareTrace</span>
@@ -473,7 +473,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                       setIsMobileMenuOpen(false);
                       onOpenAuthModal('DONOR_LOGIN');
                     }}
-                    className="w-full min-h-[44px] py-2.5 px-4 bg-teal-800 hover:bg-teal-900 text-white rounded-xl text-xs font-bold shadow-sm flex items-center justify-center space-x-2 transition-all active:scale-98"
+                    className="w-full min-h-[44px] py-2.5 px-4 gradient-primary text-white rounded-xl text-xs font-sans font-bold shadow-glow-teal flex items-center justify-center space-x-2 transition-all press-effect"
                   >
                     <LogIn className="w-4 h-4" />
                     <span>Sign In to Account</span>
@@ -484,7 +484,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                       setIsMobileMenuOpen(false);
                       onOpenAuthModal('INSTITUTION_REGISTER');
                     }}
-                    className="w-full min-h-[44px] py-2.5 px-4 bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 rounded-xl text-xs font-bold shadow-xs flex items-center justify-center space-x-2 transition-all"
+                    className="w-full min-h-[44px] py-2.5 px-4 bg-white hover:bg-surface-subtle text-slate-700 border border-surface-border rounded-xl text-xs font-sans font-bold shadow-sm flex items-center justify-center space-x-2 transition-all press-effect"
                   >
                     <UserPlus className="w-4 h-4" />
                     <span>Register Childcare Institution (NGO)</span>
@@ -496,8 +496,8 @@ export const Navbar: React.FC<NavbarProps> = ({
             {/* Section 4: System Information */}
             <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500 px-1 pb-1">
               <div className="flex items-center space-x-2">
-                <Radio className={`w-3.5 h-3.5 ${sseConnected ? 'text-emerald-600 animate-pulse' : 'text-amber-500'}`} />
-                <span className="text-[11px] font-medium">
+                <Radio className={`w-3.5 h-3.5 ${sseConnected ? 'text-emerald-600 animate-pulse-soft' : 'text-amber-500'}`} />
+                <span className="text-[11px] font-sans font-medium">
                   {sseConnected ? 'SSE Live Stream Active' : 'Connecting to SSE...'}
                 </span>
               </div>
@@ -509,3 +509,4 @@ export const Navbar: React.FC<NavbarProps> = ({
     </header>
   );
 };
+
