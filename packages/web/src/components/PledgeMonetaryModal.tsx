@@ -8,7 +8,8 @@ import {
   FileCheck2,
   Sparkles,
   ArrowRight,
-  HeartHandshake
+  HeartHandshake,
+  Info
 } from 'lucide-react';
 import { createMonetaryDonation } from '../api/client';
 
@@ -98,7 +99,20 @@ export const PledgeMonetaryModal: React.FC<PledgeMonetaryModalProps> = ({
           </button>
         </div>
 
-        <form onSubmit={handleConfirm} className="mt-6 space-y-5">
+        {/* Phase 1 Scoping Institutional Disclosure Pill */}
+        <div className="mt-4 p-3.5 bg-gradient-to-r from-amber-500/10 via-teal-500/10 to-amber-500/10 border border-amber-300/60 rounded-2xl flex items-start space-x-3 shadow-xs">
+          <Info className="w-4 h-4 text-amber-700 shrink-0 mt-0.5" />
+          <div className="text-[11px] font-sans leading-relaxed text-slate-700">
+            <span className="font-bold text-amber-950 block mb-0.5">
+              Phase 1: Simulated UPI Settlement & Immediate Ledger Verification
+            </span>
+            <span className="text-slate-600">
+              Phase 2 (Production Roadmap): Razorpay/Cashfree Payment Gateway Integration with Escrow-to-Vendor Payouts
+            </span>
+          </div>
+        </div>
+
+        <form onSubmit={handleConfirm} className="mt-5 space-y-5">
           {/* Beneficiary Sanctuary & Requirement Context */}
           <div className="p-4 rounded-2xl bg-surface-subtle border border-surface-border shadow-inner space-y-2">
             <div className="flex items-center justify-between">
