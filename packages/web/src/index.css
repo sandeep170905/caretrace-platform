@@ -43,3 +43,84 @@
 .pulse-ring-amber {
   animation: pulse-ring 2s infinite cubic-bezier(0.4, 0, 0.6, 1);
 }
+
+/* CareTrace Premium Design System Utilities */
+.glass-solid {
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+.glass-panel {
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.card-premium {
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.card-premium:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 20px 35px -10px rgba(15, 23, 42, 0.08), 0 1px 3px 0 rgba(15, 23, 42, 0.04);
+}
+
+.gradient-hero {
+  background: radial-gradient(circle at 85% 15%, rgba(45, 212, 191, 0.25) 0%, transparent 55%), linear-gradient(135deg, #042f2e 0%, #0f766e 55%, #134e4a 100%);
+}
+
+.gradient-primary {
+  background: linear-gradient(135deg, #0F766E 0%, #115E59 100%);
+}
+
+.gradient-primary:hover {
+  background: linear-gradient(135deg, #115E59 0%, #134E4A 100%);
+}
+
+.hover-lift {
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.hover-lift:hover {
+  transform: translateY(-2px);
+}
+
+.press-effect {
+  transition: transform 0.1s ease;
+}
+
+.press-effect:active {
+  transform: scale(0.98);
+}
+
+.pill-teal {
+  background: #F0FDFA;
+  color: #0F766E;
+  border: 1px solid #CCFBF1;
+}
+
+.pill-emerald {
+  background: #ECFDF5;
+  color: #047857;
+  border: 1px solid #A7F3D0;
+}
+
+.pill-amber {
+  background: #FFFBEB;
+  color: #B45309;
+  border: 1px solid #FDE68A;
+}
+
+.pill-slate {
+  background: #F1F5F9;
+  color: #334155;
+  border: 1px solid #E2E8F0;
+}
+
+.stagger-1 { animation-delay: 40ms; }
+.stagger-2 { animation-delay: 80ms; }
+.stagger-3 { animation-delay: 120ms; }
+.stagger-4 { animation-delay: 160ms; }
+.stagger-5 { animation-delay: 200ms; }
+.stagger-6 { animation-delay: 240ms; }
