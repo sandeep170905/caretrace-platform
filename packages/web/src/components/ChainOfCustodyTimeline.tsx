@@ -48,18 +48,18 @@ const MONETARY_STEPS: StepDefinition[] = [
 ];
 
 // Renders a mini inline hash bar — the "fingerprint" visual
-const HashFingerprint: React.FC<{ hash: string }> = ({ hash }) => {
-  const segments = hash.match(/.{1,4}/g)?.slice(0, 12) || [];
-  const maxVal = 255;
+// Uses 2-char hex segments (max value 0xFF=255) so bar heights stay within bounds
+const HashFingerprint: React.FC<{ hash: string; maxHeight?: number }> = ({ hash, maxHeight = 16 }) => {
+  const segments = hash.replace(/[^0-9a-fA-F]/g, '').match(/.{2}/g)?.slice(0, 20) || [];
   return (
-    <div className="flex items-end gap-[2px] h-5" title={hash}>
+    <div className="flex items-end gap-[2px] overflow-hidden shrink-0" style={{ height: `${maxHeight}px` }} title={hash}>
       {segments.map((seg, i) => {
-        const val = parseInt(seg, 16);
-        const height = Math.max(3, Math.round((val / maxVal) * 20));
+        const val = parseInt(seg, 16); // 0–255
+        const height = Math.max(2, Math.round((val / 255) * maxHeight));
         return (
           <div
             key={i}
-            className="w-[3px] rounded-sm bg-teal-600 opacity-70"
+            className="w-[3px] rounded-sm bg-teal-600 opacity-70 shrink-0"
             style={{ height: `${height}px` }}
           />
         );
@@ -350,18 +350,8 @@ export const ChainOfCustodyTimeline: React.FC<ChainOfCustodyTimelineProps> = ({
                 <Hash className="w-3 h-3" />
                 SHA-256 Block Hash
               </p>
-              <div className="flex items-end gap-[2px] mb-3">
-                {(selectedBlock.blockHash.match(/.{1,4}/g) || []).map((seg, i) => {
-                  const val = parseInt(seg, 16);
-                  const height = Math.max(4, Math.round((val / 255) * 28));
-                  return (
-                    <div
-                      key={i}
-                      className="w-[4px] rounded-sm bg-teal-600"
-                      style={{ height: `${height}px` }}
-                    />
-                  );
-                })}
+              <div className="mb-3">
+                <HashFingerprint hash={selectedBlock.blockHash} maxHeight={24} />
               </div>
               <code className="text-[11px] font-mono text-slate-700 break-all select-all leading-relaxed block bg-white px-3 py-2.5 rounded-sm border border-surface-border">
                 {selectedBlock.blockHash}
