@@ -47,26 +47,8 @@ const MONETARY_STEPS: StepDefinition[] = [
   { id: 'RECEIPT_SEALED', title: '80G Receipt Sealed', subtitle: 'SHA-256 block anchored on immutable ledger', eventType: 'MONETARY_DONATION_CONFIRMED', icon: Award },
 ];
 
-// Renders a mini inline hash bar — the "fingerprint" visual
-// Uses 2-char hex segments (max value 0xFF=255) so bar heights stay within bounds
-const HashFingerprint: React.FC<{ hash: string; maxHeight?: number }> = ({ hash, maxHeight = 16 }) => {
-  const segments = hash.replace(/[^0-9a-fA-F]/g, '').match(/.{2}/g)?.slice(0, 20) || [];
-  return (
-    <div className="flex items-end gap-[2px] overflow-hidden shrink-0" style={{ height: `${maxHeight}px` }} title={hash}>
-      {segments.map((seg, i) => {
-        const val = parseInt(seg, 16); // 0–255
-        const height = Math.max(2, Math.round((val / 255) * maxHeight));
-        return (
-          <div
-            key={i}
-            className="w-[3px] rounded-sm bg-teal-600 opacity-70 shrink-0"
-            style={{ height: `${height}px` }}
-          />
-        );
-      })}
-    </div>
-  );
-};
+// Clean cryptographic hash truncation helper
+const formatShortHash = (hash: string) => `${hash.slice(0, 10)}…${hash.slice(-8)}`;
 
 export const ChainOfCustodyTimeline: React.FC<ChainOfCustodyTimelineProps> = ({
   donation,
@@ -269,40 +251,35 @@ export const ChainOfCustodyTimeline: React.FC<ChainOfCustodyTimelineProps> = ({
                         </div>
                       </div>
 
-                      {/* Hash fingerprint — the signature visual element */}
+                      {/* Hash info bar */}
                       {status === 'COMPLETED' && block && (
-                        <div className="px-4 pb-3 border-t border-surface-border bg-slate-50">
-                          <div className="flex items-center justify-between mt-2.5">
-                            {/* Hash fingerprint bar */}
-                            <div className="flex items-center gap-2">
-                              <span className="text-[9px] font-mono text-slate-400 uppercase tracking-wider">hash</span>
-                              <HashFingerprint hash={block.blockHash} />
-                            </div>
-
-                            {/* Truncated hash */}
-                            <div className="flex items-center gap-1.5">
-                              <code className="text-[9px] font-mono text-slate-500 hidden sm:block">
-                                {block.blockHash.slice(0, 8)}…{block.blockHash.slice(-6)}
-                              </code>
-                              {isClickable && (
-                                <span className="text-[9px] font-mono text-teal-600 opacity-0 group-hover:opacity-100 transition-opacity">
-                                  inspect ↗
-                                </span>
-                              )}
-                            </div>
+                        <div className="px-4 py-2.5 border-t border-surface-border bg-slate-50 flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <span className="text-[10px] font-mono font-bold text-slate-400 uppercase tracking-wider">Hash</span>
+                            <code className="text-[11px] font-mono font-medium text-slate-600 bg-white px-2 py-0.5 rounded-sm border border-surface-border">
+                              {formatShortHash(block.blockHash)}
+                            </code>
                           </div>
 
-                          {/* Photo proof indicator */}
-                          {donation.proofPhotoUrl && (step.id === 'DELIVERED' || step.id === 'CONFIRMED') && (
-                            <button
-                              type="button"
-                              onClick={(e) => { e.stopPropagation(); setSelectedPhoto(donation.proofPhotoUrl!); }}
-                              className="mt-2 flex items-center gap-1.5 text-[10px] font-sans font-bold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 px-2 py-1 rounded-sm transition-colors press-effect"
-                            >
-                              <Camera className="w-3 h-3 text-emerald-600" />
-                              Photo Proof Anchored
-                            </button>
+                          {isClickable && (
+                            <span className="text-[11px] font-mono font-bold text-teal-700 hover:text-teal-900 transition-colors flex items-center gap-1">
+                              Inspect Block ↗
+                            </span>
                           )}
+                        </div>
+                      )}
+
+                      {/* Photo proof indicator */}
+                      {donation.proofPhotoUrl && (step.id === 'DELIVERED' || step.id === 'CONFIRMED') && (
+                        <div className="px-4 pb-2.5 bg-slate-50">
+                          <button
+                            type="button"
+                            onClick={(e) => { e.stopPropagation(); setSelectedPhoto(donation.proofPhotoUrl!); }}
+                            className="flex items-center gap-1.5 text-[10px] font-sans font-bold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 px-2 py-1 rounded-sm transition-colors press-effect"
+                          >
+                            <Camera className="w-3 h-3 text-emerald-600" />
+                            Photo Proof Anchored
+                          </button>
                         </div>
                       )}
 
@@ -344,16 +321,18 @@ export const ChainOfCustodyTimeline: React.FC<ChainOfCustodyTimelineProps> = ({
               </button>
             </div>
 
-            {/* Hash fingerprint — full width inside modal */}
+            {/* Cryptographic SHA-256 Hash Display */}
             <div className="px-6 py-4 bg-slate-50 border-b border-surface-border">
-              <p className="text-[10px] font-mono text-slate-400 uppercase tracking-wider mb-2 flex items-center gap-1.5">
-                <Hash className="w-3 h-3" />
-                SHA-256 Block Hash
-              </p>
-              <div className="mb-3">
-                <HashFingerprint hash={selectedBlock.blockHash} maxHeight={24} />
+              <div className="flex items-center justify-between mb-2">
+                <p className="text-[10px] font-mono text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
+                  <Hash className="w-3 h-3 text-teal-600" />
+                  SHA-256 Block Hash
+                </p>
+                <span className="text-[10px] font-mono text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-sm">
+                  Verified Seal
+                </span>
               </div>
-              <code className="text-[11px] font-mono text-slate-700 break-all select-all leading-relaxed block bg-white px-3 py-2.5 rounded-sm border border-surface-border">
+              <code className="text-[11px] font-mono text-slate-800 break-all select-all leading-relaxed block bg-white px-3 py-2.5 rounded-sm border border-surface-border font-medium">
                 {selectedBlock.blockHash}
               </code>
             </div>
