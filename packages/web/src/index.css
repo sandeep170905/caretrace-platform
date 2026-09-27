@@ -40,11 +40,29 @@
   }
 }
 
+@keyframes pulse-soft {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
+@keyframes scale-in {
+  from { opacity: 0; transform: scale(0.96); }
+  to { opacity: 1; transform: scale(1); }
+}
+
 .pulse-ring-amber {
   animation: pulse-ring 2s infinite cubic-bezier(0.4, 0, 0.6, 1);
 }
 
-/* CareTrace Premium Design System Utilities */
+.animate-pulse-soft {
+  animation: pulse-soft 1.8s ease-in-out infinite;
+}
+
+.animate-scale-in {
+  animation: scale-in 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* CareTrace Design System Utilities */
 .glass-solid {
   background: rgba(255, 255, 255, 0.92);
   backdrop-filter: blur(16px);
@@ -128,3 +146,14 @@
 .stagger-4 { animation-delay: 160ms; }
 .stagger-5 { animation-delay: 200ms; }
 .stagger-6 { animation-delay: 240ms; }
+
+.shadow-xs {
+  box-shadow: 0 1px 2px 0 rgba(15, 23, 42, 0.05);
+}
+
+/* 8pt spacing grid override — enforce design system rhythm */
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: #CBD5E1 #F1F1EC;
+}
+

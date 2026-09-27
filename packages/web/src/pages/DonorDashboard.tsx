@@ -6,17 +6,13 @@ import {
   Award,
   ChevronRight,
   Plus,
-  QrCode,
   ShieldCheck,
   Building,
   Truck,
-  AlertCircle,
   ExternalLink,
   Sparkles,
-  Search,
-  Filter,
   FileCheck2,
-  Receipt
+  ArrowUpRight
 } from 'lucide-react';
 import {
   fetchDonations,
@@ -54,11 +50,12 @@ export const DonorDashboard: React.FC<DonorDashboardProps> = ({
   const [activeReceipt, setActiveReceipt] = useState<TaxExemptionReceipt | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
-  // New Donation Modals State
   const [pledgeReq, setPledgeReq] = useState<Requirement | null>(null);
   const [pledgeQty, setPledgeQty] = useState<number>(20);
   const [monetaryRequirement, setMonetaryRequirement] = useState<Requirement | null>(null);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const [activeTab, setActiveTab] = useState<'TRACKING' | 'EXPLORE'>('TRACKING');
+  const [isTabSwitching, setIsTabSwitching] = useState<boolean>(false);
 
   const loadData = async () => {
     setIsLoading(true);
@@ -69,14 +66,11 @@ export const DonorDashboard: React.FC<DonorDashboardProps> = ({
       ]);
       setDonations(donationsList);
       setRequirements(reqsList);
-
-      // Default select the active in-transit donation CT-2026-9042 if available
       const activeDonation = donationsList.find(d => d.id === 'CT-2026-9042') || donationsList[0];
       if (activeDonation && !selectedDonation) {
         const detail = await fetchDonationDetail(activeDonation.id);
         setSelectedDonation(detail);
       } else if (selectedDonation) {
-        // Refresh selected donation details
         const detail = await fetchDonationDetail(selectedDonation.donation.id);
         setSelectedDonation(detail);
       }
@@ -87,17 +81,13 @@ export const DonorDashboard: React.FC<DonorDashboardProps> = ({
     }
   };
 
-  useEffect(() => {
-    loadData();
-  }, [user.id, refreshKey]);
+  useEffect(() => { loadData(); }, [user.id, refreshKey]);
 
   useEffect(() => {
     if (initialPledgeReq) {
       setPledgeReq(initialPledgeReq);
       setPledgeQty(Math.max(1, initialPledgeReq.targetQuantity - initialPledgeReq.fulfilledQuantity));
-      if (onClearPendingPledge) {
-        onClearPendingPledge();
-      }
+      if (onClearPendingPledge) onClearPendingPledge();
     }
   }, [initialPledgeReq]);
 
@@ -105,9 +95,7 @@ export const DonorDashboard: React.FC<DonorDashboardProps> = ({
     try {
       const detail = await fetchDonationDetail(d.id);
       setSelectedDonation(detail);
-    } catch (e) {
-      console.error(e);
-    }
+    } catch (e) { console.error(e); }
   };
 
   const handleInspectCertificate = async (donationId: string) => {
@@ -128,42 +116,26 @@ export const DonorDashboard: React.FC<DonorDashboardProps> = ({
     if (detail) setSelectedDonation(detail);
   };
 
-
   const handleCreateDonation = async () => {
     if (!pledgeReq) return;
     setIsSubmitting(true);
     try {
-      const payload = {
+      const result = await createDonation({
         donorId: user.id,
         requirementId: pledgeReq.id,
         type: 'PHYSICAL_GOODS',
-        items: [
-          {
-            name: pledgeReq.title,
-            quantity: Number(pledgeQty),
-            unit: pledgeReq.unit
-          }
-        ],
+        items: [{ name: pledgeReq.title, quantity: Number(pledgeQty), unit: pledgeReq.unit }],
         pickupAddress: 'T. Nagar Wholesale Logistics Hub, Usman Road, Chennai 600017'
-      };
-
-      const result = await createDonation(payload);
+      });
       if (result.success) {
         setPledgeReq(null);
         await loadData();
         const detail = await fetchDonationDetail(result.donation.id);
         setSelectedDonation(detail);
       }
-    } catch (e) {
-      console.error(e);
-    } finally {
-      setIsSubmitting(false);
-    }
+    } catch (e) { console.error(e); }
+    finally { setIsSubmitting(false); }
   };
-
-  // Active Dashboard Sub-Tab: 'TRACKING' (default) vs 'EXPLORE' (quick donate)
-  const [activeTab, setActiveTab] = useState<'TRACKING' | 'EXPLORE'>('TRACKING');
-  const [isTabSwitching, setIsTabSwitching] = useState<boolean>(false);
 
   const handleTabSwitch = (newTab: 'TRACKING' | 'EXPLORE') => {
     if (newTab === activeTab) return;
@@ -185,552 +157,491 @@ export const DonorDashboard: React.FC<DonorDashboardProps> = ({
     );
   }
 
+  const statusConfig: Record<string, { bg: string; dot: string; label: string }> = {
+    MATCHED: { bg: 'bg-slate-100 text-slate-700', dot: 'bg-slate-400', label: 'Matched' },
+    PICKUP_SCHEDULED: { bg: 'bg-amber-50 text-amber-800', dot: 'bg-amber-500', label: 'Pickup Scheduled' },
+    PICKED_UP: { bg: 'bg-amber-50 text-amber-800', dot: 'bg-amber-500', label: 'Picked Up' },
+    IN_TRANSIT: { bg: 'bg-amber-50 text-amber-800', dot: 'bg-amber-500 animate-pulse', label: 'In Transit' },
+    DELIVERED: { bg: 'bg-emerald-50 text-emerald-800', dot: 'bg-emerald-500', label: 'Delivered' },
+    CONFIRMED: { bg: 'bg-emerald-50 text-emerald-800', dot: 'bg-emerald-500', label: 'Confirmed' },
+  };
+
   return (
-    <div className="space-y-8 animate-fade-in pb-16">
-      {/* Broadcast Announcements Banner */}
+    <div className="animate-fade-in pb-16">
       <AnnouncementBanner refreshKey={refreshKey} />
 
-      {/* Donor Welcome & Impact Header */}
-      <div className="gradient-hero rounded-[2.5rem] p-8 sm:p-12 text-white shadow-elevated relative overflow-hidden">
-        <div className="absolute inset-0 opacity-40 mix-blend-color-dodge pointer-events-none">
-          <div className="absolute top-[-20%] right-[-10%] w-[60%] h-[120%] bg-teal-600/30 blur-[100px] rounded-full rotate-12" />
-        </div>
-        
-        <div className="relative z-10 max-w-2xl">
-          <div className="inline-flex items-center space-x-2.5 px-4 py-1.5 rounded-full bg-teal-500/20 border border-teal-400/30 text-xs font-sans font-bold tracking-wide text-teal-200 mb-5 shadow-sm">
-            <Sparkles className="w-4 h-4 text-amber-400" />
-            <span>Verified Donor Impact Portal</span>
-          </div>
-          <h1 className="text-3xl sm:text-5xl font-display font-bold tracking-tight mb-4">
-            Welcome back, {user.name}
-          </h1>
-          <p className="text-base font-sans text-teal-100/90 leading-relaxed max-w-xl">
-            Every donation you pledge is tracked through a cryptographic chain of custody. You have direct proof when goods reach the children in verified care.
-          </p>
-        </div>
+      {/* ── DONOR HEADER ── Clean editorial, not a "card" ── */}
+      <div className="relative overflow-hidden rounded-2xl gradient-hero text-white mb-8 mt-4">
+        <div className="absolute inset-0 pointer-events-none" style={{
+          backgroundImage: 'radial-gradient(circle at 1px 1px, rgba(255,255,255,0.04) 1px, transparent 0)',
+          backgroundSize: '32px 32px'
+        }} />
 
-        {/* Impact Metric Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 mt-10 pt-8 border-t border-teal-700/60 relative z-10">
-          <div className="bg-white/10 backdrop-blur-md rounded-2xl p-5 border border-white/10 shadow-glass">
-            <span className="text-xs font-sans font-bold uppercase tracking-wider text-teal-200/90 block mb-1.5">Consignments Delivered</span>
-            <p className="text-4xl font-display font-bold text-white mb-2">{totalDelivered}</p>
-            <span className="text-[11px] font-sans font-medium text-emerald-300 flex items-center space-x-1.5 bg-emerald-950/40 px-2 py-1 rounded w-fit">
-              <ShieldCheck className="w-3.5 h-3.5" />
-              <span>100% Ledger Certified</span>
-            </span>
+        <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12">
+          {/* Welcome block */}
+          <div className="lg:col-span-7 px-8 py-10 sm:px-12 sm:py-12">
+            <div className="flex items-center gap-2 mb-5">
+              <div className="w-1.5 h-1.5 rounded-sm bg-teal-400" />
+              <span className="text-[11px] font-mono font-bold tracking-[0.12em] uppercase text-teal-300">
+                Donor Impact Portal
+              </span>
+            </div>
+            <h1 className="font-display font-black text-[40px] sm:text-[52px] leading-[0.92] tracking-[-0.03em] text-white mb-4">
+              Welcome,<br />{user.name.split(' ')[0]}.
+            </h1>
+            <p className="text-[14px] font-sans text-teal-100/80 max-w-md leading-relaxed">
+              Every pledge you make is sealed into a cryptographic chain of custody.
+              You receive mathematical proof when goods reach verified children in care.
+            </p>
           </div>
 
-          <div className="bg-white/10 backdrop-blur-md rounded-2xl p-5 border border-white/10 shadow-glass">
-            <span className="text-xs font-sans font-bold uppercase tracking-wider text-teal-200/90 block mb-1.5">Active In-Transit</span>
-            <p className="text-4xl font-display font-bold text-amber-300 mb-2">{inTransitCount}</p>
-            <span className="text-[11px] font-sans font-medium text-amber-200 flex items-center space-x-1.5 bg-amber-950/40 px-2 py-1 rounded w-fit">
-              <Truck className="w-3.5 h-3.5" />
-              <span>Live Courier Tracking</span>
-            </span>
-          </div>
-
-          <div className="bg-white/10 backdrop-blur-md rounded-2xl p-5 border border-white/10 shadow-glass">
-            <span className="text-xs font-sans font-bold uppercase tracking-wider text-teal-200/90 block mb-1.5">Institutions Supported</span>
-            <p className="text-4xl font-display font-bold text-white mb-2">{institutionsSupportedCount}</p>
-            <span className="text-[11px] font-sans font-medium text-teal-200 flex items-center space-x-1.5 bg-teal-950/40 px-2 py-1 rounded w-fit">
-              <Building className="w-3.5 h-3.5" />
-              <span>Accredited Child Shelters</span>
-            </span>
+          {/* Impact metrics — raw numbers, high contrast */}
+          <div className="lg:col-span-5 border-t lg:border-t-0 lg:border-l border-teal-700/40 grid grid-cols-3 divide-x divide-teal-700/40">
+            <div className="px-6 py-8 flex flex-col justify-center">
+              <p className="text-[10px] font-mono font-bold tracking-[0.1em] uppercase text-teal-400/80 mb-2">Delivered</p>
+              <p className="text-[40px] font-display font-black leading-none tracking-[-0.02em] text-white">{totalDelivered}</p>
+              <p className="text-[10px] font-mono text-emerald-400 mt-2 flex items-center gap-1">
+                <ShieldCheck className="w-2.5 h-2.5" />
+                Certified
+              </p>
+            </div>
+            <div className="px-6 py-8 flex flex-col justify-center">
+              <p className="text-[10px] font-mono font-bold tracking-[0.1em] uppercase text-teal-400/80 mb-2">In Transit</p>
+              <p className="text-[40px] font-display font-black leading-none tracking-[-0.02em] text-amber-300">{inTransitCount}</p>
+              <p className="text-[10px] font-mono text-amber-400 mt-2 flex items-center gap-1">
+                <Truck className="w-2.5 h-2.5" />
+                Live track
+              </p>
+            </div>
+            <div className="px-6 py-8 flex flex-col justify-center">
+              <p className="text-[10px] font-mono font-bold tracking-[0.1em] uppercase text-teal-400/80 mb-2">Sanctuaries</p>
+              <p className="text-[40px] font-display font-black leading-none tracking-[-0.02em] text-white">{institutionsSupportedCount}</p>
+              <p className="text-[10px] font-mono text-teal-400 mt-2 flex items-center gap-1">
+                <Building className="w-2.5 h-2.5" />
+                Supported
+              </p>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Navigation Sub-Tabs & Action Bar */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-surface-border pb-4">
-        <div className="flex items-center space-x-2 bg-surface-subtle p-1.5 rounded-2xl border border-surface-border overflow-x-auto max-w-full shadow-inner">
-          <button
-            onClick={() => handleTabSwitch('TRACKING')}
-            className={`px-5 py-2.5 rounded-xl text-sm font-sans font-bold transition-all flex items-center space-x-2 shrink-0 min-h-[44px] ${
-              activeTab === 'TRACKING'
-                ? 'bg-surface-card text-teal-900 shadow-sm'
-                : 'text-slate-500 hover:text-slate-800'
-            }`}
-          >
-            <Package className="w-4 h-4 text-teal-700" />
-            <span>My Consignments & Tracking</span>
-            <span className="text-[11px] font-mono px-2 py-0.5 rounded-lg bg-teal-50 text-teal-700 border border-teal-200 shadow-sm ml-1">
-              {donations.length}
-            </span>
-          </button>
-
-          <button
-            onClick={() => handleTabSwitch('EXPLORE')}
-            className={`px-5 py-2.5 rounded-xl text-sm font-sans font-bold transition-all flex items-center space-x-2 shrink-0 min-h-[44px] ${
-              activeTab === 'EXPLORE'
-                ? 'bg-surface-card text-teal-900 shadow-sm'
-                : 'text-slate-500 hover:text-slate-800'
-            }`}
-          >
-            <Heart className="w-4 h-4 text-rose-500" />
-            <span>Fulfill Needs & Donate</span>
-            <span className="text-[11px] font-mono px-2 py-0.5 rounded-lg bg-slate-200 text-slate-700 border border-slate-300 shadow-sm ml-1">
-              {requirements.length}
-            </span>
-          </button>
+      {/* ── TAB BAR ── Minimal, underline style ── */}
+      <div className="flex items-center justify-between border-b border-surface-border mb-8 pb-0">
+        <div className="flex items-center gap-0">
+          {(['TRACKING', 'EXPLORE'] as const).map(tab => (
+            <button
+              key={tab}
+              onClick={() => handleTabSwitch(tab)}
+              className={`px-4 py-3 text-sm font-sans font-bold transition-all relative ${
+                activeTab === tab
+                  ? 'text-slate-900'
+                  : 'text-slate-400 hover:text-slate-700'
+              }`}
+            >
+              {tab === 'TRACKING' ? (
+                <span className="flex items-center gap-2">
+                  <Package className="w-4 h-4" />
+                  Consignments
+                  <span className="text-[10px] font-mono px-1.5 py-0.5 rounded-sm bg-surface-subtle text-slate-600 border border-surface-border">{donations.length}</span>
+                </span>
+              ) : (
+                <span className="flex items-center gap-2">
+                  <Heart className="w-4 h-4" />
+                  Donate
+                  <span className="text-[10px] font-mono px-1.5 py-0.5 rounded-sm bg-surface-subtle text-slate-600 border border-surface-border">{requirements.length}</span>
+                </span>
+              )}
+              {activeTab === tab && (
+                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-slate-900" />
+              )}
+            </button>
+          ))}
         </div>
 
-        {activeTab === 'TRACKING' ? (
-          <button
-            onClick={() => handleTabSwitch('EXPLORE')}
-            className="px-5 py-2.5 gradient-primary text-white rounded-xl text-sm font-sans font-bold shadow-glow-teal transition-all flex items-center space-x-2 self-start sm:self-center hover-lift press-effect"
-          >
-            <Plus className="w-4 h-4" />
-            <span>New Donation</span>
-          </button>
-        ) : (
-          <span className="text-sm font-sans font-medium text-slate-500 italic bg-surface-subtle px-4 py-2 rounded-xl border border-surface-border">
-            Select a verified requirement below to pledge goods or simulated funds
-          </span>
-        )}
+        <button
+          onClick={() => handleTabSwitch('EXPLORE')}
+          className="flex items-center gap-2 px-4 py-2 bg-slate-900 text-white text-xs font-sans font-bold rounded-sm hover:bg-slate-800 transition-colors press-effect mb-3"
+        >
+          <Plus className="w-3.5 h-3.5" />
+          New Donation
+        </button>
       </div>
 
-      {/* Main Content Area based on active tab with smooth skeleton transition */}
+      {/* ── CONTENT ── */}
       {isTabSwitching ? (
         <DashboardSkeleton type="TAB_CONTENT" />
       ) : activeTab === 'TRACKING' ? (
         donations.length === 0 ? (
-          <div className="bg-surface-card rounded-[2rem] p-16 text-center border border-surface-border shadow-sm">
-            <div className="w-20 h-20 bg-surface-subtle rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-inner border border-surface-border">
-              <Package className="w-10 h-10 text-slate-400" />
-            </div>
-            <p className="text-2xl font-display font-bold text-slate-900 mb-3">No Consignments Yet</p>
-            <p className="text-sm font-sans text-slate-500 mb-8 max-w-md mx-auto leading-relaxed">
-              You have not pledged any physical goods or monetary donations yet. Explore verified child sanctuaries to make your first contribution.
+          <div className="py-24 text-center">
+            <Package className="w-10 h-10 text-slate-200 mx-auto mb-4" />
+            <h3 className="text-lg font-display font-bold text-slate-900 mb-2">No Consignments Yet</h3>
+            <p className="text-sm font-sans text-slate-500 mb-6 max-w-sm mx-auto">
+              Explore verified child sanctuaries to make your first cryptographically-tracked contribution.
             </p>
             <button
               onClick={() => setActiveTab('EXPLORE')}
-              className="px-6 py-3 gradient-primary text-white rounded-xl text-sm font-sans font-bold shadow-glow-teal hover-lift transition-all press-effect"
+              className="px-5 py-2.5 bg-slate-900 text-white text-sm font-sans font-bold rounded-sm hover:bg-slate-800 transition-colors press-effect"
             >
-              Browse Verified Requirements
+              Browse Requirements
             </button>
           </div>
         ) : (
-          /* Main Split View: Left = My Donations, Right = Active Donation Deep Tracking */
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-            {/* Left Column: My Consignments List (5 Cols) */}
-            <div className="lg:col-span-5 space-y-5">
-              <div className="flex items-center justify-between">
-                <h2 className="text-lg font-display font-bold text-slate-900 flex items-center space-x-2.5">
-                  <Package className="w-5 h-5 text-teal-700" />
-                  <span>My Tracked Consignments</span>
+            {/* ── LEFT: Consignments list ── */}
+            <div className="lg:col-span-5">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-sm font-sans font-bold text-slate-500 uppercase tracking-wider">
+                  My Consignments
                 </h2>
-                <span className="text-xs font-mono font-medium text-slate-500 bg-surface-subtle px-2.5 py-1 rounded-lg border border-surface-border shadow-sm">
-                  {donations.length} total
-                </span>
+                <span className="text-[11px] font-mono text-slate-400">{donations.length} total</span>
               </div>
 
-          <div className="space-y-4 pr-1 max-h-[800px] overflow-y-auto pb-4 custom-scrollbar">
-            {donations.map((d, i) => {
-              const isSelected = selectedDonation?.donation.id === d.id;
-              const isDelivered = d.status === 'CONFIRMED';
-              const isMonetary = d.type === 'FUNDS' || Boolean(d.monetaryAmountInr);
+              <div className="border border-surface-border rounded-2xl overflow-hidden bg-white max-h-[680px] overflow-y-auto">
+                {donations.map((d, i) => {
+                  const isSelected = selectedDonation?.donation.id === d.id;
+                  const isMonetary = d.type === 'FUNDS' || Boolean(d.monetaryAmountInr);
+                  const sc = statusConfig[d.status] || statusConfig.MATCHED;
+
+                  return (
+                    <div
+                      key={d.id}
+                      onClick={() => handleSelectDonation(d)}
+                      className={`relative flex items-start gap-4 px-5 py-4 cursor-pointer transition-all press-effect ${
+                        i < donations.length - 1 ? 'border-b border-surface-border' : ''
+                      } ${isSelected ? 'bg-slate-50' : 'hover:bg-surface-canvas'}`}
+                    >
+                      {/* Left accent */}
+                      {isSelected && <div className="absolute left-0 top-0 bottom-0 w-0.5 bg-slate-900" />}
+
+                      <div className="flex-1 min-w-0">
+                        {/* ID + status */}
+                        <div className="flex items-center gap-2 mb-1.5 flex-wrap">
+                          <code className="text-[10px] font-mono font-bold text-slate-800 bg-surface-subtle px-1.5 py-0.5 rounded-sm border border-surface-border">{d.id}</code>
+                          {isMonetary ? (
+                            <span className="text-[10px] font-mono font-bold text-purple-700 bg-purple-50 px-1.5 py-0.5 rounded-sm border border-purple-200">
+                              ₹ Monetary
+                            </span>
+                          ) : (
+                            <span className={`flex items-center gap-1 text-[10px] font-mono font-bold px-1.5 py-0.5 rounded-sm ${sc.bg}`}>
+                              <span className={`w-1 h-1 rounded-sm ${sc.dot}`} />
+                              {sc.label}
+                            </span>
+                          )}
+                        </div>
+
+                        <p className="text-sm font-sans font-bold text-slate-900 leading-snug truncate">{d.requirementTitle}</p>
+                        <div className="flex items-center gap-2 mt-1 text-[11px] font-sans text-slate-500">
+                          <Building className="w-3 h-3 text-slate-400" />
+                          <span className="truncate max-w-[160px]">{d.institutionName}</span>
+                          <span className="text-slate-300">·</span>
+                          <span className="font-mono">{formatRelativeTime(d.createdAt)}</span>
+                        </div>
+
+                        {/* Amount or quantity */}
+                        <div className="mt-2 flex items-center justify-between">
+                          <span className="text-xs font-sans text-slate-600">
+                            {isMonetary
+                              ? <span className="font-mono font-bold">{formatIndianCurrency(d.monetaryAmountInr || d.items[0]?.estimatedValueInr || 0)}</span>
+                              : d.items.map(it => `${it.quantity} ${it.unit}`).join(', ')
+                            }
+                          </span>
+                          {isMonetary ? (
+                            <button
+                              onClick={(e) => { e.stopPropagation(); handleInspectReceipt(d.id); }}
+                              className="text-[10px] font-sans font-bold text-purple-700 hover:text-purple-900 flex items-center gap-1 bg-white hover:bg-purple-50 px-2 py-1 rounded-sm border border-purple-200 transition-colors press-effect"
+                            >
+                              <FileCheck2 className="w-3 h-3" />
+                              80G
+                            </button>
+                          ) : d.status === 'CONFIRMED' ? (
+                            <button
+                              onClick={(e) => { e.stopPropagation(); handleInspectCertificate(d.id); }}
+                              className="text-[10px] font-sans font-bold text-teal-700 hover:text-teal-900 flex items-center gap-1 bg-white hover:bg-teal-50 px-2 py-1 rounded-sm border border-teal-200 transition-colors press-effect"
+                            >
+                              <Award className="w-3 h-3" />
+                              Certificate
+                            </button>
+                          ) : null}
+                        </div>
+                      </div>
+
+                      <ChevronRight className={`w-4 h-4 mt-1 shrink-0 transition-colors ${isSelected ? 'text-slate-800' : 'text-slate-300'}`} />
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* ── RIGHT: Detail panel ── */}
+            <div className="lg:col-span-7 space-y-6">
+              {selectedDonation ? (
+                <div className="animate-fade-in">
+                  {(() => {
+                    const isSelectedMonetary = selectedDonation.donation.type === 'FUNDS' || Boolean(selectedDonation.donation.monetaryAmountInr);
+                    const monetaryAmount = selectedDonation.donation.monetaryAmountInr || selectedDonation.donation.items[0]?.estimatedValueInr || 0;
+
+                    return isSelectedMonetary ? (
+                      /* ── Monetary detail ── */
+                      <div className="bg-white border border-surface-border rounded-2xl overflow-hidden mb-6">
+                        <div className="px-8 py-6 border-b border-surface-border flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                          <div>
+                            <div className="flex items-center gap-2 mb-2">
+                              <code className="text-[11px] font-mono font-bold text-purple-800 bg-purple-50 px-2 py-0.5 rounded-sm border border-purple-200">
+                                {selectedDonation.donation.id}
+                              </code>
+                              <span className="text-[11px] font-mono text-purple-700">₹ Monetary</span>
+                            </div>
+                            <h3 className="text-xl font-display font-bold text-slate-900 leading-tight">
+                              {selectedDonation.donation.requirementTitle}
+                            </h3>
+                            <p className="text-sm font-sans text-slate-500 mt-1">
+                              Beneficiary: <strong className="text-slate-800">{selectedDonation.donation.institutionName}</strong>
+                            </p>
+                          </div>
+                          <button
+                            onClick={() => handleInspectReceipt(selectedDonation.donation.id)}
+                            className="flex items-center gap-2 px-4 py-2.5 bg-purple-800 text-white text-xs font-sans font-bold rounded-sm hover:bg-purple-900 transition-colors press-effect shrink-0"
+                          >
+                            <FileCheck2 className="w-3.5 h-3.5" />
+                            View 80G Receipt
+                          </button>
+                        </div>
+
+                        <div className="px-8 py-6 bg-slate-900">
+                          <p className="text-[10px] font-mono font-bold tracking-[0.1em] uppercase text-slate-400 mb-2">Settled Contribution</p>
+                          <p className="text-3xl font-display font-black text-white tracking-tight">{formatIndianCurrency(monetaryAmount)}</p>
+                          <div className="flex items-center gap-2 mt-3">
+                            <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+                            <span className="text-[11px] font-mono text-emerald-400">Ledger Verified</span>
+                            <span className="text-slate-600">·</span>
+                            <code className="text-[10px] font-mono text-slate-400">
+                              {selectedDonation.donation.upiTransactionId || 'TXN-2026-CONFIRMED'}
+                            </code>
+                          </div>
+                        </div>
+                      </div>
+                    ) : (
+                      /* ── Physical consignment detail ── */
+                      <div className="bg-white border border-surface-border rounded-2xl overflow-hidden mb-6">
+                        <div className="px-8 py-6 border-b border-surface-border flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                          <div>
+                            <div className="flex items-center gap-2 mb-2">
+                              <code className="text-[11px] font-mono font-bold text-teal-800 bg-teal-50 px-2 py-0.5 rounded-sm border border-teal-200">
+                                {selectedDonation.donation.id}
+                              </code>
+                              <span className="text-[11px] font-mono text-slate-500">Physical Goods</span>
+                            </div>
+                            <h3 className="text-xl font-display font-bold text-slate-900 leading-tight">
+                              {selectedDonation.donation.requirementTitle}
+                            </h3>
+                            <p className="text-sm font-sans text-slate-500 mt-1">
+                              Destination: <strong className="text-slate-800">{selectedDonation.donation.institutionName}</strong>
+                            </p>
+                          </div>
+
+                          {selectedDonation.qrDataUrl && (
+                            <div className="flex items-center gap-4 bg-surface-canvas px-4 py-3 rounded-sm border border-surface-border shrink-0">
+                              <img
+                                src={selectedDonation.qrDataUrl}
+                                alt="QR"
+                                className="w-14 h-14 rounded-sm border border-surface-border bg-white p-0.5"
+                              />
+                              <div>
+                                <p className="text-[10px] font-mono text-slate-400 uppercase tracking-wider mb-1">Consignment QR</p>
+                                <a
+                                  href={selectedDonation.qrDataUrl}
+                                  download={`CareTrace-${selectedDonation.donation.id}-QR.png`}
+                                  className="text-[11px] font-sans font-bold text-teal-700 hover:text-teal-900 flex items-center gap-1 transition-colors"
+                                >
+                                  Download <ArrowUpRight className="w-3 h-3" />
+                                </a>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+
+                        <div className="px-8 py-4 flex flex-wrap gap-2">
+                          {selectedDonation.donation.items.map((it: any, i: number) => (
+                            <span key={i} className="text-xs font-sans font-bold text-slate-700 bg-surface-subtle border border-surface-border px-3 py-1.5 rounded-sm flex items-center gap-1.5">
+                              {it.quantity} {it.unit} {it.name}
+                              {it.estimatedValueInr && (
+                                <span className="text-[10px] font-mono text-teal-700 bg-white px-1.5 py-0.5 rounded-sm border border-teal-100">
+                                  ₹{Number(it.estimatedValueInr).toLocaleString('en-IN')}
+                                </span>
+                              )}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    );
+                  })()}
+
+                  {/* Chain-of-Custody Timeline — signature component */}
+                  <ChainOfCustodyTimeline
+                    donation={selectedDonation.donation}
+                    blocks={selectedDonation.blocks}
+                    onInspectCertificate={() => handleInspectCertificate(selectedDonation.donation.id)}
+                  />
+
+                  {selectedDonation.donation.type !== 'FUNDS' && !selectedDonation.donation.monetaryAmountInr && (
+                    <div className="mt-6">
+                      <LiveTransitMap
+                        donation={selectedDonation.donation}
+                        initialTelemetry={selectedDonation.telemetry}
+                        onStatusAdvanced={loadData}
+                      />
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="py-24 text-center">
+                  <Package className="w-10 h-10 text-slate-200 mx-auto mb-4" />
+                  <p className="text-base font-display font-bold text-slate-600">Select a consignment to view live tracking</p>
+                </div>
+              )}
+            </div>
+          </div>
+        )
+      ) : (
+        /* ── EXPLORE TAB ── */
+        <div className="space-y-6 animate-fade-in">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <h2 className="text-xl font-display font-bold text-slate-900">Verified Requirements</h2>
+              <p className="text-sm font-sans text-slate-500 mt-1">Authenticity-audited needs from registered Chennai child sanctuaries</p>
+            </div>
+            <a
+              href="/requests"
+              className="text-sm font-sans font-bold text-slate-700 hover:text-slate-900 flex items-center gap-2 bg-surface-subtle hover:bg-surface-border px-4 py-2.5 rounded-sm border border-surface-border transition-colors press-effect shrink-0"
+            >
+              Public Board
+              <ExternalLink className="w-3.5 h-3.5" />
+            </a>
+          </div>
+
+          <div className="border border-surface-border rounded-2xl overflow-hidden bg-white">
+            {requirements.map((req, i) => {
+              const progress = Math.min(100, Math.round((req.fulfilledQuantity / req.targetQuantity) * 100));
+              const remaining = Math.max(0, req.targetQuantity - req.fulfilledQuantity);
 
               return (
                 <div
-                  key={d.id}
-                  onClick={() => handleSelectDonation(d)}
-                  className={`p-5 rounded-2xl border transition-all duration-300 cursor-pointer animate-fade-up press-effect ${
-                    isSelected
-                      ? 'bg-surface-card border-teal-500 ring-4 ring-teal-50 shadow-card-hover transform scale-[1.02]'
-                      : 'bg-surface-canvas hover:bg-surface-subtle border-surface-border shadow-sm hover:shadow-md'
-                  }`}
-                  style={{ animationDelay: `${i * 50}ms` }}
+                  key={req.id}
+                  className={`relative flex items-center gap-6 px-6 py-4 transition-colors hover:bg-surface-canvas ${i < requirements.length - 1 ? 'border-b border-surface-border' : ''}`}
                 >
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <div className="flex flex-wrap items-center gap-2 mb-1">
-                        <span className="font-mono text-xs font-bold text-slate-900 bg-white px-2 py-0.5 rounded border border-surface-border shadow-sm">{d.id}</span>
-                        {isMonetary ? (
-                          <>
-                            <span className="text-[10px] font-sans font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-purple-100 text-purple-800 border border-purple-300 flex items-center space-x-1 shadow-sm">
-                              <span className="font-bold font-display text-sm">₹</span>
-                              <span>MONETARY</span>
-                            </span>
-                            <span className="text-[10px] font-sans font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-800 border border-emerald-300 shadow-sm">
-                              SETTLED
-                            </span>
-                          </>
-                        ) : (
-                          <span
-                            className={`text-[10px] font-sans font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-md shadow-sm border ${
-                              isDelivered
-                                ? 'bg-emerald-100 text-emerald-800 border-emerald-300'
-                                : 'bg-amber-100 text-amber-800 border-amber-300'
-                            }`}
-                          >
-                            {d.status.replace('_', ' ')}
-                          </span>
-                        )}
-                      </div>
-                      <h3 className="text-sm font-sans font-bold text-slate-900 mt-2 leading-snug pr-2">{d.requirementTitle}</h3>
-                      <div className="text-xs font-sans font-medium text-slate-500 mt-1.5 flex items-center space-x-2">
-                        <p className="flex items-center space-x-1.5 bg-surface-subtle px-1.5 py-0.5 rounded border border-surface-border">
-                          <Building className="w-3.5 h-3.5 text-slate-400" />
-                          <span className="truncate max-w-[150px]">{d.institutionName}</span>
-                        </p>
-                        <span className="text-slate-300">•</span>
-                        <span className="text-[11px] text-slate-400 font-mono">{formatRelativeTime(d.createdAt)}</span>
-                      </div>
-                    </div>
+                  <div className={`w-1.5 h-1.5 rounded-sm shrink-0 ${req.urgency === 'CRITICAL' ? 'bg-rose-500' : req.urgency === 'HIGH' ? 'bg-amber-500' : 'bg-slate-300'}`} />
 
-                    <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 transition-colors ${isSelected ? 'bg-teal-50' : 'bg-surface-subtle'}`}>
-                      <ChevronRight className={`w-5 h-5 transition-transform ${isSelected ? 'text-teal-600 translate-x-0.5' : 'text-slate-400'}`} />
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-0.5">
+                      <span className="text-[10px] font-mono text-slate-400 uppercase">{req.category}</span>
+                      {req.urgency === 'CRITICAL' && (
+                        <span className="text-[10px] font-mono font-bold text-rose-600 bg-rose-50 px-1.5 rounded-sm">Critical</span>
+                      )}
+                    </div>
+                    <p className="text-sm font-sans font-bold text-slate-900 leading-snug truncate">{req.title}</p>
+                    <p className="text-[11px] font-sans text-slate-500 mt-0.5">{req.institutionName}</p>
+                  </div>
+
+                  <div className="hidden sm:block w-20 shrink-0">
+                    <div className="flex justify-between mb-1">
+                      <span className="text-[10px] font-mono text-slate-400">{progress}%</span>
+                    </div>
+                    <div className="w-full h-1 bg-surface-subtle rounded-sm overflow-hidden">
+                      <div className="h-full bg-teal-600 transition-all" style={{ width: `${progress}%` }} />
                     </div>
                   </div>
 
-                  <div className="mt-4 pt-3 border-t border-surface-border flex items-center justify-between text-xs font-sans">
-                    {isMonetary ? (
-                      <span className="text-slate-800 font-bold font-mono text-sm bg-purple-50 px-2 py-1 rounded-lg border border-purple-100">
-                        {formatIndianCurrency(d.monetaryAmountInr || d.items[0]?.estimatedValueInr || 0)}
-                        <span className="text-slate-500 font-sans font-medium ml-1.5 text-[11px] bg-white px-1.5 py-0.5 rounded">Direct Fund Transfer</span>
-                      </span>
-                    ) : (
-                      <span className="text-slate-600 font-medium">
-                        {d.items.map(i => `${i.quantity} ${i.unit}`).join(', ')}
-                      </span>
-                    )}
+                  <div className="hidden md:block text-right shrink-0">
+                    <p className="text-base font-display font-black text-slate-900 leading-none">{remaining}</p>
+                    <p className="text-[10px] font-mono text-slate-400">{req.unit}</p>
+                  </div>
 
-                    {isMonetary ? (
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleInspectReceipt(d.id);
-                        }}
-                        className="text-[11px] font-sans font-bold text-purple-700 hover:text-purple-900 flex items-center space-x-1.5 bg-white hover:bg-purple-50 px-3 py-1.5 rounded-lg border border-purple-200 transition-colors shadow-sm press-effect"
-                      >
-                        <FileCheck2 className="w-4 h-4 text-purple-600" />
-                        <span>80G Receipt</span>
-                      </button>
-                    ) : isDelivered ? (
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleInspectCertificate(d.id);
-                        }}
-                        className="text-[11px] font-sans font-bold text-teal-700 hover:text-teal-900 flex items-center space-x-1.5 bg-white hover:bg-teal-50 px-3 py-1.5 rounded-lg border border-teal-200 transition-colors shadow-sm press-effect"
-                      >
-                        <Award className="w-4 h-4 text-teal-600" />
-                        <span>Certificate</span>
-                      </button>
-                    ) : null}
+                  <div className="flex items-center gap-2 shrink-0">
+                    <button
+                      onClick={() => setMonetaryRequirement(req)}
+                      className="px-2.5 py-2 bg-surface-subtle border border-surface-border text-slate-600 text-[11px] font-bold rounded-sm hover:bg-surface-border transition-colors press-effect"
+                      title="Fund"
+                    >
+                      <span className="font-display">₹</span>
+                    </button>
+                    <button
+                      onClick={() => setPledgeReq(req)}
+                      className="flex items-center gap-1.5 px-3 py-2 bg-slate-900 text-white text-[11px] font-bold rounded-sm hover:bg-slate-800 transition-colors press-effect"
+                    >
+                      <Plus className="w-3 h-3" />
+                      Goods
+                    </button>
                   </div>
                 </div>
               );
             })}
           </div>
         </div>
-
-        {/* Right Column: Live Tracking & Detail Card (7 Cols) */}
-        <div className="lg:col-span-7 space-y-6">
-          {selectedDonation ? (
-            <div className="animate-fade-in">
-              {(() => {
-                const isSelectedMonetary = selectedDonation.donation.type === 'FUNDS' || Boolean(selectedDonation.donation.monetaryAmountInr);
-                const monetaryAmount = selectedDonation.donation.monetaryAmountInr || selectedDonation.donation.items[0]?.estimatedValueInr || 0;
-
-                return isSelectedMonetary ? (
-                  /* Monetary Contribution Header Card */
-                  <div className="bg-surface-card rounded-[2rem] p-6 sm:p-8 border border-surface-border shadow-elevated card-premium mb-6">
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-5 pb-5 border-b border-surface-border">
-                      <div>
-                        <div className="flex items-center space-x-3 mb-2">
-                          <span className="font-mono text-sm font-bold text-purple-900 bg-purple-50 px-3 py-1 rounded-lg border border-purple-200 shadow-sm">
-                            {selectedDonation.donation.id}
-                          </span>
-                          <span className="text-xs font-sans font-bold text-purple-700 bg-purple-50 px-3 py-1 rounded-full border border-purple-200 flex items-center space-x-1 shadow-sm">
-                            <span className="font-display text-sm">₹</span>
-                            <span>MONETARY CONTRIBUTION</span>
-                          </span>
-                        </div>
-                        <h3 className="text-2xl font-display font-bold text-slate-900 mt-2 leading-tight">
-                          {selectedDonation.donation.requirementTitle}
-                        </h3>
-                        <p className="text-sm font-sans text-slate-600 mt-1 flex items-center space-x-1.5">
-                          <span>Beneficiary:</span> <strong className="text-slate-800 bg-surface-subtle px-1.5 py-0.5 rounded border border-surface-border">{selectedDonation.donation.institutionName}</strong>
-                        </p>
-                      </div>
-
-                      <button
-                        onClick={() => handleInspectReceipt(selectedDonation.donation.id)}
-                        className="px-5 py-2.5 bg-gradient-to-r from-purple-700 to-purple-900 text-white rounded-xl text-sm font-sans font-bold shadow-md hover:shadow-lg flex items-center space-x-2 transition-all self-start sm:self-center hover-lift press-effect"
-                      >
-                        <FileCheck2 className="w-4.5 h-4.5 text-purple-200" />
-                        <span>View 80G Tax Receipt</span>
-                      </button>
-                    </div>
-
-                    <div className="mt-5 p-6 rounded-2xl bg-gradient-to-br from-teal-900 via-teal-800 to-slate-900 text-white shadow-inner flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                      <div>
-                        <span className="text-teal-300 text-[10px] font-sans font-bold uppercase tracking-widest block mb-1">
-                          Settled Contribution
-                        </span>
-                        <span className="text-3xl font-display font-bold mt-1 block tracking-wide">
-                          {formatIndianCurrency(monetaryAmount)}
-                        </span>
-                        <span className="text-xs font-sans font-medium text-teal-100/80 italic block mt-1.5">
-                          Direct Monetary Contribution Settled
-                        </span>
-                      </div>
-                      <div className="text-sm sm:text-right space-y-1.5 border-t sm:border-t-0 border-teal-700/60 pt-4 sm:pt-0">
-                        <span className="text-teal-300 text-[10px] font-sans font-bold uppercase tracking-widest block">Settlement Status</span>
-                        <span className="inline-flex items-center space-x-1.5 text-emerald-300 font-sans font-bold bg-emerald-950/40 px-2 py-1 rounded">
-                          <ShieldCheck className="w-4 h-4" />
-                          <span>Ledger Verified</span>
-                        </span>
-                        <p className="text-xs font-mono font-medium text-teal-200/80 bg-black/20 px-2 py-1 rounded border border-white/10 mt-1 inline-block">
-                          Ref: {selectedDonation.donation.upiTransactionId || 'TXN-2026-CONFIRMED'}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                ) : (
-                  /* Physical Delivery Consignment Header Card */
-                  <div className="bg-surface-card rounded-[2rem] p-6 sm:p-8 border border-surface-border shadow-elevated card-premium mb-6">
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-5 pb-5 border-b border-surface-border">
-                      <div>
-                        <div className="flex items-center space-x-3 mb-2">
-                          <span className="font-mono text-sm font-bold text-teal-900 bg-teal-50 px-3 py-1 rounded-lg border border-teal-200 shadow-sm">
-                            {selectedDonation.donation.id}
-                          </span>
-                          <span className="text-xs font-sans font-bold text-slate-600 bg-surface-subtle px-2.5 py-1 rounded-full border border-surface-border shadow-sm">Physical Delivery Consignment</span>
-                        </div>
-                        <h3 className="text-2xl font-display font-bold text-slate-900 mt-2 leading-tight">
-                          {selectedDonation.donation.requirementTitle}
-                        </h3>
-                        <p className="text-sm font-sans text-slate-600 mt-1 flex items-center space-x-1.5">
-                          <span>Destination:</span> <strong className="text-slate-800 bg-surface-subtle px-1.5 py-0.5 rounded border border-surface-border">{selectedDonation.donation.institutionName}</strong>
-                        </p>
-                      </div>
-
-                      {/* QR Code Quick View */}
-                      {selectedDonation.qrDataUrl && (
-                        <div className="flex items-center space-x-4 bg-surface-canvas p-3 rounded-2xl border border-surface-border shadow-inner">
-                          <img
-                            src={selectedDonation.qrDataUrl}
-                            alt="Donation QR Code"
-                            className="w-20 h-20 rounded-xl border border-surface-border bg-white shadow-sm p-1"
-                          />
-                          <div className="text-left pr-2">
-                            <span className="text-[10px] font-sans text-slate-500 uppercase font-bold tracking-wider block mb-0.5">Consignment QR</span>
-                            <span className="text-xs font-sans text-teal-800 font-bold block mb-1.5">Scan at Handover</span>
-                            <a
-                              href={selectedDonation.qrDataUrl}
-                              download={`CareTrace-${selectedDonation.donation.id}-QR.png`}
-                              className="text-[10px] font-sans font-bold text-white bg-teal-700 hover:bg-teal-800 px-2 py-1 rounded transition-colors inline-flex items-center shadow-sm press-effect"
-                            >
-                              Download QR
-                            </a>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Items detail */}
-                    <div className="mt-5 flex flex-wrap gap-2.5 text-sm font-sans">
-                      {selectedDonation.donation.items.map((it: any, i: number) => (
-                        <span key={i} className="px-3 py-1.5 bg-surface-subtle border border-surface-border text-slate-800 font-bold rounded-xl flex items-center space-x-1.5 shadow-sm">
-                          <span>{it.quantity} {it.unit} {it.name}</span>
-                          {it.estimatedValueInr && (
-                            <span className="text-teal-700 font-mono bg-white px-1.5 py-0.5 rounded border border-teal-100 ml-1">
-                              (₹{Number(it.estimatedValueInr).toLocaleString('en-IN')})
-                            </span>
-                          )}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                );
-              })()}
-
-              {/* Chain of Custody Timeline Component */}
-              <ChainOfCustodyTimeline
-                donation={selectedDonation.donation}
-                blocks={selectedDonation.blocks}
-                onInspectCertificate={() => handleInspectCertificate(selectedDonation.donation.id)}
-              />
-
-              {/* Live Transit Map (Only for physical road courier delivery) */}
-              {selectedDonation.donation.type !== 'FUNDS' && !selectedDonation.donation.monetaryAmountInr && (
-                <div className="mt-6">
-                <LiveTransitMap
-                  donation={selectedDonation.donation}
-                  initialTelemetry={selectedDonation.telemetry}
-                  onStatusAdvanced={loadData}
-                />
-                </div>
-              )}
-            </div>
-          ) : (
-            <div className="bg-surface-card rounded-[2rem] p-16 text-center border border-surface-border shadow-sm flex flex-col items-center justify-center h-full min-h-[400px]">
-              <div className="w-20 h-20 bg-surface-subtle rounded-3xl flex items-center justify-center mb-6 shadow-inner border border-surface-border">
-                <Package className="w-10 h-10 text-slate-400" />
-              </div>
-              <p className="text-xl font-display font-bold text-slate-800">Select a consignment to view live tracking</p>
-            </div>
-          )}
-        </div>
-      </div>
-    )
-  ) : (
-        /* EXPLORE / FULFILL NEEDS TAB VIEW */
-        <div className="space-y-6 animate-fade-in">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-surface-card rounded-[2rem] p-6 sm:p-8 border border-surface-border shadow-sm card-premium">
-            <div>
-              <h2 className="text-2xl font-display font-bold text-slate-900">Verified Childcare Requirements to Fulfill</h2>
-              <p className="text-sm font-sans text-slate-600 mt-1.5 max-w-2xl leading-relaxed">
-                Authenticity-audited requirements posted by registered and verified child sanctuaries in Chennai
-              </p>
-            </div>
-            <a
-              href="/requests"
-              className="text-sm font-sans font-bold text-teal-800 hover:text-teal-900 flex items-center space-x-2 self-start sm:self-center bg-teal-50 hover:bg-teal-100 px-5 py-2.5 rounded-xl border border-teal-200 transition-colors shadow-sm press-effect hover-lift shrink-0"
-            >
-              <span>Explore Public Board</span>
-              <ExternalLink className="w-4 h-4" />
-            </a>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {requirements.map((req, i) => (
-              <div
-                key={req.id}
-                className={`card-premium p-6 border border-surface-border hover:border-teal-300 hover:shadow-card-hover transition-all duration-300 flex flex-col justify-between bg-surface-card rounded-2xl animate-fade-up stagger-${(i % 6) + 1}`}
-              >
-                <div>
-                  <div className="flex items-center justify-between mb-4">
-                    <span className="text-[10px] font-sans font-bold uppercase tracking-widest px-2.5 py-1 rounded-md bg-surface-subtle text-slate-600 border border-surface-border shadow-sm">
-                      {req.category}
-                    </span>
-                    <span
-                      className={`text-[10px] font-sans font-bold uppercase tracking-widest px-2.5 py-1 rounded-full shadow-sm ${
-                        req.urgency === 'CRITICAL'
-                          ? 'bg-rose-100 text-rose-800 border border-rose-200'
-                          : req.urgency === 'HIGH'
-                          ? 'bg-amber-100 text-amber-800 border border-amber-200'
-                          : 'bg-slate-100 text-slate-700 border border-slate-200'
-                      }`}
-                    >
-                      {req.urgency} Urgency
-                    </span>
-                  </div>
-
-                  <h3 className="text-xl font-display font-bold text-slate-900 leading-tight">{req.title}</h3>
-                  <p className="text-sm font-sans text-slate-600 mt-2 line-clamp-2 leading-relaxed">{req.description}</p>
-
-                  <div className="mt-5 space-y-2">
-                    <div className="flex justify-between text-xs font-sans font-medium text-slate-700">
-                      <span>Target Needed</span>
-                      <span className="font-bold">
-                        {req.fulfilledQuantity} / {req.targetQuantity} {req.unit}
-                      </span>
-                    </div>
-                    <div className="w-full h-2.5 bg-surface-subtle rounded-full overflow-hidden border border-surface-border/50 shadow-inner">
-                      <div
-                        className="h-full bg-teal-600 rounded-full transition-all duration-1000 ease-out"
-                        style={{ width: `${Math.min(100, (req.fulfilledQuantity / req.targetQuantity) * 100)}%` }}
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                <div className="mt-6 pt-5 border-t border-surface-border flex items-center justify-between gap-3">
-                  <div className="text-[11px] font-sans font-bold text-slate-500 truncate max-w-[110px] bg-surface-subtle px-2 py-1 rounded border border-surface-border">
-                    {req.institutionName}
-                  </div>
-                  <div className="flex items-center space-x-2 shrink-0">
-                    <button
-                      onClick={() => setMonetaryRequirement(req)}
-                      className="px-3 py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 rounded-xl text-xs font-sans font-bold shadow-sm transition-colors flex items-center space-x-1.5 press-effect hover-lift"
-                      title="Pledge Monetary Contribution"
-                    >
-                      <span className="font-display font-bold text-sm">₹</span>
-                      <span>Funds</span>
-                    </button>
-                    <button
-                      onClick={() => setPledgeReq(req)}
-                      className="px-3 py-2 gradient-primary text-white rounded-xl text-xs font-sans font-bold shadow-glow-teal flex items-center space-x-1.5 press-effect hover-lift transition-all"
-                    >
-                      <Plus className="w-4 h-4" />
-                      <span>Goods</span>
-                    </button>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
       )}
 
-      {/* Pledge Donation Modal */}
+      {/* Pledge Modal */}
       {pledgeReq && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-md animate-fade-in">
-          <div className="bg-surface-card rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-elevated border border-surface-border animate-slide-up card-premium relative">
-            <h3 className="text-2xl font-display font-bold text-slate-900">Pledge Physical Donation</h3>
-            <p className="text-sm font-sans text-slate-500 mt-1">
-              Fulfilling demand for <strong className="text-slate-800 bg-surface-subtle px-1.5 py-0.5 rounded border border-surface-border">{pledgeReq.institutionName}</strong>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-sm animate-fade-in">
+          <div className="bg-white rounded-2xl max-w-md w-full p-8 shadow-elevated border border-surface-border animate-slide-up relative">
+            <h3 className="text-xl font-display font-bold text-slate-900 mb-1">Pledge Physical Goods</h3>
+            <p className="text-sm font-sans text-slate-500 mb-6">
+              For <strong className="text-slate-800">{pledgeReq.institutionName}</strong>
             </p>
 
-            <div className="mt-5 p-4 rounded-xl bg-teal-50 border border-teal-200 shadow-sm">
-              <span className="text-[10px] font-sans font-bold uppercase tracking-widest text-teal-800 block mb-1">Selected Requirement</span>
-              <p className="text-sm font-sans font-bold text-teal-950">{pledgeReq.title}</p>
+            <div className="p-4 bg-surface-canvas border border-surface-border rounded-sm mb-6">
+              <p className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-400 mb-1">Requirement</p>
+              <p className="text-sm font-sans font-bold text-slate-900">{pledgeReq.title}</p>
             </div>
 
-            <div className="mt-5 space-y-4">
+            <div className="space-y-4">
               <div>
-                <label className="block text-xs font-sans font-bold text-slate-700 mb-1.5">
-                  Pledge Quantity ({pledgeReq.unit}):
-                </label>
+                <label className="block text-xs font-sans font-bold text-slate-700 mb-1.5">Quantity ({pledgeReq.unit})</label>
                 <input
                   type="number"
                   min="1"
                   max={pledgeReq.targetQuantity - pledgeReq.fulfilledQuantity}
                   value={pledgeQty}
                   onChange={(e) => setPledgeQty(Number(e.target.value))}
-                  className="w-full px-4 py-3 text-sm font-sans bg-surface-canvas border border-surface-border rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-600 font-mono font-bold text-slate-900 shadow-inner transition-all"
+                  className="w-full px-4 py-3 text-sm font-mono font-bold bg-surface-canvas border border-surface-border rounded-sm focus:outline-none focus:ring-2 focus:ring-teal-600 text-slate-900 transition-all"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-sans font-bold text-slate-700 mb-1.5">
-                  Pickup Logistics Depot:
-                </label>
+                <label className="block text-xs font-sans font-bold text-slate-700 mb-1.5">Pickup Depot</label>
                 <input
                   type="text"
                   readOnly
                   value="T. Nagar Wholesale Logistics Hub, Usman Road, Chennai 600017"
-                  className="w-full px-4 py-3 text-sm font-sans bg-surface-canvas border border-surface-border rounded-xl text-slate-600 font-medium shadow-inner"
+                  className="w-full px-4 py-3 text-sm font-sans bg-surface-canvas border border-surface-border rounded-sm text-slate-500"
                 />
               </div>
 
-              <div className="p-4 bg-surface-subtle rounded-xl border border-surface-border text-xs font-sans text-slate-600 space-y-2 shadow-inner">
-                <span className="font-bold text-slate-800 block flex items-center space-x-1.5"><ShieldCheck className="w-4 h-4 text-teal-600"/> <span>Ledger Process:</span></span>
-                <p className="flex items-start space-x-2"><span className="text-teal-600 font-bold">1.</span> <span>Unique Donation ID & cryptographic QR code will be minted.</span></p>
-                <p className="flex items-start space-x-2"><span className="text-teal-600 font-bold">2.</span> <span>First checkpoint block will be sealed on the SHA-256 ledger.</span></p>
-                <p className="flex items-start space-x-2"><span className="text-teal-600 font-bold">3.</span> <span>Dispatch courier will be assigned for authenticated pickup.</span></p>
+              <div className="p-3.5 bg-slate-50 border border-slate-200 rounded-sm text-[11px] font-mono text-slate-600 space-y-1.5">
+                {['Donation ID & SHA-256 QR minted on pledge.', 'Block #0 sealed on tamper-resistant ledger.', 'Courier dispatched for authenticated pickup.'].map((s, i) => (
+                  <p key={i} className="flex items-start gap-2">
+                    <span className="text-teal-600 font-bold">{i + 1}.</span>
+                    {s}
+                  </p>
+                ))}
               </div>
             </div>
 
-            <div className="mt-8 flex justify-end space-x-3">
+            <div className="mt-8 flex justify-end gap-3">
               <button
                 onClick={() => setPledgeReq(null)}
-                className="px-5 py-2.5 text-sm font-sans font-bold text-slate-600 hover:text-slate-900 hover:bg-surface-subtle rounded-xl transition-colors press-effect"
+                className="px-4 py-2.5 text-sm font-sans font-bold text-slate-600 hover:text-slate-900 hover:bg-surface-subtle rounded-sm transition-colors press-effect"
               >
                 Cancel
               </button>
               <button
                 onClick={handleCreateDonation}
                 disabled={isSubmitting || pledgeQty <= 0}
-                className="px-6 py-2.5 text-sm font-sans font-bold gradient-primary text-white rounded-xl shadow-glow-teal hover-lift transition-all disabled:opacity-50 press-effect flex items-center space-x-2"
+                className="px-5 py-2.5 text-sm font-sans font-bold bg-slate-900 text-white rounded-sm hover:bg-slate-800 transition-colors disabled:opacity-50 press-effect flex items-center gap-2"
               >
                 {isSubmitting ? (
                   <>
-                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                    <span>Minting...</span>
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-sm animate-spin" />
+                    Minting…
                   </>
                 ) : 'Confirm & Generate QR'}
               </button>
@@ -739,7 +650,6 @@ export const DonorDashboard: React.FC<DonorDashboardProps> = ({
         </div>
       )}
 
-      {/* Monetary Contribution Pledge Modal */}
       {monetaryRequirement && (
         <PledgeMonetaryModal
           donorId={user.id}
@@ -748,22 +658,8 @@ export const DonorDashboard: React.FC<DonorDashboardProps> = ({
           onSuccess={handlePaymentSuccess}
         />
       )}
-
-      {/* Section 80G Tax Exemption Receipt Modal */}
-      {activeReceipt && (
-        <TaxExemptionReceiptModal
-          receipt={activeReceipt}
-          onClose={() => setActiveReceipt(null)}
-        />
-      )}
-
-      {/* Proof of Delivery Certificate Modal */}
-      {certificate && (
-        <ProofOfDeliveryModal
-          certificate={certificate}
-          onClose={() => setCertificate(null)}
-        />
-      )}
+      {activeReceipt && <TaxExemptionReceiptModal receipt={activeReceipt} onClose={() => setActiveReceipt(null)} />}
+      {certificate && <ProofOfDeliveryModal certificate={certificate} onClose={() => setCertificate(null)} />}
     </div>
   );
 };

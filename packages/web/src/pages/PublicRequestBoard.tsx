@@ -6,17 +6,17 @@ import { PledgeMonetaryModal } from '../components/PledgeMonetaryModal';
 import { TaxExemptionReceiptModal } from '../components/TaxExemptionReceiptModal';
 import {
   Search,
-  Filter,
   HeartHandshake,
   Building2,
   ShieldCheck,
   CheckCircle2,
-  AlertTriangle,
   MapPin,
-  Sparkles,
   ArrowRight,
   X,
-  PackageCheck
+  PackageCheck,
+  SlidersHorizontal,
+  TrendingUp,
+  Zap
 } from 'lucide-react';
 
 interface PublicRequestBoardProps {
@@ -27,6 +27,17 @@ interface PublicRequestBoardProps {
   onNavigateToVerify?: (donationId?: string) => void;
   refreshKey?: number;
 }
+
+const URGENCY_ORDER: Record<string, number> = { CRITICAL: 0, HIGH: 1, MEDIUM: 2, LOW: 3 };
+
+const categoryLabel: Record<string, string> = {
+  ALL: 'All',
+  FOOD: 'Food',
+  CLOTHING: 'Clothing',
+  MEDICINE: 'Healthcare',
+  EDUCATION: 'Education',
+  SUPPLIES: 'Supplies',
+};
 
 export const PublicRequestBoard: React.FC<PublicRequestBoardProps> = ({
   currentUser,
@@ -40,20 +51,17 @@ export const PublicRequestBoard: React.FC<PublicRequestBoardProps> = ({
   const [institutions, setInstitutions] = useState<Institution[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
-  // Filters
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [selectedCategory, setSelectedCategory] = useState<string>('ALL');
   const [selectedUrgency, setSelectedUrgency] = useState<string>('ALL');
   const [selectedLocality, setSelectedLocality] = useState<string>('ALL');
 
-  // Pledge modal state
   const [pledgingReq, setPledgingReq] = useState<Requirement | null>(null);
   const [pledgeQuantity, setPledgeQuantity] = useState<number>(10);
   const [pickupAddress, setPickupAddress] = useState<string>('Anna Nagar West Logistics Hub, Chennai 600040');
   const [isSubmittingPledge, setIsSubmittingPledge] = useState<boolean>(false);
   const [pledgeSuccessId, setPledgeSuccessId] = useState<string | null>(null);
 
-  // Monetary contribution state
   const [monetaryRequirement, setMonetaryRequirement] = useState<Requirement | null>(null);
   const [activeReceipt, setActiveReceipt] = useState<TaxExemptionReceipt | null>(null);
 
@@ -75,10 +83,7 @@ export const PublicRequestBoard: React.FC<PublicRequestBoardProps> = ({
   const loadData = async () => {
     setIsLoading(true);
     try {
-      const [reqs, insts] = await Promise.all([
-        fetchRequirements(),
-        fetchInstitutions()
-      ]);
+      const [reqs, insts] = await Promise.all([fetchRequirements(), fetchInstitutions()]);
       setRequirements(reqs);
       setInstitutions(insts);
     } catch (e) {
@@ -88,67 +93,34 @@ export const PublicRequestBoard: React.FC<PublicRequestBoardProps> = ({
     }
   };
 
-  useEffect(() => {
-    loadData();
-  }, [refreshKey]);
+  useEffect(() => { loadData(); }, [refreshKey]);
 
-  // Verified institutions map
   const verifiedInstMap = new Map(institutions.filter(i => i.verified).map(i => [i.id, i]));
 
-  // Get distinct localities from verified institutions
-  const localities = Array.from(
-    new Set(
-      institutions
-        .filter(i => i.verified)
-        .map(i => i.city || i.address.split(',').pop()?.trim())
-        .filter(Boolean)
-    )
-  );
-
-  // Filter open, verified requirements from verified institutions
-  const filteredRequirements = requirements.filter(req => {
-    const inst = verifiedInstMap.get(req.institutionId);
-    // Requirement must belong to a verified institution and not be fulfilled
-    if (!inst) return false;
-    if (req.status === 'FULFILLED') return false;
-
-    // Search query
-    if (searchQuery.trim()) {
-      const q = searchQuery.toLowerCase();
-      const matchTitle = req.title.toLowerCase().includes(q);
-      const matchDesc = req.description.toLowerCase().includes(q);
-      const matchInst = (req.institutionName || inst.name).toLowerCase().includes(q);
-      if (!matchTitle && !matchDesc && !matchInst) return false;
-    }
-
-    // Category filter
-    if (selectedCategory !== 'ALL' && req.category !== selectedCategory) {
-      return false;
-    }
-
-    // Urgency filter
-    if (selectedUrgency !== 'ALL' && req.urgency !== selectedUrgency) {
-      return false;
-    }
-
-    // Locality filter
-    if (selectedLocality !== 'ALL') {
-      const instLocality = inst.city || inst.address;
-      if (!instLocality.toLowerCase().includes(selectedLocality.toLowerCase())) {
-        return false;
+  const filteredRequirements = requirements
+    .filter(req => {
+      const inst = verifiedInstMap.get(req.institutionId);
+      if (!inst) return false;
+      if (req.status === 'FULFILLED') return false;
+      if (searchQuery.trim()) {
+        const q = searchQuery.toLowerCase();
+        if (!req.title.toLowerCase().includes(q) && !req.description.toLowerCase().includes(q) && !(req.institutionName || inst.name).toLowerCase().includes(q)) return false;
       }
-    }
-
-    return true;
-  });
+      if (selectedCategory !== 'ALL' && req.category !== selectedCategory) return false;
+      if (selectedUrgency !== 'ALL' && req.urgency !== selectedUrgency) return false;
+      if (selectedLocality !== 'ALL') {
+        const loc = inst.city || inst.address;
+        if (!loc.toLowerCase().includes(selectedLocality.toLowerCase())) return false;
+      }
+      return true;
+    })
+    .sort((a, b) => (URGENCY_ORDER[a.urgency] ?? 9) - (URGENCY_ORDER[b.urgency] ?? 9));
 
   const handleDonateClick = (req: Requirement) => {
-    // If user is already authenticated as a Donor, open pledge modal
     if (currentUser && isAuthenticated && currentUser.role === 'DONOR') {
       setPledgingReq(req);
       setPledgeQuantity(Math.max(1, req.targetQuantity - req.fulfilledQuantity));
     } else {
-      // Guest or unauthenticated persona: trigger login/registration prompt
       onRequireAuth(req);
     }
   };
@@ -156,23 +128,15 @@ export const PublicRequestBoard: React.FC<PublicRequestBoardProps> = ({
   const handleConfirmPledge = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!pledgingReq || !currentUser) return;
-
     setIsSubmittingPledge(true);
     try {
       const res = await createDonation({
         donorId: currentUser.id,
         requirementId: pledgingReq.id,
         type: 'PHYSICAL_GOODS',
-        items: [
-          {
-            name: pledgingReq.title,
-            quantity: Number(pledgeQuantity),
-            unit: pledgingReq.unit
-          }
-        ],
+        items: [{ name: pledgingReq.title, quantity: Number(pledgeQuantity), unit: pledgingReq.unit }],
         pickupAddress
       });
-
       if (res.success) {
         setPledgeSuccessId(res.donation.id);
         if (onPledgedSuccess) onPledgedSuccess(res.donation.id);
@@ -185,127 +149,113 @@ export const PublicRequestBoard: React.FC<PublicRequestBoardProps> = ({
     }
   };
 
+  const urgencyConfig = {
+    CRITICAL: { dot: 'bg-rose-500', text: 'text-rose-700', label: 'Critical' },
+    HIGH: { dot: 'bg-amber-500', text: 'text-amber-700', label: 'High' },
+    MEDIUM: { dot: 'bg-slate-400', text: 'text-slate-600', label: 'Medium' },
+    LOW: { dot: 'bg-slate-300', text: 'text-slate-500', label: 'Routine' },
+  };
+
+  const featuredReq = filteredRequirements[0];
+  const restReqs = filteredRequirements.slice(1);
+
   return (
-    <div className="space-y-8 animate-fade-in pb-16">
+    <div className="animate-fade-in pb-16">
       {/* Broadcast Announcements Banner */}
       <AnnouncementBanner refreshKey={refreshKey} />
 
-      {/* Asymmetric Hero Banner (Teal / Emerald Gradient Direction) */}
-      <div className="relative overflow-hidden rounded-[2.5rem] gradient-hero text-white shadow-elevated border border-teal-700/50">
-        <div className="absolute inset-0 opacity-40 mix-blend-color-dodge pointer-events-none">
-          <div className="absolute top-[-20%] right-[-10%] w-[60%] h-[120%] bg-teal-400/25 blur-[100px] rounded-full rotate-12" />
-          <div className="absolute bottom-[-20%] left-[-10%] w-[50%] h-[80%] bg-emerald-400/20 blur-[80px] rounded-full" />
-        </div>
-        
-        <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-          <div className="lg:col-span-7 p-8 sm:p-12 lg:pr-6">
-            <div className="inline-flex items-center space-x-2.5 px-4 py-1.5 rounded-full bg-teal-500/20 border border-teal-300/30 text-xs font-sans font-bold tracking-wide text-teal-200 mb-6 shadow-sm">
-              <ShieldCheck className="w-4 h-4 text-teal-300" />
-              <span>Public Ledger Verified Childcare Needs</span>
+      {/* ── HERO ── Full-bleed, editorial layout, large number contrast */}
+      <div className="relative overflow-hidden rounded-2xl gradient-hero text-white mb-8 mt-4">
+        {/* Subtle texture overlay */}
+        <div className="absolute inset-0 pointer-events-none" style={{
+          backgroundImage: 'radial-gradient(circle at 1px 1px, rgba(255,255,255,0.04) 1px, transparent 0)',
+          backgroundSize: '32px 32px'
+        }} />
+
+        <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12">
+          {/* Left: editorial content block */}
+          <div className="lg:col-span-8 px-8 py-10 sm:px-12 sm:py-14">
+            {/* Eyebrow */}
+            <div className="flex items-center gap-2 mb-6">
+              <div className="w-1.5 h-1.5 rounded-sm bg-teal-400" />
+              <span className="text-[11px] font-mono font-bold tracking-[0.12em] uppercase text-teal-300">
+                Public Ledger — Verified Needs
+              </span>
             </div>
-            
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-display font-bold tracking-tight leading-[1.1] mb-5 text-white">
-              Direct, Audited Needs for Children in Care
+
+            {/* Headline: push far beyond "safe" size */}
+            <h1 className="font-display font-black text-[44px] sm:text-[60px] lg:text-[72px] leading-[0.92] tracking-[-0.03em] text-white mb-6">
+              Direct<br />
+              <span className="text-teal-300">Audited</span><br />
+              Needs.
             </h1>
-            
-            <p className="text-base sm:text-lg font-sans text-teal-100/90 mb-8 max-w-xl leading-relaxed">
-              Every listed item is legally vetted, scored for demand authenticity, and cryptographically tracked from donor depot to verified child institution handover.
+
+            <p className="text-[15px] font-sans text-teal-100/80 max-w-lg leading-[1.6] mb-8">
+              Every item is authenticity-scored, legally verified, and cryptographically
+              tracked depot-to-doorstep for accredited child sanctuaries in Chennai.
             </p>
 
             {onNavigateToVerify && (
               <button
                 type="button"
                 onClick={() => onNavigateToVerify()}
-                className="inline-flex items-center space-x-2.5 px-6 py-3.5 bg-white hover:bg-teal-50 text-teal-950 font-sans font-bold text-sm rounded-xl transition-all shadow-glass press-effect hover-lift"
+                className="inline-flex items-center gap-2.5 px-5 py-3 bg-white text-teal-950 text-sm font-sans font-bold rounded-sm hover:bg-teal-50 transition-colors shadow-sm press-effect"
               >
-                <ShieldCheck className="w-4.5 h-4.5 text-teal-800" />
-                <span>Verify a Donation on Public Ledger</span>
-                <ArrowRight className="w-4 h-4 ml-1 text-teal-700" />
+                <ShieldCheck className="w-4 h-4 text-teal-700" />
+                Verify a Donation
+                <ArrowRight className="w-3.5 h-3.5 text-teal-600" />
               </button>
             )}
           </div>
-          
-          <div className="lg:col-span-5 p-8 sm:p-12 lg:pl-8 flex flex-col justify-center h-full border-t lg:border-t-0 lg:border-l border-teal-700/50 bg-teal-950/20 backdrop-blur-md">
-            <div className="space-y-6">
-              <div className="group">
-                <span className="text-xs font-sans font-bold uppercase tracking-widest text-teal-200/90 block mb-1.5">Verified Sanctuaries</span>
-                <p className="text-4xl font-display font-bold text-white group-hover:text-teal-200 transition-colors">
-                  {institutions.filter(i => i.verified).length}
-                </p>
-              </div>
-              
-              <div className="w-full h-px bg-teal-700/60" />
-              
-              <div className="group">
-                <span className="text-xs font-sans font-bold uppercase tracking-widest text-teal-200/90 block mb-1.5">Open Verified Needs</span>
-                <p className="text-4xl font-display font-bold text-emerald-300 group-hover:text-emerald-200 transition-colors">
-                  {requirements.filter(r => r.status === 'VERIFIED').length}
-                </p>
-              </div>
-              
-              <div className="w-full h-px bg-teal-700/60" />
-              
-              <div className="group">
-                <span className="text-xs font-sans font-bold uppercase tracking-widest text-teal-200/90 block mb-1.5">Custody Ledger</span>
-                <p className="text-2xl sm:text-3xl font-display font-bold text-amber-300 flex items-center space-x-2">
-                  <Sparkles className="w-5 h-5 text-amber-400" />
-                  <span>100% On-Chain</span>
-                </p>
+
+          {/* Right: stacked stats — dramatic number size contrast */}
+          <div className="lg:col-span-4 border-t lg:border-t-0 lg:border-l border-teal-700/40 px-8 py-10 sm:px-10 sm:py-14 flex flex-col justify-between gap-8">
+            <div>
+              <p className="text-[11px] font-mono font-bold tracking-[0.1em] uppercase text-teal-400/80 mb-1">Verified Sanctuaries</p>
+              <p className="text-[56px] font-display font-black leading-none tracking-[-0.03em] text-white">
+                {institutions.filter(i => i.verified).length}
+              </p>
+            </div>
+            <div className="h-px bg-teal-700/40" />
+            <div>
+              <p className="text-[11px] font-mono font-bold tracking-[0.1em] uppercase text-teal-400/80 mb-1">Open Verified Needs</p>
+              <p className="text-[56px] font-display font-black leading-none tracking-[-0.03em] text-teal-300">
+                {requirements.filter(r => r.status === 'VERIFIED').length}
+              </p>
+            </div>
+            <div className="h-px bg-teal-700/40" />
+            <div>
+              <p className="text-[11px] font-mono font-bold tracking-[0.1em] uppercase text-teal-400/80 mb-2">Custody Ledger</p>
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 rounded-sm bg-emerald-400 animate-pulse" />
+                <span className="text-sm font-mono font-bold text-emerald-300 tracking-wide">100% On-Chain</span>
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Filter & Search Toolbar */}
-      <div className="bg-surface-card rounded-2xl p-5 border border-surface-border shadow-sm space-y-4">
-        <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
-          {/* Keyword Search */}
-          <div className="relative w-full md:w-96">
-            <Search className="w-4.5 h-4.5 absolute left-3.5 top-3 text-slate-400" />
+      {/* ── FILTER BAR ── Segmented controls, not card */}
+      <div className="mb-8">
+        {/* Search + locality row */}
+        <div className="flex flex-col sm:flex-row gap-3 mb-4">
+          <div className="relative flex-1 max-w-sm">
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search needs, items, or orphanages..."
-              className="w-full pl-10 pr-4 py-2.5 text-sm font-sans bg-surface-canvas border border-surface-border rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-600 shadow-inner transition-all"
+              placeholder="Search needs, items, orphanages…"
+              className="w-full pl-9 pr-4 py-2.5 text-sm font-sans bg-white border border-surface-border rounded-sm focus:outline-none focus:ring-2 focus:ring-teal-600 focus:border-transparent placeholder:text-slate-400 text-slate-800 transition-all"
             />
           </div>
 
-          {/* Quick Filters */}
-          <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
-            {/* Category */}
-            <select
-              value={selectedCategory}
-              onChange={(e) => setSelectedCategory(e.target.value)}
-              className="px-4 py-2.5 text-xs font-sans bg-surface-canvas border border-surface-border rounded-xl font-bold text-slate-700 focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-600 shadow-sm cursor-pointer hover:border-teal-300 transition-all"
-            >
-              <option value="ALL">All Categories</option>
-              <option value="FOOD">Food & Nutrition</option>
-              <option value="CLOTHING">Clothing & Bedding</option>
-              <option value="MEDICINE">Healthcare & Medicine</option>
-              <option value="EDUCATION">Education & Books</option>
-              <option value="SUPPLIES">Sanitary & Shelter</option>
-            </select>
-
-            {/* Urgency */}
-            <select
-              value={selectedUrgency}
-              onChange={(e) => setSelectedUrgency(e.target.value)}
-              className="px-4 py-2.5 text-xs font-sans bg-surface-canvas border border-surface-border rounded-xl font-bold text-slate-700 focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-600 shadow-sm cursor-pointer hover:border-teal-300 transition-all"
-            >
-              <option value="ALL">All Urgencies</option>
-              <option value="CRITICAL">Critical Need</option>
-              <option value="HIGH">High Priority</option>
-              <option value="MEDIUM">Medium Priority</option>
-              <option value="LOW">Routine / Low</option>
-            </select>
-
-            {/* Locality */}
+          <div className="flex items-center gap-2">
+            <SlidersHorizontal className="w-3.5 h-3.5 text-slate-400 shrink-0" />
             <select
               value={selectedLocality}
               onChange={(e) => setSelectedLocality(e.target.value)}
-              className="px-4 py-2.5 text-xs font-sans bg-surface-canvas border border-surface-border rounded-xl font-bold text-slate-700 focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-600 shadow-sm cursor-pointer hover:border-teal-300 transition-all"
+              className="px-3 py-2.5 text-sm font-sans bg-white border border-surface-border rounded-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-teal-600 cursor-pointer"
             >
               <option value="ALL">All Localities</option>
               <option value="Tambaram">Tambaram</option>
@@ -313,250 +263,358 @@ export const PublicRequestBoard: React.FC<PublicRequestBoardProps> = ({
               <option value="Anna Nagar">Anna Nagar</option>
               <option value="T. Nagar">T. Nagar</option>
               <option value="Poonamallee">Poonamallee</option>
-              {localities.map(loc => (
-                <option key={loc} value={loc}>{loc}</option>
-              ))}
             </select>
+          </div>
+        </div>
+
+        {/* Category + urgency as pill toggles */}
+        <div className="flex flex-wrap gap-6">
+          <div className="flex items-center gap-1.5">
+            {Object.entries(categoryLabel).map(([val, lbl]) => (
+              <button
+                key={val}
+                onClick={() => setSelectedCategory(val)}
+                className={`px-3 py-1.5 text-[12px] font-sans font-bold rounded-sm transition-all press-effect ${
+                  selectedCategory === val
+                    ? 'bg-slate-900 text-white'
+                    : 'bg-surface-subtle text-slate-600 hover:bg-surface-border hover:text-slate-900'
+                }`}
+              >
+                {lbl}
+              </button>
+            ))}
+          </div>
+
+          <div className="w-px bg-surface-border" />
+
+          <div className="flex items-center gap-1.5">
+            {['ALL', 'CRITICAL', 'HIGH', 'MEDIUM'].map(u => {
+              const cfg = u === 'ALL' ? null : urgencyConfig[u as keyof typeof urgencyConfig];
+              return (
+                <button
+                  key={u}
+                  onClick={() => setSelectedUrgency(u)}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-sans font-bold rounded-sm transition-all press-effect ${
+                    selectedUrgency === u
+                      ? 'bg-slate-900 text-white'
+                      : 'bg-surface-subtle text-slate-600 hover:bg-surface-border hover:text-slate-900'
+                  }`}
+                >
+                  {cfg && <span className={`w-1.5 h-1.5 rounded-sm ${selectedUrgency === u ? 'bg-white' : cfg.dot}`} />}
+                  {u === 'ALL' ? 'All Urgencies' : cfg!.label}
+                </button>
+              );
+            })}
           </div>
         </div>
       </div>
 
-      {/* Needs Cards Grid */}
+      {/* ── NEEDS ── */}
       {isLoading ? (
-        <div className="flex items-center justify-center py-20">
-          <div className="animate-spin w-10 h-10 border-4 border-teal-700 border-t-transparent rounded-full" />
+        <div className="flex items-center justify-center py-24">
+          <div className="flex flex-col items-center gap-4">
+            <div className="w-8 h-8 border-2 border-teal-700 border-t-transparent rounded-sm animate-spin" />
+            <span className="text-[11px] font-mono text-slate-400 tracking-wider uppercase">Loading verified needs</span>
+          </div>
         </div>
       ) : filteredRequirements.length === 0 ? (
-        <div className="bg-surface-card rounded-2xl p-16 text-center border border-surface-border shadow-sm space-y-4">
-          <Building2 className="w-12 h-12 text-slate-300 mx-auto" />
-          <h3 className="text-xl font-display font-bold text-slate-800">No matching requirements found</h3>
-          <p className="text-sm font-sans text-slate-500 max-w-sm mx-auto">
-            Try resetting your locality, category, or search filters to view other verified childcare needs.
-          </p>
+        <div className="py-24 text-center">
+          <Building2 className="w-10 h-10 text-slate-200 mx-auto mb-4" />
+          <h3 className="text-lg font-display font-bold text-slate-800 mb-2">No matching requirements</h3>
+          <p className="text-sm font-sans text-slate-500 mb-6">Reset your filters to view all verified childcare needs.</p>
           <button
-            onClick={() => {
-              setSearchQuery('');
-              setSelectedCategory('ALL');
-              setSelectedUrgency('ALL');
-              setSelectedLocality('ALL');
-            }}
-            className="px-5 py-2.5 bg-surface-subtle text-teal-800 hover:bg-teal-50 hover:text-teal-900 border border-surface-border rounded-xl text-xs font-sans font-bold transition-colors shadow-sm press-effect mt-2"
+            onClick={() => { setSearchQuery(''); setSelectedCategory('ALL'); setSelectedUrgency('ALL'); setSelectedLocality('ALL'); }}
+            className="px-4 py-2.5 bg-slate-900 text-white text-sm font-sans font-bold rounded-sm hover:bg-slate-800 transition-colors press-effect"
           >
-            Clear All Filters
+            Reset Filters
           </button>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-          {filteredRequirements.map((req, i) => {
-            const inst = verifiedInstMap.get(req.institutionId);
-            const progress = Math.min(100, Math.round((req.fulfilledQuantity / req.targetQuantity) * 100));
-            const remaining = Math.max(0, req.targetQuantity - req.fulfilledQuantity);
+        <div className="space-y-3">
+          {/* ── FEATURED CARD: First / most urgent — full width, dominant ── */}
+          {featuredReq && (() => {
+            const inst = verifiedInstMap.get(featuredReq.institutionId);
+            const progress = Math.min(100, Math.round((featuredReq.fulfilledQuantity / featuredReq.targetQuantity) * 100));
+            const remaining = Math.max(0, featuredReq.targetQuantity - featuredReq.fulfilledQuantity);
+            const urg = urgencyConfig[featuredReq.urgency as keyof typeof urgencyConfig] || urgencyConfig.LOW;
 
             return (
-              <div
-                key={req.id}
-                className={`card-premium p-6 flex flex-col justify-between animate-fade-up bg-surface-card border border-surface-border rounded-2xl hover:border-teal-300 hover:shadow-card-hover transition-all duration-300 stagger-${(i % 6) + 1}`}
-              >
-                <div>
-                  {/* Top Badges */}
-                  <div className="flex items-center justify-between gap-2 mb-4">
-                    <span className="text-[10px] font-sans uppercase font-bold tracking-widest px-2.5 py-1 rounded-md bg-surface-subtle text-slate-600 border border-surface-border shadow-sm">
-                      {req.category}
-                    </span>
+              <div className="relative overflow-hidden bg-white border border-surface-border rounded-2xl animate-fade-up">
+                {/* Urgency stripe */}
+                <div className={`absolute left-0 top-0 bottom-0 w-1 ${featuredReq.urgency === 'CRITICAL' ? 'bg-rose-500' : featuredReq.urgency === 'HIGH' ? 'bg-amber-500' : 'bg-slate-300'}`} />
 
-                    <div className="flex items-center space-x-2">
-                      <span
-                        className={`text-[10px] font-sans font-bold px-2.5 py-1 rounded-full shadow-sm ${
-                          req.urgency === 'CRITICAL'
-                            ? 'bg-rose-100 text-rose-800 border border-rose-200'
-                            : req.urgency === 'HIGH'
-                            ? 'bg-amber-100 text-amber-800 border border-amber-200'
-                            : 'bg-slate-100 text-slate-700 border border-slate-200'
-                        }`}
-                      >
-                        {req.urgency}
+                <div className="pl-6 pr-6 sm:pr-8 py-7 grid grid-cols-1 lg:grid-cols-12 gap-6">
+                  {/* Content */}
+                  <div className="lg:col-span-8">
+                    <div className="flex flex-wrap items-center gap-2 mb-3">
+                      <span className="flex items-center gap-1.5 text-[11px] font-mono font-bold text-slate-500 uppercase tracking-wider">
+                        <span className={`w-1.5 h-1.5 rounded-sm ${urg.dot}`} />
+                        {urg.label} Priority
                       </span>
-
-                      <span className="text-[10px] font-mono font-bold bg-emerald-50 text-emerald-800 border border-emerald-200 px-2.5 py-1 rounded-full flex items-center space-x-1 shadow-sm">
-                        <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-                        <span>{req.authenticityScore}% Score</span>
+                      <span className="text-slate-200">·</span>
+                      <span className="text-[11px] font-mono text-slate-400 uppercase tracking-wide">{featuredReq.category}</span>
+                      <span className="text-slate-200">·</span>
+                      <span className="flex items-center gap-1 text-[11px] font-mono text-emerald-700">
+                        <ShieldCheck className="w-3 h-3" />
+                        {featuredReq.authenticityScore}% Authentic
                       </span>
+                      {featuredReq.urgency === 'CRITICAL' && (
+                        <span className="flex items-center gap-1 text-[11px] font-mono font-bold text-rose-600 bg-rose-50 px-2 py-0.5 rounded-sm border border-rose-200">
+                          <Zap className="w-2.5 h-2.5" />
+                          Urgent
+                        </span>
+                      )}
                     </div>
+
+                    <h2 className="text-2xl sm:text-3xl font-display font-bold text-slate-900 leading-tight tracking-[-0.01em] mb-3">
+                      {featuredReq.title}
+                    </h2>
+
+                    <p className="text-sm font-sans text-slate-500 leading-relaxed mb-4 max-w-2xl">
+                      {featuredReq.description}
+                    </p>
+
+                    {inst && (
+                      <div className="flex items-center gap-2 text-sm font-sans text-slate-600">
+                        <MapPin className="w-3.5 h-3.5 text-slate-400" />
+                        <span className="font-bold text-slate-800">{inst.name}</span>
+                        <span className="text-slate-300">·</span>
+                        <span className="text-slate-500">{inst.city}</span>
+                      </div>
+                    )}
                   </div>
 
-                  {/* Title & Description */}
-                  <h3 className="text-xl font-display font-bold text-slate-900 leading-tight">
-                    {req.title}
-                  </h3>
-                  <p className="text-sm font-sans text-slate-600 mt-2 line-clamp-2 leading-relaxed">
-                    {req.description}
-                  </p>
+                  {/* Right: Metrics + CTA */}
+                  <div className="lg:col-span-4 flex flex-col justify-between gap-4">
+                    {/* Quantity emphasis */}
+                    <div>
+                      <p className="text-[11px] font-mono font-bold text-slate-400 uppercase tracking-wider mb-1">Still Needed</p>
+                      <p className="text-4xl font-display font-black text-slate-900 leading-none tracking-[-0.02em]">
+                        {remaining}
+                        <span className="text-lg font-sans font-medium text-slate-400 ml-2">{featuredReq.unit}</span>
+                      </p>
+                    </div>
 
-                  {/* Institution Locality Card */}
-                  {inst && (
-                    <div className="mt-5 p-3.5 bg-surface-canvas rounded-xl border border-surface-border flex items-start space-x-3 shadow-inner">
-                      <Building2 className="w-5 h-5 text-teal-700 flex-shrink-0 mt-0.5" />
-                      <div className="truncate">
-                        <p className="text-sm font-sans font-bold text-slate-800 truncate">{inst.name}</p>
-                        <p className="text-xs font-sans font-medium text-slate-500 flex items-center space-x-1.5 mt-1">
-                          <MapPin className="w-3.5 h-3.5 text-slate-400" />
-                          <span className="truncate">{inst.address}, {inst.city}</span>
-                        </p>
+                    {/* Progress */}
+                    <div>
+                      <div className="flex justify-between mb-1.5">
+                        <span className="text-[11px] font-mono text-slate-400">{progress}% fulfilled</span>
+                        <span className="text-[11px] font-mono text-slate-400">{featuredReq.targetQuantity} total</span>
+                      </div>
+                      <div className="w-full h-1.5 bg-surface-subtle rounded-sm overflow-hidden">
+                        <div
+                          className="h-full bg-teal-600 transition-all duration-700"
+                          style={{ width: `${progress}%` }}
+                        />
                       </div>
                     </div>
-                  )}
 
-                  {/* Fulfillment Progress */}
-                  <div className="mt-5 space-y-2">
-                    <div className="flex justify-between text-xs font-sans text-slate-600">
-                      <span className="font-medium">Needed: <strong className="text-slate-900 font-mono font-bold">{remaining} {req.unit}</strong></span>
-                      <span className="font-mono font-bold text-[11px] text-teal-700">{progress}% Fulfilled</span>
+                    {/* CTAs */}
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => handleMonetaryClick(featuredReq)}
+                        className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 bg-surface-subtle border border-surface-border text-slate-700 text-xs font-sans font-bold rounded-sm hover:bg-surface-border transition-colors press-effect"
+                      >
+                        <span className="font-display text-sm">₹</span>
+                        Fund
+                      </button>
+                      <button
+                        onClick={() => handleDonateClick(featuredReq)}
+                        className="flex-[2] flex items-center justify-center gap-1.5 px-4 py-2.5 bg-slate-900 text-white text-xs font-sans font-bold rounded-sm hover:bg-slate-800 transition-colors press-effect"
+                      >
+                        <HeartHandshake className="w-3.5 h-3.5" />
+                        Pledge Goods
+                      </button>
                     </div>
-                    <div className="w-full h-2.5 bg-surface-subtle rounded-full overflow-hidden border border-surface-border/50 shadow-inner">
-                      <div
-                        className="h-full bg-teal-600 rounded-full transition-all duration-1000 ease-out"
-                        style={{ width: `${progress}%` }}
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                {/* Donate CTA Buttons: UPI & Goods */}
-                <div className="mt-6 pt-5 border-t border-surface-border flex items-center justify-between gap-3">
-                  <span className="text-[10px] font-bold text-slate-400 font-mono truncate max-w-[90px] bg-surface-subtle px-1.5 py-0.5 rounded border border-surface-border">
-                    {req.id.slice(0, 14)}
-                  </span>
-                  <div className="flex items-center space-x-2 shrink-0">
-                    <button
-                      onClick={() => handleMonetaryClick(req)}
-                      className="px-3.5 py-2 min-h-[40px] bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 rounded-xl text-xs font-sans font-bold shadow-sm transition-colors flex items-center space-x-1.5 press-effect hover-lift"
-                      title="Pledge Monetary Contribution"
-                    >
-                      <span className="font-display font-bold text-sm">₹</span>
-                      <span>Contribute Funds</span>
-                    </button>
-                    <button
-                      onClick={() => handleDonateClick(req)}
-                      className="flex items-center space-x-1.5 px-4 py-2 min-h-[40px] gradient-primary text-white rounded-xl text-xs font-sans font-bold shadow-glow-teal hover-lift transition-all press-effect"
-                    >
-                      <HeartHandshake className="w-4 h-4" />
-                      <span>Pledge Goods</span>
-                    </button>
                   </div>
                 </div>
               </div>
             );
-          })}
+          })()}
+
+          {/* ── COMPACT ROWS: Remaining requirements ── */}
+          {restReqs.length > 0 && (
+            <div className="border border-surface-border rounded-2xl overflow-hidden bg-white">
+              {restReqs.map((req, i) => {
+                const inst = verifiedInstMap.get(req.institutionId);
+                const progress = Math.min(100, Math.round((req.fulfilledQuantity / req.targetQuantity) * 100));
+                const remaining = Math.max(0, req.targetQuantity - req.fulfilledQuantity);
+                const urg = urgencyConfig[req.urgency as keyof typeof urgencyConfig] || urgencyConfig.LOW;
+
+                return (
+                  <div
+                    key={req.id}
+                    className={`relative flex items-center gap-6 px-6 py-4 transition-colors hover:bg-surface-canvas ${i < restReqs.length - 1 ? 'border-b border-surface-border' : ''}`}
+                  >
+                    {/* Urgency dot */}
+                    <div className={`w-1.5 h-1.5 rounded-sm shrink-0 ${urg.dot}`} />
+
+                    {/* Category + title */}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-0.5">
+                        <span className="text-[10px] font-mono text-slate-400 uppercase tracking-wider">{req.category}</span>
+                        {req.urgency === 'CRITICAL' && (
+                          <span className="text-[10px] font-mono font-bold text-rose-600 bg-rose-50 px-1.5 rounded-sm">Critical</span>
+                        )}
+                      </div>
+                      <p className="text-sm font-sans font-bold text-slate-900 leading-snug truncate">{req.title}</p>
+                      {inst && (
+                        <p className="text-[11px] font-sans text-slate-500 mt-0.5 truncate">{inst.name} · {inst.city}</p>
+                      )}
+                    </div>
+
+                    {/* Progress bar — minimal */}
+                    <div className="hidden sm:block w-24 shrink-0">
+                      <div className="flex justify-between mb-1">
+                        <span className="text-[10px] font-mono text-slate-400">{progress}%</span>
+                      </div>
+                      <div className="w-full h-1 bg-surface-subtle rounded-sm overflow-hidden">
+                        <div className="h-full bg-teal-600 transition-all duration-700" style={{ width: `${progress}%` }} />
+                      </div>
+                    </div>
+
+                    {/* Quantity */}
+                    <div className="hidden md:block text-right shrink-0">
+                      <p className="text-base font-display font-black text-slate-900 leading-none">{remaining}</p>
+                      <p className="text-[10px] font-mono text-slate-400 mt-0.5">{req.unit} needed</p>
+                    </div>
+
+                    {/* Score */}
+                    <span className="hidden lg:flex items-center gap-1 text-[11px] font-mono text-emerald-700 shrink-0">
+                      <ShieldCheck className="w-3 h-3" />
+                      {req.authenticityScore}%
+                    </span>
+
+                    {/* CTAs */}
+                    <div className="flex items-center gap-2 shrink-0">
+                      <button
+                        onClick={() => handleMonetaryClick(req)}
+                        className="px-2.5 py-2 bg-surface-subtle border border-surface-border text-slate-600 text-[11px] font-sans font-bold rounded-sm hover:bg-surface-border transition-colors press-effect"
+                        title="Contribute Funds"
+                      >
+                        <span className="font-display">₹</span>
+                      </button>
+                      <button
+                        onClick={() => handleDonateClick(req)}
+                        className="flex items-center gap-1.5 px-3 py-2 bg-slate-900 text-white text-[11px] font-sans font-bold rounded-sm hover:bg-slate-800 transition-colors press-effect"
+                      >
+                        <HeartHandshake className="w-3 h-3" />
+                        Pledge
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </div>
       )}
 
-      {/* Pledge Donation Modal */}
+      {/* ── PLEDGE MODAL ── */}
       {pledgingReq && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-md animate-fade-in">
-          <div className="bg-surface-card rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-elevated border border-surface-border relative max-h-[90vh] overflow-y-auto animate-slide-up card-premium">
-            <button
-              onClick={() => { setPledgingReq(null); setPledgeSuccessId(null); }}
-              className="absolute top-5 right-5 text-slate-400 hover:text-slate-600 p-2 rounded-xl hover:bg-surface-subtle transition-colors press-effect"
-            >
-              <X className="w-5 h-5" />
-            </button>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-sm animate-fade-in">
+          <div className="bg-white rounded-2xl max-w-md w-full shadow-elevated border border-surface-border relative max-h-[90vh] overflow-y-auto animate-slide-up">
+            <div className="p-8">
+              <button
+                onClick={() => { setPledgingReq(null); setPledgeSuccessId(null); }}
+                className="absolute top-6 right-6 text-slate-400 hover:text-slate-700 p-1.5 rounded-sm hover:bg-surface-subtle transition-colors press-effect"
+              >
+                <X className="w-4 h-4" />
+              </button>
 
-            {pledgeSuccessId ? (
-              <div className="text-center py-6 space-y-4">
-                <div className="w-16 h-16 bg-emerald-50 border border-emerald-200 text-emerald-600 rounded-2xl flex items-center justify-center mx-auto shadow-sm">
-                  <PackageCheck className="w-8 h-8" />
+              {pledgeSuccessId ? (
+                <div className="text-center py-4 space-y-5">
+                  <div className="w-12 h-12 bg-emerald-50 border border-emerald-200 rounded-sm flex items-center justify-center mx-auto">
+                    <PackageCheck className="w-6 h-6 text-emerald-600" />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-display font-bold text-slate-900 mb-2">Donation Pledged</h3>
+                    <p className="text-sm font-sans text-slate-600 leading-relaxed">
+                      Consignment <code className="font-mono font-bold text-teal-800 bg-teal-50 px-1.5 py-0.5 rounded-sm border border-teal-200">{pledgeSuccessId}</code> is sealed on the ledger.
+                    </p>
+                  </div>
+                  <div className="text-left p-4 bg-surface-canvas border border-surface-border rounded-sm space-y-2">
+                    {['Genesis block sealed with SHA-256 hash.', 'QR code generated for courier pickup.', 'Track live progress in your Donor Dashboard.'].map(msg => (
+                      <p key={msg} className="flex items-center gap-2 text-xs font-sans text-slate-600">
+                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+                        {msg}
+                      </p>
+                    ))}
+                  </div>
+                  <button
+                    onClick={() => { setPledgingReq(null); setPledgeSuccessId(null); }}
+                    className="w-full py-3 bg-slate-900 text-white rounded-sm text-sm font-sans font-bold hover:bg-slate-800 transition-colors press-effect"
+                  >
+                    Done
+                  </button>
                 </div>
-                <h3 className="text-2xl font-display font-bold text-slate-900">Donation Pledged Successfully!</h3>
-                <p className="text-sm font-sans text-slate-600 leading-relaxed">
-                  Consignment <span className="font-mono font-bold text-teal-800 bg-teal-50 px-1.5 py-0.5 rounded border border-teal-200">{pledgeSuccessId}</span> has been entered onto the ledger and is awaiting courier dispatch.
-                </p>
-                <div className="p-4 bg-surface-subtle border border-surface-border rounded-xl text-xs font-sans text-left text-slate-600 space-y-2 shadow-inner">
-                  <p className="flex items-center space-x-2"><CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" /><span>Genesis block sealed with SHA-256 hash.</span></p>
-                  <p className="flex items-center space-x-2"><CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" /><span>QR code generated for courier pickup authentication.</span></p>
-                  <p className="flex items-center space-x-2"><CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" /><span>Track live progress in your Donor Dashboard.</span></p>
-                </div>
-                <button
-                  onClick={() => { setPledgingReq(null); setPledgeSuccessId(null); }}
-                  className="w-full py-3 mt-2 gradient-primary text-white rounded-xl text-xs font-sans font-bold shadow-glow-teal hover-lift transition-all press-effect"
-                >
-                  Close & View Consignments
-                </button>
-              </div>
-            ) : (
-              <form onSubmit={handleConfirmPledge} className="space-y-5">
-                <div>
-                  <span className="text-[10px] font-sans font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-teal-50 text-teal-800 border border-teal-200 shadow-sm">
-                    Pledge Donation
-                  </span>
-                  <h3 className="text-2xl font-display font-bold text-slate-900 mt-3">
-                    {pledgingReq.title}
-                  </h3>
-                  <p className="text-sm font-sans text-slate-500 mt-1 flex items-center space-x-1.5">
-                    <span>Destination:</span> <Building2 className="w-4 h-4 text-slate-400" /> <strong className="text-slate-800">{pledgingReq.institutionName}</strong>
-                  </p>
-                </div>
+              ) : (
+                <form onSubmit={handleConfirmPledge} className="space-y-6">
+                  <div>
+                    <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-teal-700">Pledge Donation</span>
+                    <h3 className="text-xl font-display font-bold text-slate-900 mt-2 leading-tight">{pledgingReq.title}</h3>
+                    <p className="text-sm font-sans text-slate-500 mt-1 flex items-center gap-1.5">
+                      <Building2 className="w-3.5 h-3.5 text-slate-400" />
+                      {pledgingReq.institutionName}
+                    </p>
+                  </div>
 
-                <div className="space-y-1.5">
-                  <label className="block text-xs font-sans font-bold text-slate-700">
-                    Pledge Quantity ({pledgingReq.unit})
-                  </label>
-                  <input
-                    type="number"
-                    min={1}
-                    max={Math.max(1, pledgingReq.targetQuantity - pledgingReq.fulfilledQuantity)}
-                    required
-                    value={pledgeQuantity}
-                    onChange={(e) => setPledgeQuantity(Number(e.target.value))}
-                    className="w-full px-4 py-3 text-sm bg-surface-canvas border border-surface-border rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-600 font-mono font-bold text-slate-900 shadow-inner transition-all"
-                  />
-                  <span className="text-[11px] font-sans font-medium text-slate-500 mt-1 block">
-                    Needed to complete requirement: <strong className="text-slate-700">{pledgingReq.targetQuantity - pledgingReq.fulfilledQuantity} {pledgingReq.unit}</strong>
-                  </span>
-                </div>
+                  <div className="space-y-1.5">
+                    <label className="block text-xs font-sans font-bold text-slate-700">
+                      Pledge Quantity ({pledgingReq.unit})
+                    </label>
+                    <input
+                      type="number"
+                      min={1}
+                      max={Math.max(1, pledgingReq.targetQuantity - pledgingReq.fulfilledQuantity)}
+                      required
+                      value={pledgeQuantity}
+                      onChange={(e) => setPledgeQuantity(Number(e.target.value))}
+                      className="w-full px-4 py-3 text-sm font-mono font-bold bg-surface-canvas border border-surface-border rounded-sm focus:outline-none focus:ring-2 focus:ring-teal-600 text-slate-900 transition-all"
+                    />
+                    <span className="text-[11px] font-sans text-slate-400">
+                      Still needed: <strong className="text-slate-700">{pledgingReq.targetQuantity - pledgingReq.fulfilledQuantity} {pledgingReq.unit}</strong>
+                    </span>
+                  </div>
 
-                <div className="space-y-1.5">
-                  <label className="block text-xs font-sans font-bold text-slate-700">
-                    Pickup Depot / Collection Address
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={pickupAddress}
-                    onChange={(e) => setPickupAddress(e.target.value)}
-                    placeholder="e.g. Adyar Depot, LB Road, Chennai 600020"
-                    className="w-full px-4 py-3 text-sm font-sans bg-surface-canvas border border-surface-border rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-600 text-slate-800 font-medium shadow-inner transition-all"
-                  />
-                </div>
+                  <div className="space-y-1.5">
+                    <label className="block text-xs font-sans font-bold text-slate-700">Pickup Address</label>
+                    <input
+                      type="text"
+                      required
+                      value={pickupAddress}
+                      onChange={(e) => setPickupAddress(e.target.value)}
+                      placeholder="e.g. Adyar Depot, LB Road, Chennai 600020"
+                      className="w-full px-4 py-3 text-sm font-sans bg-surface-canvas border border-surface-border rounded-sm focus:outline-none focus:ring-2 focus:ring-teal-600 text-slate-800 transition-all"
+                    />
+                  </div>
 
-                <div className="p-4 bg-teal-50/80 border border-teal-200/80 rounded-xl text-xs text-teal-950 space-y-2 shadow-sm">
-                  <p className="font-sans font-bold flex items-center space-x-1.5 text-teal-900">
-                    <ShieldCheck className="w-4.5 h-4.5 text-teal-700" />
-                    <span>Cryptographic Chain-of-Custody:</span>
-                  </p>
-                  <p className="text-[11px] font-sans font-medium text-teal-800/90 leading-relaxed pl-6">
-                    Your pledge will generate block #0 on the tamper-resistant ledger and enter the courier dispatch queue.
-                  </p>
-                </div>
+                  <div className="p-4 bg-slate-50 border border-slate-200 rounded-sm">
+                    <p className="text-[11px] font-mono text-slate-600 leading-relaxed">
+                      <span className="font-bold text-slate-800">Chain-of-Custody: </span>
+                      Your pledge generates Block #0 on the SHA-256 tamper-resistant ledger and enters courier dispatch queue.
+                    </p>
+                  </div>
 
-                <button
-                  type="submit"
-                  disabled={isSubmittingPledge}
-                  className="w-full py-3.5 gradient-primary text-white rounded-xl text-sm font-sans font-bold shadow-glow-teal hover-lift transition-all disabled:opacity-50 press-effect flex justify-center items-center space-x-2"
-                >
-                  {isSubmittingPledge ? (
-                    <>
-                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                      <span>Sealing on Ledger...</span>
-                    </>
-                  ) : 'Confirm & Commit Pledge'}
-                </button>
-              </form>
-            )}
+                  <button
+                    type="submit"
+                    disabled={isSubmittingPledge}
+                    className="w-full py-3.5 bg-slate-900 text-white rounded-sm text-sm font-sans font-bold hover:bg-slate-800 transition-colors disabled:opacity-50 press-effect flex justify-center items-center gap-2"
+                  >
+                    {isSubmittingPledge ? (
+                      <>
+                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-sm animate-spin" />
+                        Sealing on Ledger…
+                      </>
+                    ) : 'Confirm & Commit Pledge'}
+                  </button>
+                </form>
+              )}
+            </div>
           </div>
         </div>
       )}
 
-      {/* Monetary Contribution Pledge Modal */}
       {monetaryRequirement && currentUser && (
         <PledgeMonetaryModal
           donorId={currentUser.id}
@@ -566,7 +624,6 @@ export const PublicRequestBoard: React.FC<PublicRequestBoardProps> = ({
         />
       )}
 
-      {/* Section 80G Tax Exemption Receipt Modal */}
       {activeReceipt && (
         <TaxExemptionReceiptModal
           receipt={activeReceipt}
@@ -576,4 +633,3 @@ export const PublicRequestBoard: React.FC<PublicRequestBoardProps> = ({
     </div>
   );
 };
-

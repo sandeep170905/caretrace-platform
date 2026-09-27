@@ -2,20 +2,20 @@ import React, { useState } from 'react';
 import { Donation, LedgerBlock, formatRelativeTime, formatSmartTimestamp } from '@caretrace/shared';
 import {
   Check,
-  CircleDot,
   FileCheck2,
   HeartHandshake,
   QrCode,
   Truck,
   Building,
   Award,
-  ExternalLink,
   X,
   Hash,
   Clock,
   User,
   ShieldCheck,
-  Camera
+  Camera,
+  Lock,
+  Link
 } from 'lucide-react';
 
 interface ChainOfCustodyTimelineProps {
@@ -33,73 +33,40 @@ interface StepDefinition {
 }
 
 const TIMELINE_STEPS: StepDefinition[] = [
-  {
-    id: 'REQUIREMENT_VERIFIED',
-    title: 'Requirement Verified',
-    subtitle: 'Authenticity score audited & NGO verified',
-    eventType: 'REQUIREMENT_AUTHENTICATED',
-    icon: FileCheck2
-  },
-  {
-    id: 'MATCHED',
-    title: 'Donation Matched',
-    subtitle: 'Consignment created & QR code generated',
-    eventType: 'DONATION_MATCHED',
-    icon: HeartHandshake
-  },
-  {
-    id: 'PICKED_UP',
-    title: 'Picked Up',
-    subtitle: 'Agent scanned QR at origin location',
-    eventType: 'PICKUP_VERIFIED',
-    icon: QrCode
-  },
-  {
-    id: 'IN_TRANSIT',
-    title: 'In Transit',
-    subtitle: 'Simulated corridor route tracking active',
-    eventType: 'IN_TRANSIT_CHECKPOINT',
-    icon: Truck
-  },
-  {
-    id: 'DELIVERED',
-    title: 'Delivered',
-    subtitle: 'Handover QR scanned at childcare institution',
-    eventType: 'DELIVERY_CONFIRMED',
-    icon: Building
-  },
-  {
-    id: 'CONFIRMED',
-    title: 'Confirmed Handover',
-    subtitle: 'Recipient signature & immutable ledger proof sealed',
-    eventType: 'DELIVERY_CONFIRMED',
-    icon: Award
-  }
+  { id: 'REQUIREMENT_VERIFIED', title: 'Requirement Verified', subtitle: 'Authenticity score audited & NGO verified', eventType: 'REQUIREMENT_AUTHENTICATED', icon: FileCheck2 },
+  { id: 'MATCHED', title: 'Donation Matched', subtitle: 'Consignment created & QR generated', eventType: 'DONATION_MATCHED', icon: HeartHandshake },
+  { id: 'PICKED_UP', title: 'Picked Up', subtitle: 'Agent scanned QR at origin', eventType: 'PICKUP_VERIFIED', icon: QrCode },
+  { id: 'IN_TRANSIT', title: 'In Transit', subtitle: 'Corridor route tracking active', eventType: 'IN_TRANSIT_CHECKPOINT', icon: Truck },
+  { id: 'DELIVERED', title: 'Delivered', subtitle: 'QR scanned at institution', eventType: 'DELIVERY_CONFIRMED', icon: Building },
+  { id: 'CONFIRMED', title: 'Handover Confirmed', subtitle: 'Recipient signature & ledger proof sealed', eventType: 'DELIVERY_CONFIRMED', icon: Award },
 ];
 
 const MONETARY_STEPS: StepDefinition[] = [
-  {
-    id: 'REQUIREMENT_VERIFIED',
-    title: 'Requirement Verified',
-    subtitle: 'Audited requirement & verified sanctuary account',
-    eventType: 'REQUIREMENT_AUTHENTICATED',
-    icon: FileCheck2
-  },
-  {
-    id: 'MONETARY_CONFIRMED',
-    title: 'Direct Contribution Settled',
-    subtitle: 'Cryptographic monetary contribution recorded & allocated',
-    eventType: 'MONETARY_DONATION_CONFIRMED',
-    icon: HeartHandshake
-  },
-  {
-    id: 'RECEIPT_SEALED',
-    title: '80G Receipt Sealed',
-    subtitle: 'Cryptographic SHA-256 block anchored on immutable ledger',
-    eventType: 'MONETARY_DONATION_CONFIRMED',
-    icon: Award
-  }
+  { id: 'REQUIREMENT_VERIFIED', title: 'Requirement Verified', subtitle: 'Audited requirement & verified sanctuary', eventType: 'REQUIREMENT_AUTHENTICATED', icon: FileCheck2 },
+  { id: 'MONETARY_CONFIRMED', title: 'Contribution Settled', subtitle: 'Cryptographic monetary record allocated', eventType: 'MONETARY_DONATION_CONFIRMED', icon: HeartHandshake },
+  { id: 'RECEIPT_SEALED', title: '80G Receipt Sealed', subtitle: 'SHA-256 block anchored on immutable ledger', eventType: 'MONETARY_DONATION_CONFIRMED', icon: Award },
 ];
+
+// Renders a mini inline hash bar — the "fingerprint" visual
+const HashFingerprint: React.FC<{ hash: string }> = ({ hash }) => {
+  const segments = hash.match(/.{1,4}/g)?.slice(0, 12) || [];
+  const maxVal = 255;
+  return (
+    <div className="flex items-end gap-[2px] h-5" title={hash}>
+      {segments.map((seg, i) => {
+        const val = parseInt(seg, 16);
+        const height = Math.max(3, Math.round((val / maxVal) * 20));
+        return (
+          <div
+            key={i}
+            className="w-[3px] rounded-sm bg-teal-600 opacity-70"
+            style={{ height: `${height}px` }}
+          />
+        );
+      })}
+    </div>
+  );
+};
 
 export const ChainOfCustodyTimeline: React.FC<ChainOfCustodyTimelineProps> = ({
   donation,
@@ -112,33 +79,27 @@ export const ChainOfCustodyTimeline: React.FC<ChainOfCustodyTimelineProps> = ({
   const isMonetary = donation.type === 'FUNDS' || Boolean(donation.monetaryAmountInr);
   const steps = isMonetary ? MONETARY_STEPS : TIMELINE_STEPS;
 
-  // Compute status index
   const getStepStatus = (stepIndex: number): 'COMPLETED' | 'ACTIVE' | 'PENDING' => {
-    if (isMonetary) {
-      return 'COMPLETED'; // Monetary donations are settled & sealed on confirmation
-    }
-
-    let currentActiveIdx = 1; // Default matched
+    if (isMonetary) return 'COMPLETED';
+    let currentActiveIdx = 1;
     if (donation.status === 'MATCHED') currentActiveIdx = 1;
     else if (donation.status === 'PICKUP_SCHEDULED') currentActiveIdx = 2;
     else if (donation.status === 'PICKED_UP') currentActiveIdx = 3;
     else if (donation.status === 'IN_TRANSIT') currentActiveIdx = 3;
     else if (donation.status === 'DELIVERED') currentActiveIdx = 4;
     else if (donation.status === 'CONFIRMED') currentActiveIdx = 6;
-
     if (donation.status === 'CONFIRMED') return 'COMPLETED';
     if (stepIndex < currentActiveIdx) return 'COMPLETED';
     if (stepIndex === currentActiveIdx) return 'ACTIVE';
     return 'PENDING';
   };
 
-  // Find corresponding ledger block for a step
   const getBlockForStep = (stepIndex: number): LedgerBlock | undefined => {
     if (isMonetary) {
       if (stepIndex === 0) return blocks[0];
       return blocks.find(b => b.eventType === 'MONETARY_DONATION_CONFIRMED') || blocks[blocks.length - 1];
     }
-    if (stepIndex === 0) return blocks[0]; // Genesis / req
+    if (stepIndex === 0) return blocks[0];
     if (stepIndex === 1) return blocks.find(b => b.eventType === 'DONATION_MATCHED') || blocks[0];
     if (stepIndex === 2) return blocks.find(b => b.eventType === 'PICKUP_VERIFIED');
     if (stepIndex === 3) return blocks.find(b => b.eventType === 'IN_TRANSIT_CHECKPOINT');
@@ -163,323 +124,307 @@ export const ChainOfCustodyTimeline: React.FC<ChainOfCustodyTimelineProps> = ({
 
   const getStepTimestamp = (stepIndex: number): string | null => {
     const block = getBlockForStep(stepIndex);
-    if (block) {
-      return formatRelativeTime(block.timestamp, { includeTime: true });
-    }
-    if (stepIndex === 1) {
-      return formatRelativeTime(donation.createdAt, { includeTime: true });
-    }
-    if (stepIndex === 2 && donation.pickupTimestamp) {
-      return formatRelativeTime(donation.pickupTimestamp, { includeTime: true });
-    }
-    if (stepIndex >= 4 && donation.deliveryTimestamp) {
-      return formatRelativeTime(donation.deliveryTimestamp, { includeTime: true });
-    }
+    if (block) return formatRelativeTime(block.timestamp, { includeTime: true });
+    if (stepIndex === 1) return formatRelativeTime(donation.createdAt, { includeTime: true });
+    if (stepIndex === 2 && donation.pickupTimestamp) return formatRelativeTime(donation.pickupTimestamp, { includeTime: true });
+    if (stepIndex >= 4 && donation.deliveryTimestamp) return formatRelativeTime(donation.deliveryTimestamp, { includeTime: true });
     return null;
   };
 
   return (
-    <div className="bg-surface-card rounded-2xl p-6 border border-surface-border card-premium shadow-card animate-fade-up">
-      <div className="flex items-center justify-between mb-8 pb-4 border-b border-surface-border">
+    <div className="bg-white border border-surface-border rounded-2xl overflow-hidden animate-fade-up">
+      {/* Header */}
+      <div className="px-6 py-5 border-b border-surface-border flex items-center justify-between">
         <div>
-          <h3 className="text-xl font-display font-bold text-slate-900 flex items-center space-x-2">
-            <span>Chain-of-Custody Timeline</span>
-            <span className="text-xs font-mono font-normal px-2 py-0.5 rounded-full bg-surface-subtle text-slate-700 border border-surface-border">
+          <div className="flex items-center gap-2 mb-0.5">
+            <Link className="w-3.5 h-3.5 text-teal-600" />
+            <h3 className="text-sm font-sans font-bold text-slate-900">Chain-of-Custody Timeline</h3>
+            <code className="text-[10px] font-mono text-slate-400 bg-surface-subtle px-1.5 py-0.5 rounded-sm border border-surface-border">
               {donation.id}
-            </span>
-          </h3>
-          <p className="text-xs font-sans text-slate-500 mt-1">
-            Cryptographic SHA-256 Ledger • Click any completed step to inspect raw block
+            </code>
+          </div>
+          <p className="text-[11px] font-mono text-slate-400">
+            SHA-256 ledger · {blocks.length} sealed blocks · Click any completed step to inspect raw block
           </p>
         </div>
-
         {donation.status === 'CONFIRMED' && onInspectCertificate && (
           <button
             onClick={onInspectCertificate}
-            className="flex items-center space-x-1.5 px-3 py-1.5 bg-teal-50 text-teal-800 hover:bg-teal-100 border border-teal-200 rounded-xl text-xs font-sans font-semibold transition-colors hover-lift press-effect shadow-sm"
+            className="flex items-center gap-1.5 px-3 py-2 bg-teal-50 text-teal-800 hover:bg-teal-100 border border-teal-200 rounded-sm text-xs font-sans font-bold transition-colors press-effect"
           >
-            <Award className="w-4 h-4 text-teal-700" />
-            <span>View Certificate</span>
+            <Award className="w-3.5 h-3.5 text-teal-600" />
+            Certificate
           </button>
         )}
       </div>
 
-      {/* Horizontal on Desktop, Vertical on Mobile */}
-      <div className="relative">
-        <div className={`hidden lg:grid ${isMonetary ? 'lg:grid-cols-3' : 'lg:grid-cols-6'} gap-2 relative`}>
-          {/* Connector Line Background */}
-          <div className="absolute top-5 left-8 right-8 h-1 bg-surface-border -z-0 rounded-full" />
+      {/* ── EVIDENCE RAIL ── The signature visual moment ── */}
+      <div className="px-6 py-6">
+        <div className="relative">
+          {/* Vertical connector rail SVG */}
+          <div className="absolute left-[19px] top-5 bottom-5 w-[1px] bg-surface-border" />
 
-          {steps.map((step, idx) => {
-            const status = getStepStatus(idx);
-            const block = getBlockForStep(idx);
-            const actor = getStepActor(idx);
-            const timestamp = getStepTimestamp(idx);
+          <div className="space-y-0">
+            {steps.map((step, idx) => {
+              const status = getStepStatus(idx);
+              const block = getBlockForStep(idx);
+              const actor = getStepActor(idx);
+              const timestamp = getStepTimestamp(idx);
+              const isClickable = status === 'COMPLETED' && block;
+              const isLast = idx === steps.length - 1;
 
-            const isClickable = status === 'COMPLETED' && block;
-
-            return (
-              <div
-                key={step.id}
-                onClick={() => isClickable && setSelectedBlock(block!)}
-                className={`flex flex-col items-center text-center relative z-10 group ${
-                  isClickable ? 'cursor-pointer hover-lift' : ''
-                }`}
-              >
-                {/* Step Circle */}
-                <div
-                  className={`w-10 h-10 rounded-full flex items-center justify-center transition-all ${
-                    status === 'COMPLETED'
-                      ? 'bg-teal-700 text-white shadow-glow-teal group-hover:scale-110'
-                      : status === 'ACTIVE'
-                      ? 'bg-amber-500 text-white animate-pulse-soft shadow-glow-amber'
-                      : 'bg-surface-subtle text-slate-400 border-2 border-surface-border'
-                  }`}
-                >
-                  {status === 'COMPLETED' ? (
-                    <Check className="w-5 h-5 stroke-[2.5]" />
-                  ) : status === 'ACTIVE' ? (
-                    <CircleDot className="w-5 h-5 animate-spin" />
-                  ) : (
-                    <step.icon className="w-4 h-4 opacity-50" />
-                  )}
-                </div>
-
-                {/* Title & Details */}
-                <div className="mt-3">
-                  <p
-                    className={`text-xs font-sans font-bold ${
-                      status === 'COMPLETED'
-                        ? 'text-teal-900'
-                        : status === 'ACTIVE'
-                        ? 'text-amber-700'
-                        : 'text-slate-400'
-                    }`}
-                  >
-                    {step.title}
-                  </p>
-
-                  {timestamp && (
-                    <p className="text-[10px] text-slate-500 mt-0.5 font-mono">{timestamp}</p>
-                  )}
-
-                  {actor && status !== 'PENDING' && (
-                    <p className="text-[10px] text-slate-600 truncate max-w-[120px] mx-auto mt-0.5 font-sans font-medium">
-                      by {actor}
-                    </p>
-                  )}
-
-                  {status === 'COMPLETED' && block && (
-                    <span className="inline-flex items-center space-x-0.5 text-[9px] font-mono font-medium text-teal-800 bg-teal-50 px-1.5 py-0.2 rounded mt-1.5 border border-teal-200 group-hover:border-teal-400 transition-colors shadow-sm">
-                      <span>#{block.index}</span>
-                      <ExternalLink className="w-2.5 h-2.5" />
-                    </span>
-                  )}
-
-                  {donation.proofPhotoUrl && (step.id === 'DELIVERED' || step.id === 'CONFIRMED') && (
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setSelectedPhoto(donation.proofPhotoUrl!);
-                      }}
-                      className="mt-2 flex items-center space-x-1 px-1.5 py-0.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 rounded-md border border-emerald-200 text-[9px] font-sans font-bold mx-auto transition-colors press-effect"
-                      title="Inspect handover photo proof"
-                    >
-                      <Camera className="w-2.5 h-2.5 text-emerald-600" />
-                      <span>Photo Proof</span>
-                    </button>
-                  )}
-                </div>
-              </div>
-            );
-          })}
-        </div>
-
-        {/* Vertical View for Mobile / Tablet */}
-        <div className="lg:hidden space-y-6 relative pl-4">
-          <div className="absolute top-4 bottom-4 left-8 w-0.5 bg-surface-border -z-0" />
-
-          {steps.map((step, idx) => {
-            const status = getStepStatus(idx);
-            const block = getBlockForStep(idx);
-            const actor = getStepActor(idx);
-            const timestamp = getStepTimestamp(idx);
-            const isClickable = status === 'COMPLETED' && block;
-
-            return (
-              <div
-                key={step.id}
-                onClick={() => isClickable && setSelectedBlock(block!)}
-                className={`flex items-start space-x-4 relative z-10 ${isClickable ? 'cursor-pointer hover-lift group' : ''}`}
-              >
-                <div
-                  className={`w-9 h-9 rounded-full flex-shrink-0 flex items-center justify-center transition-all ${
-                    status === 'COMPLETED'
-                      ? 'bg-teal-700 text-white shadow-glow-teal group-hover:scale-110'
-                      : status === 'ACTIVE'
-                      ? 'bg-amber-500 text-white animate-pulse-soft shadow-glow-amber'
-                      : 'bg-surface-subtle text-slate-400 border-2 border-surface-border'
-                  }`}
-                >
-                  {status === 'COMPLETED' ? (
-                    <Check className="w-4 h-4 stroke-[2.5]" />
-                  ) : status === 'ACTIVE' ? (
-                    <CircleDot className="w-4 h-4 animate-spin" />
-                  ) : (
-                    <step.icon className="w-4 h-4 opacity-50" />
-                  )}
-                </div>
-
-                <div className="flex-1 pt-0.5">
-                  <div className="flex items-center justify-between">
-                    <p
-                      className={`text-sm font-sans font-bold ${
+              return (
+                <div key={step.id} className="relative flex gap-5">
+                  {/* Step indicator column */}
+                  <div className="flex flex-col items-center" style={{ minWidth: '40px' }}>
+                    {/* Node circle */}
+                    <div
+                      className={`relative z-10 w-10 h-10 rounded-sm flex items-center justify-center border-2 transition-all shrink-0 ${
                         status === 'COMPLETED'
-                          ? 'text-teal-900'
+                          ? 'bg-slate-900 border-slate-900 text-white'
                           : status === 'ACTIVE'
-                          ? 'text-amber-700'
-                          : 'text-slate-400'
+                          ? 'bg-amber-500 border-amber-500 text-white'
+                          : 'bg-white border-surface-border text-slate-300'
                       }`}
                     >
-                      {step.title}
-                    </p>
-                    {timestamp && (
-                      <span className="text-[11px] font-mono text-slate-500">{timestamp}</span>
+                      {status === 'COMPLETED' ? (
+                        <Check className="w-4 h-4 stroke-[2.5]" />
+                      ) : status === 'ACTIVE' ? (
+                        <div className="w-3 h-3 rounded-sm bg-white animate-pulse" />
+                      ) : (
+                        <step.icon className="w-3.5 h-3.5" />
+                      )}
+                    </div>
+                    {/* Connector segment */}
+                    {!isLast && (
+                      <div className={`w-px flex-1 min-h-[20px] ${status === 'COMPLETED' ? 'bg-slate-900' : 'bg-surface-border'}`}
+                        style={{ marginTop: '-1px', marginBottom: '-1px' }}
+                      />
                     )}
                   </div>
 
-                  <p className="text-xs font-sans text-slate-500 mt-0.5">{step.subtitle}</p>
+                  {/* Content card */}
+                  <div
+                    className={`flex-1 mb-4 transition-all ${isClickable ? 'cursor-pointer group' : ''}`}
+                    onClick={() => isClickable && setSelectedBlock(block!)}
+                  >
+                    <div className={`border rounded-sm overflow-hidden transition-all ${
+                      status === 'COMPLETED'
+                        ? isClickable
+                          ? 'border-slate-200 hover:border-slate-400 bg-white'
+                          : 'border-slate-200 bg-white'
+                        : status === 'ACTIVE'
+                        ? 'border-amber-200 bg-amber-50'
+                        : 'border-surface-border bg-surface-canvas'
+                    }`}>
+                      {/* Card header row */}
+                      <div className="flex items-center justify-between px-4 py-3">
+                        <div className="flex items-center gap-3">
+                          {/* Step number */}
+                          <span className={`text-[10px] font-mono font-bold ${
+                            status === 'COMPLETED' ? 'text-slate-400' : status === 'ACTIVE' ? 'text-amber-600' : 'text-slate-300'
+                          }`}>
+                            {String(idx).padStart(2, '0')}
+                          </span>
 
-                  {actor && status !== 'PENDING' && (
-                    <p className="text-xs font-sans font-medium text-slate-600 mt-0.5">Actor: {actor}</p>
-                  )}
+                          <div>
+                            <p className={`text-sm font-sans font-bold leading-snug ${
+                              status === 'COMPLETED' ? 'text-slate-900' : status === 'ACTIVE' ? 'text-amber-900' : 'text-slate-400'
+                            }`}>
+                              {step.title}
+                            </p>
+                            {actor && status !== 'PENDING' && (
+                              <p className={`text-[11px] font-sans mt-0.5 ${status === 'COMPLETED' ? 'text-slate-500' : 'text-amber-700'}`}>
+                                {actor}
+                              </p>
+                            )}
+                          </div>
+                        </div>
 
-                  {status === 'COMPLETED' && block && (
-                    <div className="mt-2 inline-flex items-center space-x-1 text-xs font-mono font-medium text-teal-900 bg-teal-50 px-2.5 py-1 rounded-md border border-teal-200 group-hover:border-teal-300 transition-colors shadow-sm">
-                      <span>Ledger Block #{block.index}</span>
-                      <span className="text-slate-400 font-normal">({block.blockHash.slice(0, 10)}...)</span>
-                      <ExternalLink className="w-3 h-3 ml-1" />
+                        <div className="flex items-center gap-3 shrink-0">
+                          {/* Timestamp */}
+                          {timestamp && (
+                            <span className="text-[10px] font-mono text-slate-400 hidden sm:block">{timestamp}</span>
+                          )}
+
+                          {/* Block index badge */}
+                          {status === 'COMPLETED' && block && (
+                            <span className={`text-[10px] font-mono font-bold px-1.5 py-0.5 rounded-sm border flex items-center gap-1 ${
+                              isClickable
+                                ? 'text-teal-700 bg-teal-50 border-teal-200 group-hover:bg-teal-100 group-hover:border-teal-300'
+                                : 'text-slate-500 bg-surface-subtle border-surface-border'
+                            }`}>
+                              <Lock className="w-2.5 h-2.5" />
+                              #{block.index}
+                            </span>
+                          )}
+
+                          {/* Active pulse indicator */}
+                          {status === 'ACTIVE' && (
+                            <span className="flex items-center gap-1 text-[10px] font-mono text-amber-700 bg-amber-100 px-2 py-0.5 rounded-sm border border-amber-200">
+                              <span className="w-1.5 h-1.5 rounded-sm bg-amber-500 animate-pulse" />
+                              Live
+                            </span>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Hash fingerprint — the signature visual element */}
+                      {status === 'COMPLETED' && block && (
+                        <div className="px-4 pb-3 border-t border-surface-border bg-slate-50">
+                          <div className="flex items-center justify-between mt-2.5">
+                            {/* Hash fingerprint bar */}
+                            <div className="flex items-center gap-2">
+                              <span className="text-[9px] font-mono text-slate-400 uppercase tracking-wider">hash</span>
+                              <HashFingerprint hash={block.blockHash} />
+                            </div>
+
+                            {/* Truncated hash */}
+                            <div className="flex items-center gap-1.5">
+                              <code className="text-[9px] font-mono text-slate-500 hidden sm:block">
+                                {block.blockHash.slice(0, 8)}…{block.blockHash.slice(-6)}
+                              </code>
+                              {isClickable && (
+                                <span className="text-[9px] font-mono text-teal-600 opacity-0 group-hover:opacity-100 transition-opacity">
+                                  inspect ↗
+                                </span>
+                              )}
+                            </div>
+                          </div>
+
+                          {/* Photo proof indicator */}
+                          {donation.proofPhotoUrl && (step.id === 'DELIVERED' || step.id === 'CONFIRMED') && (
+                            <button
+                              type="button"
+                              onClick={(e) => { e.stopPropagation(); setSelectedPhoto(donation.proofPhotoUrl!); }}
+                              className="mt-2 flex items-center gap-1.5 text-[10px] font-sans font-bold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 px-2 py-1 rounded-sm transition-colors press-effect"
+                            >
+                              <Camera className="w-3 h-3 text-emerald-600" />
+                              Photo Proof Anchored
+                            </button>
+                          )}
+                        </div>
+                      )}
+
+                      {/* Pending state */}
+                      {status === 'PENDING' && (
+                        <div className="px-4 pb-3">
+                          <p className="text-[11px] font-mono text-slate-400">{step.subtitle}</p>
+                        </div>
+                      )}
                     </div>
-                  )}
-
-                  {donation.proofPhotoUrl && (step.id === 'DELIVERED' || step.id === 'CONFIRMED') && (
-                    <div className="mt-2.5">
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setSelectedPhoto(donation.proofPhotoUrl!);
-                        }}
-                        className="inline-flex items-center space-x-1.5 px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 rounded-lg border border-emerald-200 text-xs font-sans font-bold transition-colors press-effect shadow-sm"
-                      >
-                        <Camera className="w-3.5 h-3.5 text-emerald-600" />
-                        <span>View Handover Photo Evidence</span>
-                      </button>
-                    </div>
-                  )}
+                  </div>
                 </div>
-              </div>
-            );
-          })}
+              );
+            })}
+          </div>
         </div>
       </div>
 
-      {/* Ledger Block Detail Modal */}
+      {/* ── BLOCK DETAIL MODAL ── */}
       {selectedBlock && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-md animate-fade-in">
-          <div className="bg-surface-card rounded-2xl max-w-lg w-full p-6 sm:p-8 shadow-elevated border border-surface-border animate-slide-up card-premium">
-            <div className="flex items-center justify-between pb-4 border-b border-surface-border">
-              <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 rounded-xl bg-teal-100 text-teal-800 flex items-center justify-center font-bold font-mono text-sm shadow-inner">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-sm animate-fade-in">
+          <div className="bg-white rounded-2xl max-w-lg w-full shadow-elevated border border-surface-border animate-slide-up overflow-hidden">
+            {/* Modal header — dark */}
+            <div className="bg-slate-900 px-6 py-5 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-sm bg-teal-800 text-teal-200 flex items-center justify-center font-mono text-xs font-bold">
                   #{selectedBlock.index}
                 </div>
                 <div>
-                  <h4 className="text-lg font-display font-bold text-slate-900">Ledger Block Details</h4>
-                  <p className="text-xs font-sans text-slate-500 font-medium">{selectedBlock.eventType}</p>
+                  <p className="text-sm font-sans font-bold text-white">Ledger Block</p>
+                  <p className="text-[10px] font-mono text-slate-400">{selectedBlock.eventType}</p>
                 </div>
               </div>
               <button
                 onClick={() => setSelectedBlock(null)}
-                className="p-1.5 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-surface-subtle transition-colors press-effect"
+                className="p-1.5 rounded-sm text-slate-400 hover:text-white hover:bg-white/10 transition-colors press-effect"
               >
-                <X className="w-5 h-5" />
+                <X className="w-4 h-4" />
               </button>
             </div>
 
-            <div className="mt-5 space-y-4 text-xs font-sans">
-              <div>
-                <span className="text-slate-500 font-bold flex items-center space-x-1.5 mb-1.5">
-                  <Hash className="w-3.5 h-3.5" />
-                  <span>SHA-256 Block Hash</span>
-                </span>
-                <p className="font-mono text-[11px] bg-surface-canvas p-2.5 rounded-xl border border-surface-border text-slate-800 break-all select-all shadow-inner">
-                  {selectedBlock.blockHash}
-                </p>
+            {/* Hash fingerprint — full width inside modal */}
+            <div className="px-6 py-4 bg-slate-50 border-b border-surface-border">
+              <p className="text-[10px] font-mono text-slate-400 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                <Hash className="w-3 h-3" />
+                SHA-256 Block Hash
+              </p>
+              <div className="flex items-end gap-[2px] mb-3">
+                {(selectedBlock.blockHash.match(/.{1,4}/g) || []).map((seg, i) => {
+                  const val = parseInt(seg, 16);
+                  const height = Math.max(4, Math.round((val / 255) * 28));
+                  return (
+                    <div
+                      key={i}
+                      className="w-[4px] rounded-sm bg-teal-600"
+                      style={{ height: `${height}px` }}
+                    />
+                  );
+                })}
               </div>
+              <code className="text-[11px] font-mono text-slate-700 break-all select-all leading-relaxed block bg-white px-3 py-2.5 rounded-sm border border-surface-border">
+                {selectedBlock.blockHash}
+              </code>
+            </div>
 
+            <div className="px-6 py-5 space-y-4">
+              {/* Previous hash */}
               <div>
-                <span className="text-slate-500 font-bold mb-1.5 block">Previous Block Hash</span>
-                <p className="font-mono text-[11px] bg-surface-canvas p-2.5 rounded-xl border border-surface-border text-slate-700 break-all select-all shadow-inner">
+                <p className="text-[10px] font-mono text-slate-400 uppercase tracking-wider mb-1.5">Previous Block Hash</p>
+                <code className="text-[11px] font-mono text-slate-600 break-all select-all block bg-surface-canvas px-3 py-2 rounded-sm border border-surface-border">
                   {selectedBlock.previousHash}
-                </p>
+                </code>
               </div>
 
+              {/* Actor + timestamp 2-col */}
               <div className="grid grid-cols-2 gap-3">
-                <div className="p-3 bg-surface-canvas rounded-xl border border-surface-border shadow-sm">
-                  <span className="text-slate-500 font-bold flex items-center space-x-1.5 mb-1">
-                    <User className="w-3.5 h-3.5" />
-                    <span>Actor</span>
-                  </span>
-                  <p className="font-bold text-slate-800 text-sm">{selectedBlock.actorName}</p>
-                  <p className="text-[10px] text-slate-500 font-semibold uppercase mt-0.5">{selectedBlock.actorRole}</p>
+                <div className="p-3 bg-surface-canvas rounded-sm border border-surface-border">
+                  <p className="text-[10px] font-mono text-slate-400 uppercase tracking-wider mb-1 flex items-center gap-1"><User className="w-3 h-3" />Actor</p>
+                  <p className="text-sm font-sans font-bold text-slate-900">{selectedBlock.actorName}</p>
+                  <p className="text-[10px] font-mono text-slate-500 mt-0.5 uppercase">{selectedBlock.actorRole}</p>
                 </div>
-
-                <div className="p-3 bg-surface-canvas rounded-xl border border-surface-border shadow-sm">
-                  <span className="text-slate-500 font-bold flex items-center space-x-1.5 mb-1">
-                    <Clock className="w-3.5 h-3.5" />
-                    <span>Timestamp</span>
-                  </span>
-                  <p className="font-bold text-slate-800 text-sm">
-                    {formatSmartTimestamp(selectedBlock.timestamp)}
-                  </p>
-                  <p className="text-[10px] text-slate-500 font-medium mt-0.5">
-                    {formatRelativeTime(selectedBlock.timestamp)}
-                  </p>
+                <div className="p-3 bg-surface-canvas rounded-sm border border-surface-border">
+                  <p className="text-[10px] font-mono text-slate-400 uppercase tracking-wider mb-1 flex items-center gap-1"><Clock className="w-3 h-3" />Sealed At</p>
+                  <p className="text-sm font-sans font-bold text-slate-900">{formatSmartTimestamp(selectedBlock.timestamp)}</p>
+                  <p className="text-[10px] font-mono text-slate-500 mt-0.5">{formatRelativeTime(selectedBlock.timestamp)}</p>
                 </div>
               </div>
 
+              {/* Details */}
               <div>
-                <span className="text-slate-500 font-bold mb-1.5 block">Checkpoint Summary</span>
-                <p className="p-3 rounded-xl bg-teal-50/60 border border-teal-200/80 text-teal-900 font-bold shadow-sm">
+                <p className="text-[10px] font-mono text-slate-400 uppercase tracking-wider mb-1.5">Checkpoint Summary</p>
+                <p className="text-sm font-sans text-teal-900 bg-teal-50 border border-teal-200 px-3 py-2.5 rounded-sm leading-relaxed">
                   {selectedBlock.details}
                 </p>
               </div>
 
+              {/* Payload hash */}
               <div>
-                <span className="text-slate-500 font-bold mb-1.5 block">Payload Hash</span>
-                <p className="font-mono text-[11px] bg-surface-canvas p-2 rounded-lg border border-surface-border text-slate-700 break-all shadow-inner">
+                <p className="text-[10px] font-mono text-slate-400 uppercase tracking-wider mb-1.5">Payload Hash</p>
+                <code className="text-[10px] font-mono text-slate-500 break-all block bg-surface-canvas px-3 py-2 rounded-sm border border-surface-border">
                   {selectedBlock.payloadHash}
-                </p>
+                </code>
               </div>
 
+              {/* Photo proof */}
               {(selectedBlock.payload?.hasPhotoProof || selectedBlock.payload?.photoAttached || (selectedBlock.eventType === 'DELIVERY_CONFIRMED' && donation.proofPhotoUrl)) && (
-                <div className="p-3.5 bg-emerald-50 rounded-xl border border-emerald-200 space-y-2.5 shadow-sm">
-                  <div className="flex items-center justify-between text-xs">
-                    <span className="text-emerald-800 font-bold flex items-center space-x-1.5">
-                      <Camera className="w-4 h-4 text-emerald-600" />
-                      <span>Delivery Photo Proof Anchored</span>
+                <div className="p-3.5 bg-emerald-50 rounded-sm border border-emerald-200">
+                  <div className="flex items-center justify-between text-xs mb-2">
+                    <span className="text-emerald-800 font-bold flex items-center gap-1.5">
+                      <Camera className="w-3.5 h-3.5 text-emerald-600" />
+                      Photo Proof Anchored in Block
                     </span>
-                    <span className="text-[10px] pill-emerald font-mono font-bold px-2 py-0.5 rounded-full">
+                    <code className="text-[9px] font-mono text-emerald-600 bg-emerald-100 px-1.5 py-0.5 rounded-sm">
                       hasPhotoProof: true
-                    </span>
+                    </code>
                   </div>
                   {donation.proofPhotoUrl && (
-                    <div className="relative rounded-xl overflow-hidden border border-emerald-200 bg-slate-900 shadow-inner">
+                    <div className="rounded-sm overflow-hidden border border-emerald-200 bg-slate-900">
                       <img
                         src={donation.proofPhotoUrl}
                         alt="Handover proof"
-                        className="w-full max-h-40 object-cover cursor-pointer hover:opacity-90 transition-opacity"
+                        className="w-full max-h-36 object-cover cursor-pointer hover:opacity-90 transition-opacity"
                         onClick={() => setSelectedPhoto(donation.proofPhotoUrl!)}
                       />
                     </div>
@@ -487,16 +432,17 @@ export const ChainOfCustodyTimeline: React.FC<ChainOfCustodyTimelineProps> = ({
                 </div>
               )}
 
-              <div className="flex items-center space-x-2 pt-3 text-xs text-emerald-700 font-bold">
-                <ShieldCheck className="w-4 h-4 text-emerald-600" />
-                <span>Cryptographically verified & chained in immutable storage</span>
+              {/* Verified footer */}
+              <div className="flex items-center gap-2 pt-1 text-[11px] font-mono text-emerald-700">
+                <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+                Cryptographically verified & chained in immutable storage
               </div>
             </div>
 
-            <div className="mt-6 pt-4 border-t border-surface-border flex justify-end">
+            <div className="px-6 py-4 border-t border-surface-border flex justify-end">
               <button
                 onClick={() => setSelectedBlock(null)}
-                className="px-5 py-2.5 gradient-primary text-white rounded-xl text-xs font-sans font-bold shadow-glow-teal hover-lift transition-all press-effect"
+                className="px-5 py-2.5 bg-slate-900 text-white text-xs font-sans font-bold rounded-sm hover:bg-slate-800 transition-colors press-effect"
               >
                 Close Block
               </button>
@@ -505,42 +451,32 @@ export const ChainOfCustodyTimeline: React.FC<ChainOfCustodyTimelineProps> = ({
         </div>
       )}
 
-      {/* Photo Preview Modal */}
+      {/* Photo modal */}
       {selectedPhoto && (
         <div
-          className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-fade-in"
+          className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-sm animate-fade-in"
           onClick={() => setSelectedPhoto(null)}
         >
           <div
-            className="bg-surface-card rounded-3xl max-w-2xl w-full p-5 sm:p-6 shadow-elevated border border-surface-border overflow-hidden animate-scale-in card-premium"
+            className="bg-white rounded-2xl max-w-2xl w-full overflow-hidden shadow-elevated border border-surface-border animate-slide-up"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex items-center justify-between pb-4 border-b border-surface-border">
-              <div className="flex items-center space-x-2.5">
-                <Camera className="w-5 h-5 text-emerald-600" />
-                <span className="text-lg font-display font-bold text-slate-900">Delivery Handover Photo Proof</span>
+            <div className="flex items-center justify-between px-6 py-4 border-b border-surface-border">
+              <div className="flex items-center gap-2">
+                <Camera className="w-4 h-4 text-emerald-600" />
+                <span className="text-sm font-sans font-bold text-slate-900">Delivery Handover Photo</span>
               </div>
-              <button
-                onClick={() => setSelectedPhoto(null)}
-                className="p-1.5 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-surface-subtle transition-colors press-effect"
-              >
-                <X className="w-5 h-5" />
+              <button onClick={() => setSelectedPhoto(null)} className="p-1.5 text-slate-400 hover:text-slate-700 rounded-sm hover:bg-surface-subtle transition-colors press-effect">
+                <X className="w-4 h-4" />
               </button>
             </div>
-            <div className="mt-4 rounded-2xl overflow-hidden border border-surface-border bg-slate-900 flex items-center justify-center shadow-inner">
-              <img
-                src={selectedPhoto}
-                alt="Delivery proof"
-                className="w-full h-auto max-h-[65vh] object-contain mx-auto"
-              />
+            <div className="bg-slate-900">
+              <img src={selectedPhoto} alt="Delivery proof" className="w-full h-auto max-h-[65vh] object-contain mx-auto" />
             </div>
-            <div className="mt-4 flex justify-between items-center text-[11px] text-slate-500 font-sans font-medium">
-              <span className="font-mono bg-surface-subtle px-2 py-1 rounded-md border border-surface-border">{donation.id}</span>
-              <button
-                onClick={() => setSelectedPhoto(null)}
-                className="px-5 py-2.5 gradient-primary text-white rounded-xl text-xs font-bold shadow-glow-teal hover-lift transition-all press-effect"
-              >
-                Close Preview
+            <div className="px-6 py-4 flex justify-between items-center">
+              <code className="text-[10px] font-mono text-slate-400 bg-surface-subtle px-2 py-1 rounded-sm border border-surface-border">{donation.id}</code>
+              <button onClick={() => setSelectedPhoto(null)} className="px-4 py-2 bg-slate-900 text-white text-xs font-sans font-bold rounded-sm hover:bg-slate-800 transition-colors press-effect">
+                Close
               </button>
             </div>
           </div>
@@ -549,4 +485,3 @@ export const ChainOfCustodyTimeline: React.FC<ChainOfCustodyTimelineProps> = ({
     </div>
   );
 };
-
