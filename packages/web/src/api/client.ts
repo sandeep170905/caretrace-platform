@@ -72,9 +72,19 @@ async function apiFetch<T = any>(endpoint: string, options: RequestInit = {}): P
     headers
   });
 
-  const data = await res.json();
+  const text = await res.text();
+  let data: any;
+  try {
+    data = JSON.parse(text);
+  } catch {
+    if (!res.ok) {
+      throw new Error(`HTTP ${res.status} (${res.statusText}): Backend endpoint unavailable`);
+    }
+    throw new Error(`Received unexpected non-JSON response from server`);
+  }
+
   if (!res.ok) {
-    throw new Error(data.error || `HTTP ${res.status}: ${res.statusText}`);
+    throw new Error(data?.error || `HTTP ${res.status}: ${res.statusText}`);
   }
   return data;
 }
