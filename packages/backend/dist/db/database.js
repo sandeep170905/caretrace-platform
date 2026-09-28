@@ -66,7 +66,8 @@ class Database {
         avatar TEXT,
         institution_id TEXT,
         password_hash TEXT,
-        created_at TEXT NOT NULL
+        created_at TEXT NOT NULL,
+        is_synthetic INTEGER NOT NULL DEFAULT 0
       );
 
       CREATE TABLE IF NOT EXISTS institutions (
@@ -88,7 +89,8 @@ class Database {
         contact_email TEXT NOT NULL,
         contact_phone TEXT NOT NULL,
         description TEXT NOT NULL,
-        website TEXT
+        website TEXT,
+        is_synthetic INTEGER NOT NULL DEFAULT 0
       );
 
       CREATE TABLE IF NOT EXISTS requirements (
@@ -109,7 +111,8 @@ class Database {
         risk_flags_json TEXT,
         documents_json TEXT,
         created_at TEXT NOT NULL,
-        updated_at TEXT NOT NULL
+        updated_at TEXT NOT NULL,
+        is_synthetic INTEGER NOT NULL DEFAULT 0
       );
 
       CREATE TABLE IF NOT EXISTS donations (
@@ -143,7 +146,8 @@ class Database {
         upi_transaction_id TEXT,
         ledger_block_hash TEXT,
         created_at TEXT NOT NULL,
-        updated_at TEXT NOT NULL
+        updated_at TEXT NOT NULL,
+        is_synthetic INTEGER NOT NULL DEFAULT 0
       );
 
       CREATE TABLE IF NOT EXISTS announcements (
@@ -166,7 +170,8 @@ class Database {
         triggered_at TEXT NOT NULL,
         resolved INTEGER NOT NULL DEFAULT 0,
         resolved_by TEXT,
-        resolved_at TEXT
+        resolved_at TEXT,
+        is_synthetic INTEGER NOT NULL DEFAULT 0
       );
 
       CREATE TABLE IF NOT EXISTS transit_telemetry (
@@ -177,9 +182,23 @@ class Database {
         speed_kmh INTEGER NOT NULL,
         estimated_arrival_minutes INTEGER NOT NULL,
         progress_percentage INTEGER NOT NULL,
-        last_updated TEXT NOT NULL
+        last_updated TEXT NOT NULL,
+        is_synthetic INTEGER NOT NULL DEFAULT 0
       );
     `);
+        // Auto-migration for existing SQLite tables
+        const targetTables = ['users', 'institutions', 'requirements', 'donations', 'risk_audit_logs', 'transit_telemetry'];
+        for (const table of targetTables) {
+            try {
+                const info = this.sqlite.prepare(`PRAGMA table_info(${table})`).all();
+                if (!info.some(c => c.name === 'is_synthetic')) {
+                    this.sqlite.exec(`ALTER TABLE ${table} ADD COLUMN is_synthetic INTEGER NOT NULL DEFAULT 0;`);
+                }
+            }
+            catch (e) {
+                // Table might not exist yet or already altered
+            }
+        }
     }
     initPromise;
     async init() {
@@ -339,8 +358,8 @@ class Database {
             return;
         }
         const stmt = this.sqlite.prepare(`
-      INSERT INTO users (id, name, email, role, phone, avatar, institution_id, password_hash, created_at)
-      VALUES (@id, @name, @email, @role, @phone, @avatar, @institution_id, @password_hash, @created_at)
+      INSERT INTO users (id, name, email, role, phone, avatar, institution_id, password_hash, created_at, is_synthetic)
+      VALUES (@id, @name, @email, @role, @phone, @avatar, @institution_id, @password_hash, @created_at, @is_synthetic)
       ON CONFLICT(id) DO UPDATE SET
         name = excluded.name,
         email = excluded.email,
@@ -348,9 +367,13 @@ class Database {
         phone = excluded.phone,
         avatar = excluded.avatar,
         institution_id = excluded.institution_id,
-        password_hash = excluded.password_hash;
+        password_hash = excluded.password_hash,
+        is_synthetic = excluded.is_synthetic;
     `);
-        stmt.run(row);
+        stmt.run({
+            ...row,
+            is_synthetic: row.is_synthetic ? 1 : 0
+        });
     }
     // -------------------------------------------------------------
     // Institutions (SQL: SQLite / PostgreSQL)
@@ -390,11 +413,11 @@ class Database {
       INSERT INTO institutions (
         id, name, registration_number, tax_id, address, city, state, postal_code,
         latitude, longitude, capacity, current_children_count, verified,
-        verification_date, trust_score, contact_email, contact_phone, description, website
+        verification_date, trust_score, contact_email, contact_phone, description, website, is_synthetic
       ) VALUES (
         @id, @name, @registration_number, @tax_id, @address, @city, @state, @postal_code,
         @latitude, @longitude, @capacity, @current_children_count, @verified,
-        @verification_date, @trust_score, @contact_email, @contact_phone, @description, @website
+        @verification_date, @trust_score, @contact_email, @contact_phone, @description, @website, @is_synthetic
       ) ON CONFLICT(id) DO UPDATE SET
         name = excluded.name,
         registration_number = excluded.registration_number,
@@ -413,11 +436,13 @@ class Database {
         contact_email = excluded.contact_email,
         contact_phone = excluded.contact_phone,
         description = excluded.description,
-        website = excluded.website;
+        website = excluded.website,
+        is_synthetic = excluded.is_synthetic;
     `);
         stmt.run({
             ...row,
-            verified: row.verified ? 1 : 0
+            verified: row.verified ? 1 : 0,
+            is_synthetic: row.is_synthetic ? 1 : 0
         });
     }
     // -------------------------------------------------------------
@@ -459,12 +484,12 @@ class Database {
         id, institution_id, institution_name, category, title, description,
         target_quantity, unit, fulfilled_quantity, urgency, status,
         authenticity_score, ml_risk_score, ml_risk_tier, risk_flags_json, documents_json,
-        created_at, updated_at
+        created_at, updated_at, is_synthetic
       ) VALUES (
         @id, @institution_id, @institution_name, @category, @title, @description,
         @target_quantity, @unit, @fulfilled_quantity, @urgency, @status,
         @authenticity_score, @ml_risk_score, @ml_risk_tier, @risk_flags_json, @documents_json,
-        @created_at, @updated_at
+        @created_at, @updated_at, @is_synthetic
       ) ON CONFLICT(id) DO UPDATE SET
         institution_id = excluded.institution_id,
         institution_name = excluded.institution_name,
@@ -481,9 +506,13 @@ class Database {
         ml_risk_tier = excluded.ml_risk_tier,
         risk_flags_json = excluded.risk_flags_json,
         documents_json = excluded.documents_json,
-        updated_at = excluded.updated_at;
+        updated_at = excluded.updated_at,
+        is_synthetic = excluded.is_synthetic;
     `);
-        stmt.run(row);
+        stmt.run({
+            ...row,
+            is_synthetic: row.is_synthetic ? 1 : 0
+        });
     }
     async deleteRequirement(id) {
         if (this.isPostgres) {
@@ -545,7 +574,7 @@ class Database {
         pickup_coordinates_json, destination_coordinates_json, current_coordinates_json,
         qr_code_payload, pickup_timestamp, delivery_timestamp, confirmation_notes,
         recipient_signature, proof_photo_url, monetary_amount_inr, receipt_number,
-        payment_method, upi_transaction_id, ledger_block_hash, created_at, updated_at
+        payment_method, upi_transaction_id, ledger_block_hash, created_at, updated_at, is_synthetic
       ) VALUES (
         @id, @donor_id, @donor_name, @donor_email, @requirement_id, @requirement_title,
         @institution_id, @institution_name, @type, @items_json, @status,
@@ -553,7 +582,7 @@ class Database {
         @pickup_coordinates_json, @destination_coordinates_json, @current_coordinates_json,
         @qr_code_payload, @pickup_timestamp, @delivery_timestamp, @confirmation_notes,
         @recipient_signature, @proof_photo_url, @monetary_amount_inr, @receipt_number,
-        @payment_method, @upi_transaction_id, @ledger_block_hash, @created_at, @updated_at
+        @payment_method, @upi_transaction_id, @ledger_block_hash, @created_at, @updated_at, @is_synthetic
       ) ON CONFLICT(id) DO UPDATE SET
         donor_id = excluded.donor_id,
         donor_name = excluded.donor_name,
@@ -583,9 +612,13 @@ class Database {
         payment_method = excluded.payment_method,
         upi_transaction_id = excluded.upi_transaction_id,
         ledger_block_hash = excluded.ledger_block_hash,
-        updated_at = excluded.updated_at;
+        updated_at = excluded.updated_at,
+        is_synthetic = excluded.is_synthetic;
     `);
-        stmt.run(row);
+        stmt.run({
+            ...row,
+            is_synthetic: row.is_synthetic ? 1 : 0
+        });
     }
     // -------------------------------------------------------------
     // Announcements (SQL: SQLite / PostgreSQL)
@@ -667,12 +700,13 @@ class Database {
             return;
         }
         const stmt = this.sqlite.prepare(`
-      INSERT INTO risk_audit_logs (rule_id, rule_name, severity, message, triggered_at, resolved, resolved_by, resolved_at)
-      VALUES (@rule_id, @rule_name, @severity, @message, @triggered_at, @resolved, @resolved_by, @resolved_at);
+      INSERT INTO risk_audit_logs (rule_id, rule_name, severity, message, triggered_at, resolved, resolved_by, resolved_at, is_synthetic)
+      VALUES (@rule_id, @rule_name, @severity, @message, @triggered_at, @resolved, @resolved_by, @resolved_at, @is_synthetic);
     `);
         stmt.run({
             ...row,
-            resolved: row.resolved ? 1 : 0
+            resolved: row.resolved ? 1 : 0,
+            is_synthetic: row.is_synthetic ? 1 : 0
         });
     }
     async resolveRiskFlag(ruleId, resolvedBy) {
@@ -722,8 +756,8 @@ class Database {
             return;
         }
         const stmt = this.sqlite.prepare(`
-      INSERT INTO transit_telemetry (donation_id, latitude, longitude, current_address, speed_kmh, estimated_arrival_minutes, progress_percentage, last_updated)
-      VALUES (@donation_id, @latitude, @longitude, @current_address, @speed_kmh, @estimated_arrival_minutes, @progress_percentage, @last_updated)
+      INSERT INTO transit_telemetry (donation_id, latitude, longitude, current_address, speed_kmh, estimated_arrival_minutes, progress_percentage, last_updated, is_synthetic)
+      VALUES (@donation_id, @latitude, @longitude, @current_address, @speed_kmh, @estimated_arrival_minutes, @progress_percentage, @last_updated, @is_synthetic)
       ON CONFLICT(donation_id) DO UPDATE SET
         latitude = excluded.latitude,
         longitude = excluded.longitude,
@@ -731,9 +765,13 @@ class Database {
         speed_kmh = excluded.speed_kmh,
         estimated_arrival_minutes = excluded.estimated_arrival_minutes,
         progress_percentage = excluded.progress_percentage,
-        last_updated = excluded.last_updated;
+        last_updated = excluded.last_updated,
+        is_synthetic = excluded.is_synthetic;
     `);
-        stmt.run(row);
+        stmt.run({
+            ...row,
+            is_synthetic: row.is_synthetic ? 1 : 0
+        });
     }
     // -------------------------------------------------------------
     // Direct Diagnostics for Persistence Verification
@@ -794,6 +832,85 @@ class Database {
         DELETE FROM announcements;
       `);
         }
+    }
+    // -------------------------------------------------------------
+    // Wipe only synthetic records and synthetic ledger blocks
+    // -------------------------------------------------------------
+    async clearSyntheticData() {
+        if (this.isPostgres) {
+            if (this.pgKnex) {
+                await Promise.all([
+                    this.pgKnex('transit_telemetry').where('is_synthetic', true).del(),
+                    this.pgKnex('risk_audit_logs').where('is_synthetic', true).del(),
+                    this.pgKnex('donations').where('is_synthetic', true).del(),
+                    this.pgKnex('requirements').where('is_synthetic', true).del(),
+                    this.pgKnex('institutions').where('is_synthetic', true).del(),
+                    this.pgKnex('users').where('is_synthetic', true).del()
+                ]).catch(err => console.error('PostgreSQL clearSyntheticData error:', err));
+                await this.syncFromPostgres();
+            }
+        }
+        else if (this.sqlite) {
+            this.sqlite.exec(`
+        DELETE FROM transit_telemetry WHERE is_synthetic = 1;
+        DELETE FROM risk_audit_logs WHERE is_synthetic = 1;
+        DELETE FROM donations WHERE is_synthetic = 1;
+        DELETE FROM requirements WHERE is_synthetic = 1;
+        DELETE FROM institutions WHERE is_synthetic = 1;
+        DELETE FROM users WHERE is_synthetic = 1;
+      `);
+        }
+        // Filter synthetic ledger blocks (or any whose donationId is synthetic)
+        this.ledgerBlocks = this.ledgerBlocks.filter(b => !b.isSynthetic && !b.donationId.startsWith('SYN-'));
+        this.saveLedger();
+        return { cleared: true, counts: await this.getTableCounts() };
+    }
+    // -------------------------------------------------------------
+    // Get record counts per table (total, synthetic, non-synthetic)
+    // -------------------------------------------------------------
+    async getTableCounts() {
+        if (this.isPostgres && this.pgKnex) {
+            const getCounts = async (table) => {
+                const totalRow = await this.pgKnex(table).count('* as count').first();
+                const synRow = await this.pgKnex(table).where('is_synthetic', true).count('* as count').first();
+                const total = Number(totalRow?.count || 0);
+                const synthetic = Number(synRow?.count || 0);
+                return { total, synthetic, nonSynthetic: total - synthetic };
+            };
+            const ledgerSyn = this.ledgerBlocks.filter(b => b.isSynthetic || b.donationId.startsWith('SYN-')).length;
+            return {
+                users: await getCounts('users'),
+                institutions: await getCounts('institutions'),
+                requirements: await getCounts('requirements'),
+                donations: await getCounts('donations'),
+                riskAuditLogs: await getCounts('risk_audit_logs'),
+                transitTelemetry: await getCounts('transit_telemetry'),
+                ledgerBlocks: {
+                    total: this.ledgerBlocks.length,
+                    synthetic: ledgerSyn,
+                    nonSynthetic: this.ledgerBlocks.length - ledgerSyn
+                }
+            };
+        }
+        const getSqliteCounts = (table) => {
+            const total = this.sqlite.prepare(`SELECT count(*) as count FROM ${table}`).get().count;
+            const synthetic = this.sqlite.prepare(`SELECT count(*) as count FROM ${table} WHERE is_synthetic = 1`).get().count;
+            return { total, synthetic, nonSynthetic: total - synthetic };
+        };
+        const ledgerSyn = this.ledgerBlocks.filter(b => b.isSynthetic || b.donationId.startsWith('SYN-')).length;
+        return {
+            users: getSqliteCounts('users'),
+            institutions: getSqliteCounts('institutions'),
+            requirements: getSqliteCounts('requirements'),
+            donations: getSqliteCounts('donations'),
+            riskAuditLogs: getSqliteCounts('risk_audit_logs'),
+            transitTelemetry: getSqliteCounts('transit_telemetry'),
+            ledgerBlocks: {
+                total: this.ledgerBlocks.length,
+                synthetic: ledgerSyn,
+                nonSynthetic: this.ledgerBlocks.length - ledgerSyn
+            }
+        };
     }
     close() {
         if (this.sqlite) {

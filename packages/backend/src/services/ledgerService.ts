@@ -47,11 +47,13 @@ export class LedgerService {
     eventType: LedgerEventType,
     actor: { id: string; role: UserRole | 'SYSTEM'; name: string },
     details: string,
-    payload: any = {}
+    payload: any = {},
+    customTimestamp?: string,
+    isSynthetic?: boolean
   ): LedgerBlock {
     const blocks = db.getLedgerBlocks();
     const index = blocks.length;
-    const timestamp = new Date().toISOString();
+    const timestamp = customTimestamp || new Date().toISOString();
     const previousHash = index === 0 ? GENESIS_PREV_HASH : blocks[blocks.length - 1].blockHash;
     const payloadHash = this.sha256(payload);
     const nonce = 0; // Deterministic nonce
@@ -81,7 +83,8 @@ export class LedgerService {
       previousHash,
       blockHash,
       nonce,
-      payload
+      payload,
+      isSynthetic: Boolean(isSynthetic)
     };
 
     db.addLedgerBlock(block);

@@ -27,10 +27,10 @@ class LedgerService {
     /**
      * Records a new immutable checkpoint block into the chain
      */
-    static recordCheckpoint(donationId, eventType, actor, details, payload = {}) {
+    static recordCheckpoint(donationId, eventType, actor, details, payload = {}, customTimestamp, isSynthetic) {
         const blocks = database_1.db.getLedgerBlocks();
         const index = blocks.length;
-        const timestamp = new Date().toISOString();
+        const timestamp = customTimestamp || new Date().toISOString();
         const previousHash = index === 0 ? exports.GENESIS_PREV_HASH : blocks[blocks.length - 1].blockHash;
         const payloadHash = this.sha256(payload);
         const nonce = 0; // Deterministic nonce
@@ -48,7 +48,8 @@ class LedgerService {
             previousHash,
             blockHash,
             nonce,
-            payload
+            payload,
+            isSynthetic: Boolean(isSynthetic)
         };
         database_1.db.addLedgerBlock(block);
         // Update donation's latest ledger block hash

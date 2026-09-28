@@ -8,6 +8,8 @@
     "start": "node dist/server.js",
     "dev": "ts-node src/server.ts",
     "seed": "ts-node src/db/seed.ts",
+    "seed:synthetic": "ts-node src/db/syntheticSeed.ts",
+    "seed:synthetic:clear": "ts-node src/db/syntheticSeed.ts --clear",
     "test": "ts-node src/testLedger.ts"
   },
   "dependencies": {

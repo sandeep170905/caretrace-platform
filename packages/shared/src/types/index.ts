@@ -14,6 +14,7 @@ export interface User {
   institutionId?: string; // If user belongs to an institution
   passwordHash?: string;
   createdAt?: string;
+  isSynthetic?: boolean;
 }
 
 export interface Institution {
@@ -36,6 +37,7 @@ export interface Institution {
   contactPhone: string;
   description: string;
   website?: string;
+  isSynthetic?: boolean;
 }
 
 export type RequirementCategory =
@@ -80,6 +82,7 @@ export interface Requirement {
   documents: RequirementDocument[];
   createdAt: string;
   updatedAt: string;
+  isSynthetic?: boolean;
 }
 
 export type DonationType = 'PHYSICAL_GOODS' | 'FUNDS';
@@ -146,6 +149,7 @@ export interface Donation {
   upiTransactionId?: string;
   createdAt: string;
   updatedAt: string;
+  isSynthetic?: boolean;
 }
 
 export type LedgerEventType =
@@ -172,6 +176,7 @@ export interface LedgerBlock {
   blockHash: string; // SHA-256 of index + timestamp + donationId + eventType + payloadHash + previousHash + nonce
   nonce: number;
   payload?: Record<string, any>;
+  isSynthetic?: boolean;
 }
 
 export interface LedgerVerificationResult {
@@ -194,6 +199,7 @@ export interface RiskFlag {
   resolved?: boolean;
   resolvedBy?: string;
   resolvedAt?: string;
+  isSynthetic?: boolean;
 }
 
 export interface TransitTelemetry {
@@ -205,6 +211,7 @@ export interface TransitTelemetry {
   estimatedArrivalMinutes: number;
   progressPercentage: number;
   lastUpdated: string;
+  isSynthetic?: boolean;
 }
 
 export interface ProofOfDeliveryCertificate {

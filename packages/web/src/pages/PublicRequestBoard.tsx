@@ -260,9 +260,18 @@ export const PublicRequestBoard: React.FC<PublicRequestBoardProps> = ({
               <option value="ALL">All Localities</option>
               <option value="Tambaram">Tambaram</option>
               <option value="Ambattur">Ambattur</option>
-              <option value="Anna Nagar">Anna Nagar</option>
+              <option value="Adyar">Adyar</option>
+              <option value="Velachery">Velachery</option>
               <option value="T. Nagar">T. Nagar</option>
-              <option value="Poonamallee">Poonamallee</option>
+              <option value="Anna Nagar">Anna Nagar</option>
+              <option value="Porur">Porur</option>
+              <option value="Perambur">Perambur</option>
+              <option value="Sholinganallur">Sholinganallur</option>
+              <option value="Guindy">Guindy</option>
+              <option value="Mylapore">Mylapore</option>
+              <option value="Kodambakkam">Kodambakkam</option>
+              <option value="Avadi">Avadi</option>
+              <option value="Pallavaram">Pallavaram</option>
             </select>
           </div>
         </div>

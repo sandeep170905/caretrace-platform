@@ -12,6 +12,7 @@ export interface User {
     institutionId?: string;
     passwordHash?: string;
     createdAt?: string;
+    isSynthetic?: boolean;
 }
 export interface Institution {
     id: string;
@@ -33,6 +34,7 @@ export interface Institution {
     contactPhone: string;
     description: string;
     website?: string;
+    isSynthetic?: boolean;
 }
 export type RequirementCategory = 'FOOD' | 'CLOTHING' | 'MEDICINE' | 'SUPPLIES' | 'EDUCATION';
 export type RequirementUrgency = 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
@@ -63,6 +65,7 @@ export interface Requirement {
     documents: RequirementDocument[];
     createdAt: string;
     updatedAt: string;
+    isSynthetic?: boolean;
 }
 export type DonationType = 'PHYSICAL_GOODS' | 'FUNDS';
 export type DonationStatus = 'MATCHED' | 'PICKUP_SCHEDULED' | 'PICKED_UP' | 'IN_TRANSIT' | 'DELIVERED' | 'CONFIRMED' | 'FLAGGED';
@@ -110,6 +113,7 @@ export interface Donation {
     upiTransactionId?: string;
     createdAt: string;
     updatedAt: string;
+    isSynthetic?: boolean;
 }
 export type LedgerEventType = 'GENESIS' | 'REQUIREMENT_AUTHENTICATED' | 'DONATION_MATCHED' | 'PICKUP_VERIFIED' | 'IN_TRANSIT_CHECKPOINT' | 'DELIVERY_CONFIRMED' | 'INTEGRITY_AUDIT' | 'MONETARY_DONATION_CONFIRMED';
 export interface LedgerBlock {
@@ -126,6 +130,7 @@ export interface LedgerBlock {
     blockHash: string;
     nonce: number;
     payload?: Record<string, any>;
+    isSynthetic?: boolean;
 }
 export interface LedgerVerificationResult {
     isValid: boolean;
@@ -145,6 +150,7 @@ export interface RiskFlag {
     resolved?: boolean;
     resolvedBy?: string;
     resolvedAt?: string;
+    isSynthetic?: boolean;
 }
 export interface TransitTelemetry {
     donationId: string;
@@ -155,6 +161,7 @@ export interface TransitTelemetry {
     estimatedArrivalMinutes: number;
     progressPercentage: number;
     lastUpdated: string;
+    isSynthetic?: boolean;
 }
 export interface ProofOfDeliveryCertificate {
     donationId: string;

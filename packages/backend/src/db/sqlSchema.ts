@@ -27,6 +27,7 @@ export async function initSqlSchema(db: Knex): Promise<void> {
       t.string('institution_id');
       t.string('password_hash');
       t.string('created_at').notNullable();
+      t.boolean('is_synthetic').notNullable().defaultTo(false);
     });
   }
 
@@ -53,6 +54,7 @@ export async function initSqlSchema(db: Knex): Promise<void> {
       t.string('contact_phone').notNullable();
       t.text('description').notNullable();
       t.string('website');
+      t.boolean('is_synthetic').notNullable().defaultTo(false);
     });
   }
 
@@ -78,6 +80,7 @@ export async function initSqlSchema(db: Knex): Promise<void> {
       t.text('documents_json');
       t.string('created_at').notNullable();
       t.string('updated_at').notNullable();
+      t.boolean('is_synthetic').notNullable().defaultTo(false);
     });
   }
 
@@ -116,6 +119,7 @@ export async function initSqlSchema(db: Knex): Promise<void> {
       t.string('ledger_block_hash');
       t.string('created_at').notNullable();
       t.string('updated_at').notNullable();
+      t.boolean('is_synthetic').notNullable().defaultTo(false);
     });
   }
 
@@ -147,6 +151,7 @@ export async function initSqlSchema(db: Knex): Promise<void> {
       t.boolean('resolved').notNullable().defaultTo(false);
       t.string('resolved_by');
       t.string('resolved_at');
+      t.boolean('is_synthetic').notNullable().defaultTo(false);
     });
   }
 
@@ -162,7 +167,22 @@ export async function initSqlSchema(db: Knex): Promise<void> {
       t.integer('estimated_arrival_minutes').notNullable();
       t.integer('progress_percentage').notNullable();
       t.string('last_updated').notNullable();
+      t.boolean('is_synthetic').notNullable().defaultTo(false);
     });
+  }
+
+  // Auto-migration: Ensure is_synthetic exists on all tables if already created
+  const targetTables = ['users', 'institutions', 'requirements', 'donations', 'risk_audit_logs', 'transit_telemetry'];
+  for (const table of targetTables) {
+    const tableExists = await db.schema.hasTable(table);
+    if (tableExists) {
+      const colExists = await db.schema.hasColumn(table, 'is_synthetic');
+      if (!colExists) {
+        await db.schema.alterTable(table, (t) => {
+          t.boolean('is_synthetic').notNullable().defaultTo(false);
+        });
+      }
+    }
   }
 }
 
@@ -180,7 +200,8 @@ export function userToRow(u: User): any {
     avatar: u.avatar || null,
     institution_id: u.institutionId || null,
     password_hash: u.passwordHash || null,
-    created_at: u.createdAt || new Date().toISOString()
+    created_at: u.createdAt || new Date().toISOString(),
+    is_synthetic: Boolean(u.isSynthetic)
   };
 }
 
@@ -194,7 +215,8 @@ export function rowToUser(r: any): User {
     avatar: r.avatar || undefined,
     institutionId: r.institution_id || undefined,
     passwordHash: r.password_hash || undefined,
-    createdAt: r.created_at
+    createdAt: r.created_at,
+    isSynthetic: Boolean(r.is_synthetic)
   };
 }
 
@@ -218,7 +240,8 @@ export function institutionToRow(i: Institution): any {
     contact_email: i.contactEmail,
     contact_phone: i.contactPhone,
     description: i.description,
-    website: i.website || null
+    website: i.website || null,
+    is_synthetic: Boolean(i.isSynthetic)
   };
 }
 
@@ -242,7 +265,8 @@ export function rowToInstitution(r: any): Institution {
     contactEmail: r.contact_email,
     contactPhone: r.contact_phone,
     description: r.description,
-    website: r.website || undefined
+    website: r.website || undefined,
+    isSynthetic: Boolean(r.is_synthetic)
   };
 }
 
@@ -265,7 +289,8 @@ export function requirementToRow(req: Requirement): any {
     risk_flags_json: JSON.stringify(req.riskFlags || []),
     documents_json: JSON.stringify(req.documents || []),
     created_at: req.createdAt || new Date().toISOString(),
-    updated_at: req.updatedAt || new Date().toISOString()
+    updated_at: req.updatedAt || new Date().toISOString(),
+    is_synthetic: Boolean(req.isSynthetic)
   };
 }
 
@@ -288,7 +313,8 @@ export function rowToRequirement(r: any): Requirement {
     riskFlags: r.risk_flags_json ? JSON.parse(r.risk_flags_json) : [],
     documents: r.documents_json ? JSON.parse(r.documents_json) : [],
     createdAt: r.created_at,
-    updatedAt: r.updated_at
+    updatedAt: r.updated_at,
+    isSynthetic: Boolean(r.is_synthetic)
   };
 }
 
@@ -324,7 +350,8 @@ export function donationToRow(d: Donation): any {
     upi_transaction_id: d.upiTransactionId || null,
     ledger_block_hash: d.ledgerBlockHash || null,
     created_at: d.createdAt,
-    updated_at: d.updatedAt
+    updated_at: d.updatedAt,
+    is_synthetic: Boolean(d.isSynthetic)
   };
 }
 
@@ -360,7 +387,8 @@ export function rowToDonation(r: any): Donation {
     upiTransactionId: r.upi_transaction_id || undefined,
     ledgerBlockHash: r.ledger_block_hash || undefined,
     createdAt: r.created_at,
-    updatedAt: r.updated_at
+    updatedAt: r.updated_at,
+    isSynthetic: Boolean(r.is_synthetic)
   };
 }
 
@@ -399,7 +427,8 @@ export function riskFlagToRow(f: RiskFlag): any {
     triggered_at: f.triggeredAt,
     resolved: Boolean(f.resolved),
     resolved_by: f.resolvedBy || null,
-    resolved_at: f.resolvedAt || null
+    resolved_at: f.resolvedAt || null,
+    is_synthetic: Boolean(f.isSynthetic)
   };
 }
 
@@ -412,7 +441,8 @@ export function rowToRiskFlag(r: any): RiskFlag {
     triggeredAt: r.triggered_at,
     resolved: Boolean(r.resolved),
     resolvedBy: r.resolved_by || undefined,
-    resolvedAt: r.resolved_at || undefined
+    resolvedAt: r.resolved_at || undefined,
+    isSynthetic: Boolean(r.is_synthetic)
   };
 }
 
@@ -425,7 +455,8 @@ export function telemetryToRow(t: TransitTelemetry): any {
     speed_kmh: t.speedKmh,
     estimated_arrival_minutes: t.estimatedArrivalMinutes,
     progress_percentage: t.progressPercentage,
-    last_updated: t.lastUpdated
+    last_updated: t.lastUpdated,
+    is_synthetic: Boolean(t.isSynthetic)
   };
 }
 
@@ -438,6 +469,7 @@ export function rowToTelemetry(r: any): TransitTelemetry {
     speedKmh: Number(r.speed_kmh),
     estimatedArrivalMinutes: Number(r.estimated_arrival_minutes),
     progressPercentage: Number(r.progress_percentage),
-    lastUpdated: r.last_updated
+    lastUpdated: r.last_updated,
+    isSynthetic: Boolean(r.is_synthetic)
   };
 }

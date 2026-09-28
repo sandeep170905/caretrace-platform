@@ -15,8 +15,9 @@
     "dev": "concurrently -k -p \"[{name}]\" -n \"BACKEND,WEB\" -c \"cyan,magenta\" \"npm run dev:backend\" \"npm run dev:web\"",
     "dev:backend": "npm --workspace=packages/backend run dev",
     "dev:web": "npm --workspace=packages/web run dev",
-    "dev:mobile": "npm --workspace=packages/mobile run start",
     "seed": "npm --workspace=packages/backend run seed",
+    "seed:synthetic": "npm --workspace=packages/backend run seed:synthetic",
+    "seed:synthetic:clear": "npm --workspace=packages/backend run seed:synthetic:clear",
     "test": "npm --workspace=packages/backend run test"
   },
   "dependencies": {
