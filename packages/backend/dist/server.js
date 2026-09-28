@@ -17,6 +17,7 @@ const deliveryRoutes_1 = require("./routes/deliveryRoutes");
 const transitRoutes_1 = require("./routes/transitRoutes");
 const ledgerRoutes_1 = require("./routes/ledgerRoutes");
 const adminRoutes_1 = require("./routes/adminRoutes");
+const analyticsRoutes_1 = require("./routes/analyticsRoutes");
 const app = (0, express_1.default)();
 const PORT = process.env.PORT || 5000;
 const allowedOriginsEnv = process.env.CORS_ORIGIN;
@@ -66,7 +67,9 @@ app.get('/', (req, res) => {
             personas: '/api/auth/personas',
             requirements: '/api/requirements',
             donations: '/api/donations',
-            institutions: '/api/institutions'
+            institutions: '/api/institutions',
+            analyticsSummary: '/api/analytics/summary',
+            analyticsInsights: '/api/analytics/insights'
         },
         ledgerBlocksCount: database_1.db.getLedgerBlocks().length,
         databaseEngine: database_1.db.getEngine(),
@@ -116,6 +119,7 @@ app.use('/api/delivery', deliveryRoutes_1.deliveryRouter);
 app.use('/api/transit', transitRoutes_1.transitRouter);
 app.use('/api/ledger', ledgerRoutes_1.ledgerRouter);
 app.use('/api/admin', adminRoutes_1.adminRouter);
+app.use('/api/analytics', analyticsRoutes_1.analyticsRouter);
 async function startServer() {
     // Await database initialization (PostgreSQL schema check & sync if configured)
     await database_1.db.init();

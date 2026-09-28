@@ -3,3 +3,5 @@ packages/web/dist/
 build/ 
 .env 
 *.log
+*.sqlite-wal
+*.sqlite-shm

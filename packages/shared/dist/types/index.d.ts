@@ -211,4 +211,168 @@ export interface Announcement {
     active: boolean;
     createdBy?: string;
 }
+export interface HeadlineStats {
+    totalDonations: number;
+    activeDonors: number;
+    fulfillmentRate: number;
+    avgDeliveryTimeHours: number;
+    totalEstimatedValueInr: number;
+    totalRequirements: number;
+    fulfilledRequirements: number;
+    openRequirements: number;
+}
+export interface MonthlyDataPoint {
+    month: string;
+    label: string;
+    volume: number;
+    monetaryValueInr: number;
+    isForecast?: boolean;
+    forecastLower?: number;
+    forecastUpper?: number;
+}
+export interface DemandForecastResult {
+    overall: {
+        historical: MonthlyDataPoint[];
+        forecast: MonthlyDataPoint[];
+    };
+    byCategory: Record<RequirementCategory, {
+        historical: MonthlyDataPoint[];
+        forecast: MonthlyDataPoint[];
+    }>;
+    methodology: string;
+}
+export interface DonorSegmentCentroid {
+    frequency: number;
+    recencyDays: number;
+    avgQuantity: number;
+    categoryDiversity: number;
+}
+export interface DonorSegment {
+    id: string;
+    name: string;
+    size: number;
+    percentage: number;
+    description: string;
+    centroid: DonorSegmentCentroid;
+    color: string;
+}
+export interface DonorAssignment {
+    donorId: string;
+    donorName: string;
+    email: string;
+    segmentId: string;
+    segmentName: string;
+    metrics: {
+        frequency: number;
+        recencyDays: number;
+        avgQuantity: number;
+        categoryDiversity: number;
+        totalValueInr: number;
+    };
+}
+export interface DonorSegmentationResult {
+    k: number;
+    segments: DonorSegment[];
+    donorAssignments: DonorAssignment[];
+    sampleSize: number;
+}
+export interface AtRiskDonor {
+    donorId: string;
+    donorName: string;
+    email: string;
+    churnProbability: number;
+    riskLevel: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
+    recencyDays: number;
+    donationCount: number;
+    contributingFactors: string[];
+}
+export interface RetentionRiskResult {
+    atRiskDonors: AtRiskDonor[];
+    overallRiskSummary: {
+        criticalCount: number;
+        highCount: number;
+        mediumCount: number;
+        lowCount: number;
+    };
+    methodology: string;
+}
+export interface FulfillmentPredictionItem {
+    requirementId: string;
+    title: string;
+    category: RequirementCategory;
+    urgency: string;
+    targetQuantity: number;
+    institutionName: string;
+    locality: string;
+    predictedDaysToFulfil: number;
+    predictedDate: string;
+}
+export interface FulfillmentPredictionResult {
+    maeDays: number;
+    avgActualDays: number;
+    avgPredictedDays: number;
+    sampleSize: number;
+    activePredictions: FulfillmentPredictionItem[];
+    modelWeights: {
+        baseDays: number;
+        urgencyMultipliers: Record<string, number>;
+        categoryFactors: Record<string, number>;
+    };
+}
+export interface AnomalyItem {
+    id: string;
+    type: 'VOLUME_SPIKE' | 'INSTITUTION_CONCENTRATION' | 'QUANTITY_OUTLIER' | 'VELOCITY_ALERT';
+    severity: 'MEDIUM' | 'HIGH' | 'CRITICAL';
+    title: string;
+    description: string;
+    entityId: string;
+    entityType: 'DONOR' | 'INSTITUTION' | 'DONATION' | 'REQUIREMENT';
+    score: number;
+    threshold: number;
+    detectedAt: string;
+    linkedRiskLogId?: string;
+}
+export interface AnomalyDetectionResult {
+    anomaliesCount: number;
+    anomalies: AnomalyItem[];
+    summary: {
+        volumeSpikes: number;
+        concentrationRisks: number;
+        quantityOutliers: number;
+    };
+}
+export interface LocalityDistributionItem {
+    locality: string;
+    latitude: number;
+    longitude: number;
+    totalDonations: number;
+    totalValueInr: number;
+    sanctuariesCount: number;
+    openRequirements: number;
+}
+export interface ComprehensiveInsights {
+    headline: HeadlineStats;
+    demandForecast: DemandForecastResult;
+    donorSegmentation: DonorSegmentationResult;
+    retentionRisk: RetentionRiskResult;
+    fulfillmentPrediction: FulfillmentPredictionResult;
+    anomalyDetection: AnomalyDetectionResult;
+    localityDistribution: LocalityDistributionItem[];
+    metadata: {
+        generatedAt: string;
+        datasetSize: {
+            donations: number;
+            requirements: number;
+            donors: number;
+            institutions: number;
+        };
+        disclaimer: string;
+    };
+}
+export interface AnalyticsSummaryResult {
+    headline: HeadlineStats;
+    localityDistribution: LocalityDistributionItem[];
+    categoryDistribution: Record<string, number>;
+    generatedAt: string;
+}
 //# sourceMappingURL=index.d.ts.map

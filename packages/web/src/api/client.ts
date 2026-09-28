@@ -11,7 +11,16 @@ import {
   TransitTelemetry,
   RiskFlag,
   Announcement,
-  AnnouncementUrgency
+  AnnouncementUrgency,
+  HeadlineStats,
+  DemandForecastResult,
+  DonorSegmentationResult,
+  RetentionRiskResult,
+  FulfillmentPredictionResult,
+  AnomalyDetectionResult,
+  LocalityDistributionItem,
+  ComprehensiveInsights,
+  AnalyticsSummaryResult
 } from '@caretrace/shared';
 
 const getApiBaseUrl = (): string => {
@@ -394,6 +403,52 @@ export async function dismissAnnouncement(id: string): Promise<{ success: boolea
     method: 'PATCH'
   });
 }
+
+// ---------------- ANALYTICS & ML INSIGHTS APIS ----------------
+
+export async function fetchAnalyticsSummary(): Promise<AnalyticsSummaryResult> {
+  const res = await apiFetch<any>('/analytics/summary');
+  return res;
+}
+
+export async function fetchAnalyticsInsights(institutionId?: string): Promise<ComprehensiveInsights> {
+  const query = institutionId ? `?institutionId=${encodeURIComponent(institutionId)}` : '';
+  const res = await apiFetch<{ success: boolean; insights: ComprehensiveInsights }>(`/analytics/insights${query}`);
+  return res.insights;
+}
+
+export async function fetchDemandForecast(institutionId?: string): Promise<DemandForecastResult> {
+  const query = institutionId ? `?institutionId=${encodeURIComponent(institutionId)}` : '';
+  const res = await apiFetch<{ success: boolean; forecast: DemandForecastResult }>(`/analytics/demand-forecast${query}`);
+  return res.forecast;
+}
+
+export async function fetchDonorSegments(): Promise<DonorSegmentationResult> {
+  const res = await apiFetch<{ success: boolean; segmentation: DonorSegmentationResult }>('/analytics/donor-segments');
+  return res.segmentation;
+}
+
+export async function fetchRetentionRisk(): Promise<RetentionRiskResult> {
+  const res = await apiFetch<{ success: boolean; retentionRisk: RetentionRiskResult }>('/analytics/retention-risk');
+  return res.retentionRisk;
+}
+
+export async function fetchFulfillmentPrediction(institutionId?: string): Promise<FulfillmentPredictionResult> {
+  const query = institutionId ? `?institutionId=${encodeURIComponent(institutionId)}` : '';
+  const res = await apiFetch<{ success: boolean; prediction: FulfillmentPredictionResult }>(`/analytics/fulfillment-prediction${query}`);
+  return res.prediction;
+}
+
+export async function fetchAnomalies(): Promise<AnomalyDetectionResult> {
+  const res = await apiFetch<{ success: boolean; anomalies: AnomalyDetectionResult }>('/analytics/anomalies');
+  return res.anomalies;
+}
+
+export async function fetchLocalityDistribution(): Promise<LocalityDistributionItem[]> {
+  const res = await apiFetch<{ success: boolean; distribution: LocalityDistributionItem[] }>('/analytics/locality-distribution');
+  return res.distribution;
+}
+
 
 // ---------------- REAL-TIME SSE STREAM ----------------
 

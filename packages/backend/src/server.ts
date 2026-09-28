@@ -12,6 +12,7 @@ import { deliveryRouter } from './routes/deliveryRoutes';
 import { transitRouter } from './routes/transitRoutes';
 import { ledgerRouter } from './routes/ledgerRoutes';
 import { adminRouter } from './routes/adminRoutes';
+import { analyticsRouter } from './routes/analyticsRoutes';
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -67,7 +68,9 @@ app.get('/', (req: Request, res: Response) => {
       personas: '/api/auth/personas',
       requirements: '/api/requirements',
       donations: '/api/donations',
-      institutions: '/api/institutions'
+      institutions: '/api/institutions',
+      analyticsSummary: '/api/analytics/summary',
+      analyticsInsights: '/api/analytics/insights'
     },
     ledgerBlocksCount: db.getLedgerBlocks().length,
     databaseEngine: db.getEngine(),
@@ -124,6 +127,7 @@ app.use('/api/delivery', deliveryRouter);
 app.use('/api/transit', transitRouter);
 app.use('/api/ledger', ledgerRouter);
 app.use('/api/admin', adminRouter);
+app.use('/api/analytics', analyticsRouter);
 
 async function startServer() {
   // Await database initialization (PostgreSQL schema check & sync if configured)

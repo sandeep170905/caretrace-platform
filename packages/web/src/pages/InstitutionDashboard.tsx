@@ -35,6 +35,7 @@ import { TactileQRScanner } from '../components/TactileQRScanner';
 import { ProofOfDeliveryModal } from '../components/ProofOfDeliveryModal';
 import { AnnouncementBanner } from '../components/AnnouncementBanner';
 import { DashboardSkeleton } from '../components/DashboardSkeleton';
+import { DonationInsights } from '../components/DonationInsights';
 
 interface InstitutionDashboardProps {
   user: User;
@@ -104,11 +105,11 @@ export const InstitutionDashboard: React.FC<InstitutionDashboardProps> = ({ user
   const [completedDonations, setCompletedDonations] = useState<Donation[]>([]);
   const [isScannerOpen, setIsScannerOpen] = useState<boolean>(false);
   const [selectedCertificate, setSelectedCertificate] = useState<ProofOfDeliveryCertificate | null>(null);
-  const [activeTab, setActiveTab] = useState<'DELIVERIES' | 'REQUIREMENTS' | 'CERTIFICATES'>('DELIVERIES');
+  const [activeTab, setActiveTab] = useState<'DELIVERIES' | 'REQUIREMENTS' | 'CERTIFICATES' | 'INSIGHTS'>('DELIVERIES');
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isTabSwitching, setIsTabSwitching] = useState<boolean>(false);
 
-  const handleTabSwitch = (tab: 'DELIVERIES' | 'REQUIREMENTS' | 'CERTIFICATES') => {
+  const handleTabSwitch = (tab: 'DELIVERIES' | 'REQUIREMENTS' | 'CERTIFICATES' | 'INSIGHTS') => {
     if (tab === activeTab) return;
     setIsTabSwitching(true);
     setActiveTab(tab);
@@ -463,6 +464,18 @@ export const InstitutionDashboard: React.FC<InstitutionDashboardProps> = ({ user
               {completedDonations.length}
             </span>
           </button>
+
+          <button
+            onClick={() => handleTabSwitch('INSIGHTS')}
+            className={`px-5 py-2.5 rounded-xl text-sm font-sans font-bold transition-all flex items-center space-x-2 shrink-0 min-h-[44px] ${
+              activeTab === 'INSIGHTS'
+                ? 'bg-surface-card text-teal-900 shadow-sm'
+                : 'text-slate-500 hover:text-slate-800'
+            }`}
+          >
+            <Sparkles className="w-4 h-4 text-teal-700" />
+            <span>Donation Insights</span>
+          </button>
         </div>
 
         {/* Dynamic Contextual Action Button */}
@@ -759,6 +772,11 @@ export const InstitutionDashboard: React.FC<InstitutionDashboardProps> = ({ user
             ))}
           </div>
         </div>
+      )}
+
+      {/* Section 4: Institution Scoped Donation Insights */}
+      {activeTab === 'INSIGHTS' && (
+        <DonationInsights institutionId={institution?.id} isSuperAdmin={false} />
       )}
       </>
       )}

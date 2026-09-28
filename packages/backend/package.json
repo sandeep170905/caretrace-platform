@@ -10,7 +10,8 @@
     "seed": "ts-node src/db/seed.ts",
     "seed:synthetic": "ts-node src/db/syntheticSeed.ts",
     "seed:synthetic:clear": "ts-node src/db/syntheticSeed.ts --clear",
-    "test": "ts-node src/testLedger.ts"
+    "test": "ts-node src/testLedger.ts",
+    "test:analytics": "ts-node src/testAnalytics.ts"
   },
   "dependencies": {
     "@caretrace/shared": "*",

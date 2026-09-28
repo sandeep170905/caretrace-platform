@@ -40,6 +40,7 @@ import {
 } from '../api/client';
 import { LedgerExplorer } from '../components/LedgerExplorer';
 import { DashboardSkeleton } from '../components/DashboardSkeleton';
+import { DonationInsights } from '../components/DonationInsights';
 
 interface AdminDashboardProps {
   user: User;
@@ -53,13 +54,13 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, refreshKey
   const [requirements, setRequirements] = useState<Requirement[]>([]);
   const [pendingDonations, setPendingDonations] = useState<Donation[]>([]);
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
-  const [activeTab, setActiveTab] = useState<'FRAUD_LOGS' | 'VERIFICATION_QUEUE' | 'COURIER_DISPATCH' | 'LEDGER_EXPLORER' | 'BROADCASTS'>('FRAUD_LOGS');
+  const [activeTab, setActiveTab] = useState<'FRAUD_LOGS' | 'VERIFICATION_QUEUE' | 'COURIER_DISPATCH' | 'LEDGER_EXPLORER' | 'BROADCASTS' | 'DONATION_INSIGHTS'>('FRAUD_LOGS');
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isTabSwitching, setIsTabSwitching] = useState<boolean>(false);
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
   const [dispatchMsg, setDispatchMsg] = useState<string | null>(null);
 
-  const handleTabSwitch = (tab: 'FRAUD_LOGS' | 'VERIFICATION_QUEUE' | 'COURIER_DISPATCH' | 'LEDGER_EXPLORER' | 'BROADCASTS') => {
+  const handleTabSwitch = (tab: 'FRAUD_LOGS' | 'VERIFICATION_QUEUE' | 'COURIER_DISPATCH' | 'LEDGER_EXPLORER' | 'BROADCASTS' | 'DONATION_INSIGHTS') => {
     if (tab === activeTab) return;
     setIsTabSwitching(true);
     setActiveTab(tab);
@@ -311,6 +312,18 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, refreshKey
         >
           <Megaphone className="w-3.5 h-3.5 text-teal-400" />
           <span>Broadcast Announcements ({announcements.filter(a => a.active).length})</span>
+        </button>
+
+        <button
+          onClick={() => handleTabSwitch('DONATION_INSIGHTS')}
+          className={`flex items-center space-x-2 px-4 py-2 rounded-xl text-xs font-bold transition-all shrink-0 ${
+            activeTab === 'DONATION_INSIGHTS'
+              ? 'bg-purple-900 text-white shadow-sm'
+              : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200'
+          }`}
+        >
+          <Sparkles className="w-3.5 h-3.5 text-teal-400" />
+          <span>Donation Insights (ML)</span>
         </button>
       </div>
 
@@ -856,6 +869,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, refreshKey
             )}
           </div>
         </div>
+      )}
+
+      {/* Tab 6: Donation Insights (ML Analytics Engine) */}
+      {activeTab === 'DONATION_INSIGHTS' && (
+        <DonationInsights isSuperAdmin={true} />
       )}
       </>
       )}
