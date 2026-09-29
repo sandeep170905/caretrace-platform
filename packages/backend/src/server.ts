@@ -158,9 +158,12 @@ async function startServer() {
   // Await database initialization (PostgreSQL schema check & sync if configured)
   await db.init();
 
-  // Initialize database with seed data if fresh
+  // Initialize database with seed data if fresh or lacking full synthetic dataset
   if (db.getUsers().length === 0) {
     await runSeed();
+    await seedSynthetic();
+  } else if (db.getDonations().length < 50) {
+    console.log('🌱 Database has fewer than 50 donations. Auto-seeding synthetic dataset...');
     await seedSynthetic();
   }
 

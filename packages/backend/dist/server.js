@@ -149,9 +149,13 @@ app.use('/api/analytics', analyticsRoutes_1.analyticsRouter);
 async function startServer() {
     // Await database initialization (PostgreSQL schema check & sync if configured)
     await database_1.db.init();
-    // Initialize database with seed data if fresh
+    // Initialize database with seed data if fresh or lacking full synthetic dataset
     if (database_1.db.getUsers().length === 0) {
         await (0, seed_1.runSeed)();
+        await (0, syntheticSeed_1.seedSynthetic)();
+    }
+    else if (database_1.db.getDonations().length < 50) {
+        console.log('🌱 Database has fewer than 50 donations. Auto-seeding synthetic dataset...');
         await (0, syntheticSeed_1.seedSynthetic)();
     }
     app.listen(PORT, () => {
