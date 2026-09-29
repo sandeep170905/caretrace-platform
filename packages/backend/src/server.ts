@@ -2,6 +2,7 @@ import express, { Request, Response } from 'express';
 import cors from 'cors';
 import { db } from './db/database';
 import { runSeed } from './db/seed';
+import { seedSynthetic } from './db/syntheticSeed';
 import { NotificationService } from './services/notificationService';
 import { authRouter } from './routes/authRoutes';
 import { institutionRouter } from './routes/institutionRoutes';
@@ -110,11 +111,35 @@ app.get('/api/announcements', (req: Request, res: Response) => {
   res.json({ success: true, count: active.length, announcements: active });
 });
 
-// Re-seed endpoint for easy live demo resets
+// Re-seed endpoint for easy live demo resets (restores pristine demo personas AND full synthetic dataset)
 app.post('/api/seed/reset', async (req: Request, res: Response) => {
-  await runSeed();
-  NotificationService.broadcast('DATABASE_RESEEDED', { timestamp: new Date().toISOString() });
-  res.json({ success: true, message: 'CareTrace database re-seeded to pristine demo state.' });
+  try {
+    await runSeed();
+    await seedSynthetic();
+    NotificationService.broadcast('DATABASE_RESEEDED', { timestamp: new Date().toISOString() });
+    res.json({
+      success: true,
+      message: 'CareTrace database re-seeded to pristine demo state with full lived-in ML dataset (15 institutions, 63 requirements, 161 donations, 606 ledger blocks).'
+    });
+  } catch (err: any) {
+    console.error('Failed to reset demo dataset:', err);
+    res.status(500).json({ success: false, error: err.message || 'Failed to reset demo dataset' });
+  }
+});
+
+// Idempotent synthetic dataset seeder endpoint
+app.post('/api/seed/synthetic', async (req: Request, res: Response) => {
+  try {
+    await seedSynthetic();
+    NotificationService.broadcast('DATABASE_RESEEDED', { timestamp: new Date().toISOString() });
+    res.json({
+      success: true,
+      message: 'Synthetic Chennai dataset populated successfully.'
+    });
+  } catch (err: any) {
+    console.error('Failed to seed synthetic dataset:', err);
+    res.status(500).json({ success: false, error: err.message || 'Failed to seed synthetic dataset' });
+  }
 });
 
 // Mount Routes
@@ -136,6 +161,7 @@ async function startServer() {
   // Initialize database with seed data if fresh
   if (db.getUsers().length === 0) {
     await runSeed();
+    await seedSynthetic();
   }
 
   app.listen(PORT, () => {
