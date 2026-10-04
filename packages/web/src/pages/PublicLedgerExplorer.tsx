@@ -32,7 +32,7 @@ const SAMPLE_DONATIONS = [
   { id: 'CT-2026-9042', title: 'School Uniform Sets & Notebooks', status: 'IN_TRANSIT', blocks: 2 },
   { id: 'CT-2026-5607', title: '₹1,00,000 Monetary UPI Fund', status: 'SETTLED', blocks: 2 },
   { id: 'CT-2026-8712', title: 'First-Aid Kits & Medical Supplies', status: 'CONFIRMED', blocks: 2 },
-  { id: 'CT-2026-8650', title: 'Ponni Boiled Rice Sacks (25kg)', status: 'CONFIRMED', blocks: 2 }
+  { id: 'CT-2026-8650', title: 'Boiled Rice Sacks (25kg)', status: 'CONFIRMED', blocks: 2 }
 ];
 
 export const PublicLedgerExplorer: React.FC<PublicLedgerExplorerProps> = ({

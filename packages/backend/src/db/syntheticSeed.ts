@@ -315,47 +315,38 @@ interface ItemTemplate {
   seasonMonths: number[]; // 0 = Jan, 11 = Dec
 }
 
-// Authentic Indian/Chennai Orphanage Needs Catalog (Groceries, First-Aid, Used/New Dresses, Stationery, Toiletries)
+// Authentic Tamil Nadu Orphanage & Shelter Needs Catalog (Brand-Free Essential Provisions & Daily Care)
 const ITEM_TEMPLATES: ItemTemplate[] = [
-  // EDUCATION (Peaks in May-June for school reopening)
-  { category: 'EDUCATION', title: 'Classmate Long Ruled Notebooks (192 pgs - Pack of 12)', unit: 'packs', baseQty: [35, 90], unitValInr: 360, seasonMonths: [4, 5, 6] },
-  { category: 'EDUCATION', title: 'Classmate Four-Line & Square Ruled Primary Notebooks', unit: 'packs', baseQty: [30, 70], unitValInr: 300, seasonMonths: [4, 5, 6] },
-  { category: 'EDUCATION', title: 'Camlin Mathematical Geometry Boxes & Exam Writing Pads', unit: 'kits', baseQty: [25, 60], unitValInr: 220, seasonMonths: [4, 5, 6] },
-  { category: 'EDUCATION', title: 'Apsara Pencil Bundles, Erasers & Camlin Blue Ball Pens', unit: 'boxes', baseQty: [30, 80], unitValInr: 240, seasonMonths: [4, 5, 6, 7] },
-  { category: 'EDUCATION', title: 'Durable School Backpacks & Stainless Steel Water Bottles', unit: 'sets', baseQty: [20, 50], unitValInr: 580, seasonMonths: [4, 5, 6] },
-  { category: 'EDUCATION', title: 'Tamil & English Illustrated Moral Story Books & Workbooks', unit: 'bundles', baseQty: [15, 40], unitValInr: 350, seasonMonths: [0, 4, 5, 8] },
+  // 1. FOOD & GROCERIES (Rice, Dal, Oil & Kitchen Essentials)
+  { category: 'FOOD', title: 'Boiled Rice Sacks (25kg Bags)', unit: 'bags', baseQty: [20, 50], unitValInr: 1300, seasonMonths: [0, 9, 10, 11] },
+  { category: 'FOOD', title: 'Monthly Grocery Provisions (Toor Dal, Cooking Oil, Atta & Pulses)', unit: 'kits', baseQty: [15, 35], unitValInr: 2200, seasonMonths: [0, 8, 9, 10] },
+  { category: 'FOOD', title: 'Daily Cooking Spices & Masala Pack (Chilli, Coriander, Turmeric)', unit: 'packs', baseQty: [20, 45], unitValInr: 450, seasonMonths: [0, 2, 6, 8] },
+  { category: 'FOOD', title: 'Nutritional Evening Snacks & Biscuit Packs', unit: 'bundles', baseQty: [25, 60], unitValInr: 550, seasonMonths: [1, 4, 7, 10] },
+  { category: 'FOOD', title: 'Festival Special Grocery Provisions (Raw Rice, Jaggery & Ghee)', unit: 'kits', baseQty: [20, 50], unitValInr: 950, seasonMonths: [0, 11] },
 
-  // CLOTHING & WEAR (Gently used daily wear, school uniforms, linen)
-  { category: 'CLOTHING', title: 'Gently Used Daily Wear Dresses & Frocks (Girls 4-14 yrs)', unit: 'bundles', baseQty: [25, 65], unitValInr: 350, seasonMonths: [1, 3, 5, 7] },
-  { category: 'CLOTHING', title: 'Gently Used Cotton T-Shirts & Bermuda Shorts (Boys 4-14 yrs)', unit: 'bundles', baseQty: [25, 65], unitValInr: 350, seasonMonths: [1, 3, 5, 7] },
-  { category: 'CLOTHING', title: 'Stitched School Uniform Sets (Navy Blue & White)', unit: 'pairs', baseQty: [30, 80], unitValInr: 520, seasonMonths: [4, 5, 6] },
-  { category: 'CLOTHING', title: 'Pure Cotton Bedsheets & Pillow Covers (Hostel Cots)', unit: 'sets', baseQty: [20, 60], unitValInr: 320, seasonMonths: [9, 10, 11, 0] },
-  { category: 'CLOTHING', title: 'Cotton Bath Towels (Thorthu / Gamcha) 10-Packs', unit: 'packs', baseQty: [20, 50], unitValInr: 420, seasonMonths: [3, 4, 8, 9] },
-  { category: 'CLOTHING', title: 'Paragon / Relaxo Rubber Slippers & Chappals', unit: 'pairs', baseQty: [30, 75], unitValInr: 160, seasonMonths: [4, 5, 6, 7] },
-  { category: 'CLOTHING', title: 'Warm Cotton Blankets & Quilted Shawls (Winter/Monsoon)', unit: 'pieces', baseQty: [25, 60], unitValInr: 420, seasonMonths: [9, 10, 11, 0] },
+  // 2. CLOTHING & BEDDING (Gently Used Dresses, Daily Wear & Linen)
+  { category: 'CLOTHING', title: 'Gently Used Clean Daily Wear Dresses & Frocks (Girls 4-14 yrs)', unit: 'bundles', baseQty: [25, 65], unitValInr: 350, seasonMonths: [1, 3, 5, 7] },
+  { category: 'CLOTHING', title: 'Gently Used Clean Cotton Shirts & Shorts (Boys 4-14 yrs)', unit: 'bundles', baseQty: [25, 65], unitValInr: 350, seasonMonths: [1, 3, 5, 7] },
+  { category: 'CLOTHING', title: 'Stitched School Uniform Sets (Daily Wear)', unit: 'pairs', baseQty: [30, 80], unitValInr: 480, seasonMonths: [4, 5, 6] },
+  { category: 'CLOTHING', title: 'Cotton Bedsheets, Mats & Pillow Covers (Hostel Cots)', unit: 'sets', baseQty: [20, 60], unitValInr: 320, seasonMonths: [9, 10, 11, 0] },
+  { category: 'CLOTHING', title: 'Daily Wear Rubber Chappals & Slippers (All Sizes)', unit: 'pairs', baseQty: [30, 75], unitValInr: 150, seasonMonths: [4, 5, 6, 7] },
+  { category: 'CLOTHING', title: 'Warm Blankets & Shawls (Winter & Monsoon Care)', unit: 'pieces', baseQty: [25, 60], unitValInr: 380, seasonMonths: [9, 10, 11, 0] },
 
-  // FOOD & GROCERIES (Chennai/Tamil Nadu Orphanage & Illam daily provisions)
-  { category: 'FOOD', title: 'Ponni Boiled Rice Sacks (25kg Bags)', unit: 'bags', baseQty: [20, 50], unitValInr: 1350, seasonMonths: [0, 9, 10, 11] },
-  { category: 'FOOD', title: 'Toor Dal & Sunflower Cooking Oil (15L Tins)', unit: 'combos', baseQty: [15, 35], unitValInr: 2100, seasonMonths: [0, 8, 9, 10] },
-  { category: 'FOOD', title: 'Chakki Fresh Atta & Semiya / Rava Vermicelli', unit: 'bundles', baseQty: [20, 45], unitValInr: 650, seasonMonths: [0, 2, 6, 8] },
-  { category: 'FOOD', title: 'Aachi / Sakthi Sambar Masala & Turmeric Packs', unit: 'packs', baseQty: [25, 60], unitValInr: 450, seasonMonths: [0, 1, 6, 10] },
-  { category: 'FOOD', title: 'Aavin Milk Powder & Parle-G / Marie Biscuit Cartons', unit: 'cartons', baseQty: [30, 80], unitValInr: 580, seasonMonths: [1, 4, 7, 10] },
-  { category: 'FOOD', title: 'Sundal Kala Chana, Green Moong & Groundnut Packs', unit: 'packs', baseQty: [20, 50], unitValInr: 520, seasonMonths: [2, 5, 8, 11] },
-  { category: 'FOOD', title: 'Pongal Festival Grocery Kit (Raw Rice, Jaggery, Ghee & Cashews)', unit: 'kits', baseQty: [25, 60], unitValInr: 950, seasonMonths: [0, 11] },
+  // 3. MEDICINE & FIRST-AID (Dispensary Essentials)
+  { category: 'MEDICINE', title: 'First-Aid & Dispensary Care Kit (Antiseptic, Cotton Rolls, Bandages)', unit: 'kits', baseQty: [15, 40], unitValInr: 450, seasonMonths: [5, 6, 8, 9, 10] },
+  { category: 'MEDICINE', title: 'Basic Fever & Pediatric Healthcare Syrups', unit: 'boxes', baseQty: [25, 60], unitValInr: 320, seasonMonths: [6, 8, 9, 10, 11] },
+  { category: 'MEDICINE', title: 'ORS Electrolyte Sachets & Multi-Vitamin Tonics', unit: 'packs', baseQty: [25, 60], unitValInr: 350, seasonMonths: [1, 3, 6, 9] },
+  { category: 'MEDICINE', title: 'Mosquito Repellent Vaporizers & Coils (Monsoon Protection)', unit: 'packs', baseQty: [20, 50], unitValInr: 260, seasonMonths: [8, 9, 10, 11, 0] },
 
-  // MEDICINE & FIRST-AID (Dispensary essentials for children's homes)
-  { category: 'MEDICINE', title: 'Dispensary First-Aid Kit (Dettol 500ml, Cotton Rolls & Band-Aids)', unit: 'kits', baseQty: [15, 40], unitValInr: 480, seasonMonths: [5, 6, 8, 9, 10] },
-  { category: 'MEDICINE', title: 'Dolo-650 Tablets & Paracetamol Pediatric Fever Syrups', unit: 'boxes', baseQty: [25, 60], unitValInr: 320, seasonMonths: [6, 8, 9, 10, 11] },
-  { category: 'MEDICINE', title: 'Electral ORS Sachets & Zinc Drops (Monsoon Care)', unit: 'packs', baseQty: [30, 75], unitValInr: 350, seasonMonths: [1, 3, 6, 9] },
-  { category: 'MEDICINE', title: 'GoodKnight Liquid Vaporizers & Mosquito Coil Packs', unit: 'packs', baseQty: [20, 50], unitValInr: 280, seasonMonths: [8, 9, 10, 11, 0] },
-  { category: 'MEDICINE', title: 'Moov / Volini Pain Relief Balm & Crepe Bandage Rolls', unit: 'packs', baseQty: [15, 40], unitValInr: 320, seasonMonths: [5, 7, 9, 11] },
+  // 4. EDUCATION & STATIONERY (School Reopening & Term Needs)
+  { category: 'EDUCATION', title: 'School Ruled Notebook Bundles (192 pgs - Pack of 12)', unit: 'packs', baseQty: [35, 90], unitValInr: 350, seasonMonths: [4, 5, 6] },
+  { category: 'EDUCATION', title: 'Student Writing Stationery Combo (Pens, Pencils, Erasers & Rulers)', unit: 'boxes', baseQty: [30, 75], unitValInr: 220, seasonMonths: [4, 5, 6, 7] },
+  { category: 'EDUCATION', title: 'School Backpacks & Stainless Steel Water Bottles', unit: 'sets', baseQty: [20, 50], unitValInr: 480, seasonMonths: [4, 5, 6] },
 
-  // SUPPLIES & HYGIENE (Monthly sanitary & toiletries)
-  { category: 'SUPPLIES', title: 'Medimix / Lifebuoy Bath Soap Family Packs (Pack of 12)', unit: 'packs', baseQty: [25, 60], unitValInr: 320, seasonMonths: [2, 5, 8, 11] },
-  { category: 'SUPPLIES', title: 'Surf Excel / Rin Washing Powder & Detergent Bars', unit: 'combos', baseQty: [20, 50], unitValInr: 440, seasonMonths: [1, 4, 7, 10] },
-  { category: 'SUPPLIES', title: 'Parachute 100% Pure Coconut Hair Oil (500ml Bottles)', unit: 'bottles', baseQty: [20, 50], unitValInr: 190, seasonMonths: [0, 3, 6, 9] },
-  { category: 'SUPPLIES', title: 'Colgate Strong Toothpaste & Toothbrush Family Combos', unit: 'combos', baseQty: [25, 60], unitValInr: 250, seasonMonths: [2, 5, 8, 11] },
-  { category: 'SUPPLIES', title: 'Whisper / Stayfree Sanitary Napkin Multi-Packs', unit: 'packs', baseQty: [35, 80], unitValInr: 220, seasonMonths: [0, 3, 6, 9] }
+  // 5. EVERYDAY HYGIENE & CLEANING (Whole Essential Kits - No Silly Micro Items)
+  { category: 'SUPPLIES', title: 'Everyday Hygiene Essentials Kit (Bathing Soaps, Toothpaste, Brushes & Hair Oil)', unit: 'kits', baseQty: [30, 75], unitValInr: 350, seasonMonths: [0, 3, 6, 9] },
+  { category: 'SUPPLIES', title: 'Washing & Cleaning Supplies Kit (Detergent Powder, Laundry Bars & Cleaning Cloths)', unit: 'combos', baseQty: [20, 50], unitValInr: 420, seasonMonths: [1, 4, 7, 10] },
+  { category: 'SUPPLIES', title: 'Sanitary Hygiene Care Multi-Packs', unit: 'packs', baseQty: [30, 80], unitValInr: 200, seasonMonths: [0, 3, 6, 9] }
 ];
 
 export async function seedSynthetic(): Promise<void> {
@@ -722,7 +713,7 @@ export async function seedSynthetic(): Promise<void> {
         status,
         pickupAgentId: isMonetary ? undefined : agent.id,
         pickupAgentName: isMonetary ? undefined : agent.name,
-        pickupAddress: `Flat ${rng.randInt(1, 12)}B, ${donor.name} Res., ${rng.pick(CHENNAI_RESIDENTIAL_AREAS)}, Chennai`,
+        pickupAddress: `Door No. ${rng.randInt(1, 48)}, ${donor.name} Res., ${rng.pick(CHENNAI_RESIDENTIAL_AREAS)}, Chennai`,
         destinationAddress: `${inst.address}, ${inst.city}, ${inst.state}`,
         pickupCoordinates: { latitude: inst.latitude + (rng.next() - 0.5) * 0.05, longitude: inst.longitude + (rng.next() - 0.5) * 0.05 },
         destinationCoordinates: { latitude: inst.latitude, longitude: inst.longitude },

@@ -796,7 +796,7 @@ export const InstitutionDashboard: React.FC<InstitutionDashboardProps> = ({ user
                 <input
                   type="text"
                   required
-                  placeholder="e.g. 50 Bags Ponni Boiled Rice & Toor Dal"
+                  placeholder="e.g. 50 Bags Boiled Rice & Toor Dal"
                   value={reqTitle}
                   onChange={(e) => setReqTitle(e.target.value)}
                   className="w-full px-4 py-3 bg-surface-canvas border border-surface-border rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-600 shadow-inner transition-all"

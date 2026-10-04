@@ -149,8 +149,8 @@ async function runSeed() {
         institutionId: anbuIllam.id,
         institutionName: anbuIllam.name,
         category: 'FOOD',
-        title: 'Monthly Staple Groceries (Ponni Boiled Rice Bags & Toor Dal)',
-        description: 'Fortified Ponni boiled rice (25kg sacks) and unpolished toor dal for monthly kitchen nutrition for 48 resident children.',
+        title: 'Monthly Staple Groceries (Boiled Rice Bags & Toor Dal)',
+        description: 'Fortified boiled rice (25kg sacks) and unpolished toor dal for monthly kitchen nutrition for 48 resident children.',
         targetQuantity: 100,
         unit: 'bags',
         fulfilledQuantity: 90,
@@ -246,7 +246,7 @@ async function runSeed() {
         institutionId: nanbanShelter.id,
         institutionName: nanbanShelter.name,
         category: 'FOOD',
-        title: '500 Bags Premium Ponni Boiled Rice (25kg Bulk Bags)',
+        title: '500 Bags Boiled Rice (25kg Bulk Bags)',
         description: 'Emergency bulk procurement requisition of 500 rice bags (12,500 kg) for provisional storage.',
         targetQuantity: 500,
         unit: 'bags',
@@ -422,7 +422,7 @@ async function runSeed() {
         institutionName: anbuIllam.name,
         type: 'PHYSICAL_GOODS',
         items: [
-            { name: 'Ponni Boiled Rice Bags (25kg Sacks)', quantity: 30, unit: 'bags', estimatedValueInr: 45000 }
+            { name: 'Boiled Rice Bags (25kg Sacks)', quantity: 30, unit: 'bags', estimatedValueInr: 45000 }
         ],
         status: 'CONFIRMED',
         pickupAgentId: pickupAgent.id,
@@ -435,7 +435,7 @@ async function runSeed() {
         qrCodePayload: qrPayloadKarthik,
         pickupTimestamp: '2026-02-04T08:00:00.000Z',
         deliveryTimestamp: '2026-02-04T12:30:00.000Z',
-        confirmationNotes: 'Sister V. Shanthi (Director) - 30 sacks of Ponni rice received and stocked in pantry.',
+        confirmationNotes: 'Sister V. Shanthi (Director) - 30 sacks of boiled rice received and stocked in pantry.',
         recipientSignature: 'DIGITAL_SIG:SISTER_SHANTHI_ANBU_CARE_2026',
         createdAt: '2026-02-03T16:00:00.000Z',
         updatedAt: '2026-02-04T12:30:00.000Z'
