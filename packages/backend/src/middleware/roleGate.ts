@@ -75,7 +75,7 @@ export function reviewerRoleGate(req: Request, res: Response, next: NextFunction
 export function requireRole(allowedRoles: UserRole[]) {
   return (req: Request, res: Response, next: NextFunction): void => {
     const user = (req as any).user;
-    if (user && !allowedRoles.includes(user.role as UserRole)) {
+    if (user && !allowedRoles.includes(user.role)) {
       res.status(403).json({
         success: false,
         error: `Forbidden: Role ${user.role} is not permitted to access this resource.`,
@@ -86,3 +86,4 @@ export function requireRole(allowedRoles: UserRole[]) {
     next();
   };
 }
+
