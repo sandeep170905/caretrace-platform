@@ -1,7 +1,7 @@
 import express, { Request, Response } from 'express';
 import cors from 'cors';
 import { db } from './db/database';
-import { runSeed } from './db/seed';
+import { runSeed, seedReviewerUser } from './db/seed';
 import { seedSynthetic } from './db/syntheticSeed';
 import { NotificationService } from './services/notificationService';
 import { authRouter } from './routes/authRoutes';
@@ -14,6 +14,7 @@ import { transitRouter } from './routes/transitRoutes';
 import { ledgerRouter } from './routes/ledgerRoutes';
 import { adminRouter } from './routes/adminRoutes';
 import { analyticsRouter } from './routes/analyticsRoutes';
+import { reviewerRoleGate } from './middleware/roleGate';
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -142,6 +143,9 @@ app.post('/api/seed/synthetic', async (req: Request, res: Response) => {
   }
 });
 
+// Mount RoleGate / FeatureGate Middleware for REVIEWER_DEMO access control
+app.use('/api', reviewerRoleGate);
+
 // Mount Routes
 app.use('/api/auth', authRouter);
 app.use('/api/institutions', institutionRouter);
@@ -158,10 +162,14 @@ async function startServer() {
   // Await database initialization (PostgreSQL schema check & sync if configured)
   await db.init();
 
+  // Ensure Reviewer Demo persona is seeded for 1-click evaluation
+  await seedReviewerUser();
+
   // Initialize database with seed data if fresh or lacking full synthetic dataset
   if (db.getUsers().length === 0) {
     await runSeed();
     await seedSynthetic();
+    await seedReviewerUser();
   } else if (db.getDonations().length < 50) {
     console.log('🌱 Database has fewer than 50 donations. Auto-seeding synthetic dataset...');
     await seedSynthetic();

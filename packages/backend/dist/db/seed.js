@@ -1,11 +1,25 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.seedReviewerUser = seedReviewerUser;
 exports.runSeed = runSeed;
 const database_1 = require("./database");
 const ledgerService_1 = require("../services/ledgerService");
 const qrService_1 = require("../services/qrService");
 const authService_1 = require("../services/authService");
-async function runSeed() {
+async function seedReviewerUser() {
+    const demoPasswordHash = authService_1.AuthService.hashPassword('caretrace123');
+    const reviewerUser = {
+        id: 'user-reviewer-demo',
+        name: 'Academic Reviewer',
+        email: 'reviewer@demo.local',
+        role: 'REVIEWER_DEMO',
+        phone: '+91 99999 00000',
+        avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
+        passwordHash: demoPasswordHash
+    };
+    await database_1.db.upsertUser(reviewerUser);
+}
+async function runSeed(includeReviewer = false) {
     console.log('🌱 Seeding CareTrace India/Chennai-localized demo dataset...');
     await database_1.db.reset();
     const demoPasswordHash = authService_1.AuthService.hashPassword('caretrace123');
@@ -76,6 +90,9 @@ async function runSeed() {
     await database_1.db.upsertUser(institutionDirector);
     await database_1.db.upsertUser(pickupAgent);
     await database_1.db.upsertUser(adminUser);
+    if (includeReviewer) {
+        await seedReviewerUser();
+    }
     // 2. Institutions (Chennai-area, plausible fictional child shelters)
     const anbuIllam = {
         id: 'inst-anbu',
@@ -505,5 +522,5 @@ async function runSeed() {
 }
 // Run if called directly
 if (require.main === module) {
-    runSeed().catch(console.error);
+    runSeed(true).catch(console.error);
 }

@@ -7,15 +7,20 @@ import { NotificationService } from '../services/notificationService';
 export const authRouter = Router();
 
 // Get list of demo user personas for fast multi-role testing (kept for quick demo purposes)
-authRouter.get('/personas', (req: Request, res: Response) => {
-  const users = db.getUsers();
-  const primaryIds = ['user-donor-ajith', 'user-inst-akash', 'user-agent-sakthivel', 'user-admin-sandeep'];
+authRouter.get('/personas', async (req: Request, res: Response) => {
+  let users = db.getUsers();
+  if (!users.find(u => u.id === 'user-reviewer-demo')) {
+    const { seedReviewerUser } = require('../db/seed');
+    await seedReviewerUser();
+    users = db.getUsers();
+  }
+  const primaryIds = ['user-donor-ajith', 'user-inst-akash', 'user-agent-sakthi', 'user-admin-sandeep', 'user-reviewer-demo'];
   const personas = primaryIds
     .map(id => users.find(u => u.id === id))
     .filter((u): u is typeof users[0] => Boolean(u))
     .map(u => AuthService.sanitizeUser(u));
 
-  res.json({ success: true, personas: personas.length > 0 ? personas : users.slice(0, 4).map(AuthService.sanitizeUser) });
+  res.json({ success: true, personas: personas.length > 0 ? personas : users.slice(0, 5).map(AuthService.sanitizeUser) });
 });
 
 // Get all users (sanitized)
@@ -151,13 +156,19 @@ authRouter.post('/register-institution', async (req: Request, res: Response) => 
 });
 
 // Real Credential Login & Demo Persona Switch
-authRouter.post('/login', (req: Request, res: Response) => {
+authRouter.post('/login', async (req: Request, res: Response) => {
   const { email, password } = req.body;
   if (!email) {
     return res.status(400).json({ success: false, error: 'Email is required' });
   }
 
-  const user = db.getUserByEmail(email);
+  let user = db.getUserByEmail(email);
+  if (!user && email.toLowerCase() === 'reviewer@demo.local') {
+    const { seedReviewerUser } = require('../db/seed');
+    await seedReviewerUser();
+    user = db.getUserByEmail(email);
+  }
+
   if (!user) {
     return res.status(404).json({ success: false, error: 'User not found with email: ' + email });
   }

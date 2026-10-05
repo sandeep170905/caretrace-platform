@@ -19,6 +19,7 @@ const transitRoutes_1 = require("./routes/transitRoutes");
 const ledgerRoutes_1 = require("./routes/ledgerRoutes");
 const adminRoutes_1 = require("./routes/adminRoutes");
 const analyticsRoutes_1 = require("./routes/analyticsRoutes");
+const roleGate_1 = require("./middleware/roleGate");
 const app = (0, express_1.default)();
 const PORT = process.env.PORT || 5000;
 const allowedOriginsEnv = process.env.CORS_ORIGIN;
@@ -135,6 +136,8 @@ app.post('/api/seed/synthetic', async (req, res) => {
         res.status(500).json({ success: false, error: err.message || 'Failed to seed synthetic dataset' });
     }
 });
+// Mount RoleGate / FeatureGate Middleware for REVIEWER_DEMO access control
+app.use('/api', roleGate_1.reviewerRoleGate);
 // Mount Routes
 app.use('/api/auth', authRoutes_1.authRouter);
 app.use('/api/institutions', institutionRoutes_1.institutionRouter);
@@ -149,10 +152,13 @@ app.use('/api/analytics', analyticsRoutes_1.analyticsRouter);
 async function startServer() {
     // Await database initialization (PostgreSQL schema check & sync if configured)
     await database_1.db.init();
+    // Ensure Reviewer Demo persona is seeded for 1-click evaluation
+    await (0, seed_1.seedReviewerUser)();
     // Initialize database with seed data if fresh or lacking full synthetic dataset
     if (database_1.db.getUsers().length === 0) {
         await (0, seed_1.runSeed)();
         await (0, syntheticSeed_1.seedSynthetic)();
+        await (0, seed_1.seedReviewerUser)();
     }
     else if (database_1.db.getDonations().length < 50) {
         console.log('🌱 Database has fewer than 50 donations. Auto-seeding synthetic dataset...');

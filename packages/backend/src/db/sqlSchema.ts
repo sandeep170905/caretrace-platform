@@ -78,10 +78,18 @@ export async function initSqlSchema(db: Knex): Promise<void> {
       t.string('ml_risk_tier').notNullable();
       t.text('risk_flags_json');
       t.text('documents_json');
+      t.string('deadline');
       t.string('created_at').notNullable();
       t.string('updated_at').notNullable();
       t.boolean('is_synthetic').notNullable().defaultTo(false);
     });
+  } else {
+    const hasDeadline = await db.schema.hasColumn('requirements', 'deadline');
+    if (!hasDeadline) {
+      await db.schema.alterTable('requirements', (t) => {
+        t.string('deadline').nullable();
+      });
+    }
   }
 
   // 4. Donations table
@@ -288,6 +296,7 @@ export function requirementToRow(req: Requirement): any {
     ml_risk_tier: req.mlRiskTier || 'LOW',
     risk_flags_json: JSON.stringify(req.riskFlags || []),
     documents_json: JSON.stringify(req.documents || []),
+    deadline: req.deadline || null,
     created_at: req.createdAt || new Date().toISOString(),
     updated_at: req.updatedAt || new Date().toISOString(),
     is_synthetic: Boolean(req.isSynthetic)
@@ -312,6 +321,7 @@ export function rowToRequirement(r: any): Requirement {
     mlRiskTier: r.ml_risk_tier,
     riskFlags: r.risk_flags_json ? JSON.parse(r.risk_flags_json) : [],
     documents: r.documents_json ? JSON.parse(r.documents_json) : [],
+    deadline: r.deadline || undefined,
     createdAt: r.created_at,
     updatedAt: r.updated_at,
     isSynthetic: Boolean(r.is_synthetic)

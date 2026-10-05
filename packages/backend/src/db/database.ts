@@ -148,6 +148,7 @@ export class Database {
         ml_risk_tier TEXT DEFAULT 'LOW',
         risk_flags_json TEXT,
         documents_json TEXT,
+        deadline TEXT,
         created_at TEXT NOT NULL,
         updated_at TEXT NOT NULL,
         is_synthetic INTEGER NOT NULL DEFAULT 0
@@ -236,6 +237,15 @@ export class Database {
       } catch (e) {
         // Table might not exist yet or already altered
       }
+    }
+
+    try {
+      const reqInfo = this.sqlite.prepare(`PRAGMA table_info(requirements)`).all() as any[];
+      if (!reqInfo.some(c => c.name === 'deadline')) {
+        this.sqlite.exec(`ALTER TABLE requirements ADD COLUMN deadline TEXT;`);
+      }
+    } catch (e) {
+      // Table might not exist yet or already altered
     }
   }
 
@@ -545,12 +555,12 @@ export class Database {
       INSERT INTO requirements (
         id, institution_id, institution_name, category, title, description,
         target_quantity, unit, fulfilled_quantity, urgency, status,
-        authenticity_score, ml_risk_score, ml_risk_tier, risk_flags_json, documents_json,
+        authenticity_score, ml_risk_score, ml_risk_tier, risk_flags_json, documents_json, deadline,
         created_at, updated_at, is_synthetic
       ) VALUES (
         @id, @institution_id, @institution_name, @category, @title, @description,
         @target_quantity, @unit, @fulfilled_quantity, @urgency, @status,
-        @authenticity_score, @ml_risk_score, @ml_risk_tier, @risk_flags_json, @documents_json,
+        @authenticity_score, @ml_risk_score, @ml_risk_tier, @risk_flags_json, @documents_json, @deadline,
         @created_at, @updated_at, @is_synthetic
       ) ON CONFLICT(id) DO UPDATE SET
         institution_id = excluded.institution_id,
@@ -568,6 +578,7 @@ export class Database {
         ml_risk_tier = excluded.ml_risk_tier,
         risk_flags_json = excluded.risk_flags_json,
         documents_json = excluded.documents_json,
+        deadline = excluded.deadline,
         updated_at = excluded.updated_at,
         is_synthetic = excluded.is_synthetic;
     `);

@@ -17,7 +17,8 @@ import {
   Menu,
   X,
   ChevronRight,
-  Check
+  Check,
+  BookOpen
 } from 'lucide-react';
 
 interface NavbarProps {
@@ -82,6 +83,8 @@ export const Navbar: React.FC<NavbarProps> = ({
         return <Truck className="w-4 h-4 text-amber-600" />;
       case 'ADMIN':
         return <Lock className="w-4 h-4 text-purple-600" />;
+      case 'REVIEWER_DEMO':
+        return <BookOpen className="w-4 h-4 text-sky-600" />;
       default:
         return <UserCheck className="w-4 h-4" />;
     }
@@ -97,6 +100,8 @@ export const Navbar: React.FC<NavbarProps> = ({
         return 'pill-amber';
       case 'ADMIN':
         return 'pill-slate';
+      case 'REVIEWER_DEMO':
+        return 'pill-teal';
       default:
         return 'pill-slate';
     }
@@ -169,7 +174,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               }`}
             >
               <LayoutDashboard className="w-3.5 h-3.5 text-teal-700" />
-              <span>Operations Portal</span>
+              <span>{currentPersona?.role === 'REVIEWER_DEMO' ? 'Reviewer Portal' : 'Operations Portal'}</span>
             </button>
           </div>
 
@@ -385,8 +390,8 @@ export const Navbar: React.FC<NavbarProps> = ({
                       <LayoutDashboard className="w-4 h-4" />
                     </div>
                     <div>
-                      <span className="text-sm block font-sans">Operations Portal</span>
-                      <span className="text-[11px] text-slate-500 font-sans font-normal">Active role dashboard & consignments</span>
+                      <span className="text-sm block font-sans">{currentPersona?.role === 'REVIEWER_DEMO' ? 'Reviewer Portal' : 'Operations Portal'}</span>
+                      <span className="text-[11px] text-slate-500 font-sans font-normal">{currentPersona?.role === 'REVIEWER_DEMO' ? 'Base paper donation history & status' : 'Active role dashboard & consignments'}</span>
                     </div>
                   </div>
                   {activeNavTab === 'PORTAL' && (

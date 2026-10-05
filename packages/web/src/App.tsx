@@ -9,7 +9,8 @@ import { InstitutionDashboard } from './pages/InstitutionDashboard';
 import { AgentPortal } from './pages/AgentPortal';
 import { AdminDashboard } from './pages/AdminDashboard';
 import { PublicLedgerExplorer } from './pages/PublicLedgerExplorer';
-import { Bell, CheckCircle2, ShieldCheck, X, HeartHandshake, Building2, Truck, Lock, LogIn, UserPlus, ArrowRight } from 'lucide-react';
+import { RoleGate } from './components/RoleGate';
+import { Bell, CheckCircle2, ShieldCheck, X, HeartHandshake, Building2, Truck, Lock, LogIn, UserPlus, ArrowRight, BookOpen } from 'lucide-react';
 
 export const App: React.FC = () => {
   const [personas, setPersonas] = useState<User[]>([]);
@@ -263,7 +264,7 @@ export const App: React.FC = () => {
           <>
             {currentPersona ? (
               <>
-                {currentPersona.role === 'DONOR' && (
+                {(currentPersona.role === 'DONOR' || currentPersona.role === 'REVIEWER_DEMO') && (
                   <DonorDashboard
                     user={currentPersona}
                     refreshKey={refreshKey}
@@ -275,10 +276,14 @@ export const App: React.FC = () => {
                   <InstitutionDashboard user={currentPersona} refreshKey={refreshKey} />
                 )}
                 {currentPersona.role === 'PICKUP_AGENT' && (
-                  <AgentPortal user={currentPersona} refreshKey={refreshKey} />
+                  <RoleGate currentRole={currentPersona.role} blockedRoles={['REVIEWER_DEMO']} featureTitle="Logistics Courier Dispatch Portal">
+                    <AgentPortal user={currentPersona} refreshKey={refreshKey} />
+                  </RoleGate>
                 )}
                 {currentPersona.role === 'ADMIN' && (
-                  <AdminDashboard user={currentPersona} refreshKey={refreshKey} />
+                  <RoleGate currentRole={currentPersona.role} blockedRoles={['REVIEWER_DEMO']} featureTitle="Executive Risk & ML Analytics Dashboard">
+                    <AdminDashboard user={currentPersona} refreshKey={refreshKey} />
+                  </RoleGate>
                 )}
               </>
             ) : (
@@ -356,6 +361,7 @@ export const App: React.FC = () => {
                         <div className="flex items-center justify-between mb-3">
                           <div className="w-9 h-9 rounded-xl bg-slate-100 flex items-center justify-center text-slate-700 group-hover:bg-teal-100 group-hover:text-teal-800 transition-colors">
                             {p.role === 'DONOR' && <HeartHandshake className="w-4 h-4" />}
+                            {p.role === 'REVIEWER_DEMO' && <BookOpen className="w-4 h-4 text-teal-700" />}
                             {p.role === 'INSTITUTION' && <Building2 className="w-4 h-4" />}
                             {p.role === 'PICKUP_AGENT' && <Truck className="w-4 h-4" />}
                             {p.role === 'ADMIN' && <Lock className="w-4 h-4" />}

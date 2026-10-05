@@ -124,6 +124,7 @@ export const InstitutionDashboard: React.FC<InstitutionDashboardProps> = ({ user
   const [reqUnit, setReqUnit] = useState('boxes');
   const [reqUrgency, setReqUrgency] = useState<'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL'>('HIGH');
   const [reqDescription, setReqDescription] = useState('');
+  const [reqDeadline, setReqDeadline] = useState('');
   const [scoringFeedback, setScoringFeedback] = useState<any | null>(null);
   const [isSubmittingReq, setIsSubmittingReq] = useState(false);
 
@@ -161,6 +162,7 @@ export const InstitutionDashboard: React.FC<InstitutionDashboardProps> = ({ user
   const [editUnit, setEditUnit] = useState('units');
   const [editUrgency, setEditUrgency] = useState<'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL'>('HIGH');
   const [editDescription, setEditDescription] = useState('');
+  const [editDeadline, setEditDeadline] = useState('');
   const [isUpdatingReq, setIsUpdatingReq] = useState(false);
 
   const loadData = async () => {
@@ -216,6 +218,7 @@ export const InstitutionDashboard: React.FC<InstitutionDashboardProps> = ({ user
         unit: reqUnit,
         urgency: reqUrgency,
         description: reqDescription,
+        deadline: reqDeadline ? new Date(reqDeadline).toISOString() : undefined,
         documents: []
       };
 
@@ -227,6 +230,7 @@ export const InstitutionDashboard: React.FC<InstitutionDashboardProps> = ({ user
           setScoringFeedback(null);
           setReqTitle('');
           setReqDescription('');
+          setReqDeadline('');
           loadData();
         }, 1500);
       }
@@ -245,6 +249,7 @@ export const InstitutionDashboard: React.FC<InstitutionDashboardProps> = ({ user
     setEditUnit(req.unit);
     setEditUrgency(req.urgency);
     setEditDescription(req.description);
+    setEditDeadline(req.deadline ? req.deadline.split('T')[0] : '');
   };
 
   const handleUpdateRequirementSubmit = async (e: React.FormEvent) => {
@@ -258,7 +263,8 @@ export const InstitutionDashboard: React.FC<InstitutionDashboardProps> = ({ user
         targetQuantity: Number(editQuantity),
         unit: editUnit,
         urgency: editUrgency,
-        description: editDescription
+        description: editDescription,
+        deadline: editDeadline ? new Date(editDeadline).toISOString() : undefined
       });
       setEditingReq(null);
       await loadData();
@@ -871,6 +877,16 @@ export const InstitutionDashboard: React.FC<InstitutionDashboardProps> = ({ user
                 />
               </div>
 
+              <div>
+                <label className="block text-slate-700 font-bold mb-1.5">Campaign Deadline / Target Date (Optional):</label>
+                <input
+                  type="date"
+                  value={reqDeadline}
+                  onChange={(e) => setReqDeadline(e.target.value)}
+                  className="w-full px-4 py-3 bg-surface-canvas border border-surface-border rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-600 shadow-inner transition-all font-sans"
+                />
+              </div>
+
               {liveScoring && (
                 <div className={`p-4 rounded-2xl border transition-all shadow-sm ${
                   liveScoring.score >= 80
@@ -1031,6 +1047,16 @@ export const InstitutionDashboard: React.FC<InstitutionDashboardProps> = ({ user
                   value={editDescription}
                   onChange={(e) => setEditDescription(e.target.value)}
                   className="w-full px-4 py-3 bg-surface-canvas border border-surface-border rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-600 shadow-inner transition-all"
+                />
+              </div>
+
+              <div>
+                <label className="block text-slate-700 font-bold mb-1.5">Campaign Deadline / Target Date (Optional):</label>
+                <input
+                  type="date"
+                  value={editDeadline}
+                  onChange={(e) => setEditDeadline(e.target.value)}
+                  className="w-full px-4 py-3 bg-surface-canvas border border-surface-border rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-600 shadow-inner transition-all font-sans"
                 />
               </div>
 

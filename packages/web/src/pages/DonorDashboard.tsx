@@ -29,6 +29,7 @@ import { PledgeMonetaryModal } from '../components/PledgeMonetaryModal';
 import { TaxExemptionReceiptModal } from '../components/TaxExemptionReceiptModal';
 import { AnnouncementBanner } from '../components/AnnouncementBanner';
 import { DashboardSkeleton } from '../components/DashboardSkeleton';
+import { RoleGate } from '../components/RoleGate';
 
 interface DonorDashboardProps {
   user: User;
@@ -484,13 +485,15 @@ export const DonorDashboard: React.FC<DonorDashboardProps> = ({
                   />
 
                   {selectedDonation.donation.type !== 'FUNDS' && !selectedDonation.donation.monetaryAmountInr && (
-                    <div className="mt-6">
-                      <LiveTransitMap
-                        donation={selectedDonation.donation}
-                        initialTelemetry={selectedDonation.telemetry}
-                        onStatusAdvanced={loadData}
-                      />
-                    </div>
+                    <RoleGate currentRole={user.role} blockedRoles={['REVIEWER_DEMO']} fallback={null}>
+                      <div className="mt-6">
+                        <LiveTransitMap
+                          donation={selectedDonation.donation}
+                          initialTelemetry={selectedDonation.telemetry}
+                          onStatusAdvanced={loadData}
+                        />
+                      </div>
+                    </RoleGate>
                   )}
                 </div>
               ) : (
