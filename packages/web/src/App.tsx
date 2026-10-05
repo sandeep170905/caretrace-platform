@@ -9,8 +9,9 @@ import { InstitutionDashboard } from './pages/InstitutionDashboard';
 import { AgentPortal } from './pages/AgentPortal';
 import { AdminDashboard } from './pages/AdminDashboard';
 import { PublicLedgerExplorer } from './pages/PublicLedgerExplorer';
+import { BasePaperReviewPortal } from './pages/BasePaperReviewPortal';
 import { RoleGate } from './components/RoleGate';
-import { Bell, CheckCircle2, ShieldCheck, X, HeartHandshake, Building2, Truck, Lock, LogIn, UserPlus, ArrowRight, BookOpen } from 'lucide-react';
+import { Bell, CheckCircle2, ShieldCheck, X, HeartHandshake, Building2, Truck, Lock, LogIn, UserPlus, ArrowRight } from 'lucide-react';
 
 export const App: React.FC = () => {
   const [personas, setPersonas] = useState<User[]>([]);
@@ -21,6 +22,12 @@ export const App: React.FC = () => {
   const [refreshKey, setRefreshKey] = useState<number>(0);
   const [isResetting, setIsResetting] = useState<boolean>(false);
   const [toastMessage, setToastMessage] = useState<{ title: string; body: string } | null>(null);
+  const [isBasePaperRoute, setIsBasePaperRoute] = useState<boolean>(() => {
+    if (typeof window === 'undefined') return false;
+    const p = window.location.pathname.toLowerCase();
+    const h = window.location.hash.toLowerCase();
+    return p.startsWith('/academic-review-2026') || p.startsWith('/sandeep-access') || h === '#academic-review-2026' || h === '#sandeep-access';
+  });
 
   // Auth modal state
   const [isAuthModalOpen, setIsAuthModalOpen] = useState<boolean>(false);
@@ -145,15 +152,25 @@ export const App: React.FC = () => {
       const search = new URLSearchParams(window.location.search);
       const hash = window.location.hash.toLowerCase();
 
+      const isBasePaper = (
+        path.startsWith('/academic-review-2026') ||
+        path.startsWith('/sandeep-access') ||
+        hash === '#academic-review-2026' ||
+        hash === '#sandeep-access'
+      );
+      setIsBasePaperRoute(isBasePaper);
+
       const queryDonationId = search.get('id') || search.get('verify') || search.get('donationId');
       if (queryDonationId) {
         setVerifyDonationId(queryDonationId);
       }
 
-      if (path.startsWith('/verify') || path.startsWith('/ledger') || hash === '#verify' || hash === '#ledger' || search.has('verify') || search.has('id')) {
-        setActiveNavTab('VERIFY');
-      } else if (path.startsWith('/portal') || hash === '#portal') {
-        setActiveNavTab('PORTAL');
+      if (!isBasePaper) {
+        if (path.startsWith('/verify') || path.startsWith('/ledger') || hash === '#verify' || hash === '#ledger' || search.has('verify') || search.has('id')) {
+          setActiveNavTab('VERIFY');
+        } else if (path.startsWith('/portal') || hash === '#portal') {
+          setActiveNavTab('PORTAL');
+        }
       }
     };
 
@@ -197,6 +214,17 @@ export const App: React.FC = () => {
       body: 'You are now viewing the public board as a guest.'
     });
   };
+
+  if (isBasePaperRoute) {
+    return (
+      <BasePaperReviewPortal
+        onExitToMain={() => {
+          window.history.pushState({}, '', '/');
+          setIsBasePaperRoute(false);
+        }}
+      />
+    );
+  }
 
   return (
     <div className="min-h-screen flex flex-col bg-[#FBFBF9] text-slate-900 overflow-x-hidden w-full">
@@ -361,7 +389,6 @@ export const App: React.FC = () => {
                         <div className="flex items-center justify-between mb-3">
                           <div className="w-9 h-9 rounded-xl bg-slate-100 flex items-center justify-center text-slate-700 group-hover:bg-teal-100 group-hover:text-teal-800 transition-colors">
                             {p.role === 'DONOR' && <HeartHandshake className="w-4 h-4" />}
-                            {p.role === 'REVIEWER_DEMO' && <BookOpen className="w-4 h-4 text-teal-700" />}
                             {p.role === 'INSTITUTION' && <Building2 className="w-4 h-4" />}
                             {p.role === 'PICKUP_AGENT' && <Truck className="w-4 h-4" />}
                             {p.role === 'ADMIN' && <Lock className="w-4 h-4" />}

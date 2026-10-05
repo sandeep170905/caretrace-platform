@@ -7,19 +7,14 @@ const authService_1 = require("../services/authService");
 const notificationService_1 = require("../services/notificationService");
 exports.authRouter = (0, express_1.Router)();
 // Get list of demo user personas for fast multi-role testing (kept for quick demo purposes)
-exports.authRouter.get('/personas', async (req, res) => {
-    let users = database_1.db.getUsers();
-    if (!users.find(u => u.id === 'user-reviewer-demo')) {
-        const { seedReviewerUser } = require('../db/seed');
-        await seedReviewerUser();
-        users = database_1.db.getUsers();
-    }
-    const primaryIds = ['user-donor-ajith', 'user-inst-akash', 'user-agent-sakthi', 'user-admin-sandeep', 'user-reviewer-demo'];
+exports.authRouter.get('/personas', (req, res) => {
+    const users = database_1.db.getUsers();
+    const primaryIds = ['user-donor-ajith', 'user-inst-akash', 'user-agent-sakthi', 'user-admin-sandeep'];
     const personas = primaryIds
         .map(id => users.find(u => u.id === id))
         .filter((u) => Boolean(u))
         .map(u => authService_1.AuthService.sanitizeUser(u));
-    res.json({ success: true, personas: personas.length > 0 ? personas : users.slice(0, 5).map(authService_1.AuthService.sanitizeUser) });
+    res.json({ success: true, personas: personas.length > 0 ? personas : users.slice(0, 4).map(authService_1.AuthService.sanitizeUser) });
 });
 // Get all users (sanitized)
 exports.authRouter.get('/users', (req, res) => {

@@ -10,7 +10,7 @@ async function seedReviewerUser() {
     const demoPasswordHash = authService_1.AuthService.hashPassword('caretrace123');
     const reviewerUser = {
         id: 'user-reviewer-demo',
-        name: 'Academic Reviewer',
+        name: 'Sandeep',
         email: 'reviewer@demo.local',
         role: 'REVIEWER_DEMO',
         phone: '+91 99999 00000',
@@ -18,6 +18,42 @@ async function seedReviewerUser() {
         passwordHash: demoPasswordHash
     };
     await database_1.db.upsertUser(reviewerUser);
+    // If Sandeep doesn't have an initial donation yet, seed a confirmed contribution
+    const existingDonations = database_1.db.getDonations().filter(d => d.donorId === reviewerUser.id);
+    if (existingDonations.length === 0) {
+        const inst = database_1.db.getInstitutionById('inst-anbu') || database_1.db.getInstitutions()[0];
+        const req = database_1.db.getRequirements().find(r => r.institutionId === inst?.id) || database_1.db.getRequirements()[0];
+        if (inst && req) {
+            const donationId = 'CT-2026-7701';
+            const sampleDonation = {
+                id: donationId,
+                donorId: reviewerUser.id,
+                donorName: reviewerUser.name,
+                donorEmail: reviewerUser.email,
+                requirementId: req.id,
+                requirementTitle: req.title,
+                institutionId: inst.id,
+                institutionName: inst.name,
+                type: 'PHYSICAL_GOODS',
+                items: [
+                    { name: 'Pure Cotton Bedsheets & Warm Blankets', quantity: 20, unit: 'sets', estimatedValueInr: 14000 }
+                ],
+                status: 'CONFIRMED',
+                pickupAddress: 'T. Nagar Logistics Center, Chennai 600017',
+                destinationAddress: `${inst.address}, ${inst.city}, ${inst.state}`,
+                pickupCoordinates: { latitude: 13.0418, longitude: 80.2341 },
+                destinationCoordinates: { latitude: inst.latitude, longitude: inst.longitude },
+                qrCodePayload: qrService_1.QRService.createPayloadString(donationId, reviewerUser.id, inst.id),
+                pickupTimestamp: '2026-03-01T10:00:00.000Z',
+                deliveryTimestamp: '2026-03-01T14:30:00.000Z',
+                createdAt: '2026-03-01T09:00:00.000Z',
+                updatedAt: '2026-03-01T14:30:00.000Z'
+            };
+            await database_1.db.upsertDonation(sampleDonation);
+            await ledgerService_1.LedgerService.recordCheckpoint(sampleDonation.id, 'DONATION_MATCHED', { id: reviewerUser.id, role: 'DONOR', name: reviewerUser.name }, `Donor Sandeep pledged 20 sets of cotton bedsheets for ${inst.name}. Genesis block anchored.`, { donationId: sampleDonation.id, items: sampleDonation.items });
+            await ledgerService_1.LedgerService.recordCheckpoint(sampleDonation.id, 'DELIVERY_CONFIRMED', { id: 'user-inst-akash', role: 'INSTITUTION', name: 'Akash Kumar' }, `Sanctuary Director Akash Kumar inspected and verified consignment handover at ${inst.name}.`, { donationId: sampleDonation.id, recipient: 'Akash Kumar', verified: true });
+        }
+    }
 }
 async function runSeed(includeReviewer = false) {
     console.log('🌱 Seeding CareTrace India/Chennai-localized demo dataset...');

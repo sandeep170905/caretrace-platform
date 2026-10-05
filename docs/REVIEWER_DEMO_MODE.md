@@ -1,83 +1,83 @@
-# Reviewer Demo Mode Documentation
+# Isolated Reviewer Demo Mode Documentation
 
-This document explains the isolated **Reviewer Demo Mode** implemented in CareTrace. This mode is 100% additive, strictly reversible, and restricts the platform presentation to match the base research paper's feature set while keeping all advanced features intact on other personas.
-
----
-
-## 1. Overview & Research Alignment
-
-The base academic research paper specifies a core physical & monetary donation traceability platform:
-1. **Institution Onboarding & Needs Posting**: Title, description, category, target quantity/goal, and fulfillment deadline.
-2. **Donor Registration & Pledging Flow**: Physical goods pledges and direct monetary contributions.
-3. **Transaction Confirmation & Verification**: Instant cryptographic confirmation and Section 80G sample tax exemption receipt.
-4. **Donor Donation History**: Complete ledger of past physical and monetary contributions.
-5. **Basic Cryptographic Ledger View**: Block-by-block immutable SHA-256 hash chain with validity verification (`isValid: true/false`), block count, and tamper detection.
-
-Advanced modules developed beyond the base paper (Double Exponential Smoothing ML forecasting, K-Means donor clustering, Courier Logistics Dispatch, live simulated GPS telemetry, and Admin fraud scoring dashboards) are **gated and inaccessible** when logged in under this mode.
+This document explains the isolated, unlisted **Reviewer Demo Mode** implemented in CareTrace for base academic research paper evaluation.
 
 ---
 
-## 2. Reviewer Demo Credentials
+## 1. Architectural Isolation & Design
 
-A dedicated demo account is pre-seeded for one-click evaluation:
+Unlike previous iterations that shared layout chrome with the multi-persona platform, this mode is **fully separated**:
+- **Zero Public Visibility**: There is no button, tab, link, persona card, or reference to this mode in the main CareTrace application.
+- **Dedicated Standalone Shell**: Uses its own independent layout (`BasePaperReviewPortal.tsx`) with its own header, navigation, and footer.
+- **No Shared Persona Controls**: Contains zero persona switchers, zero platform broadcast/notice banners, and no links back to the main portal.
+- **Account Identity**: The signed-in user is displayed purely as **Sandeep** (no role label like "Reviewer" or "Academic" is displayed).
+- **Scope Alignment**: Only the features specified by the base research paper are available and fully functional.
+
+---
+
+## 2. Dedicated Unlisted Entry Point & Credentials
+
+Access is restricted to a direct, unguessable URL:
 
 | Parameter | Value |
 | :--- | :--- |
-| **Role Name** | `REVIEWER_DEMO` |
-| **Email** | `reviewer@demo.local` |
+| **Hidden Entry URL** | `http://localhost:5173/academic-review-2026` (or `http://localhost:5173/sandeep-access`) |
+| **Signed-In Display Name** | **Sandeep** |
+| **Login Email** | `reviewer@demo.local` |
 | **Password** | `caretrace123` |
-| **Display Name** | Academic Reviewer |
-| **Fast Access** | 1-Tap persona button available on the Portal landing screen |
+| **Interface Format** | Standalone login page (plain email + password form, no signup, no persona picker) |
 
 ---
 
-## 3. Allow-Listed Pages & Endpoints
+## 3. Fully Functional Base Paper Feature Set
 
-When authenticated as `REVIEWER_DEMO`:
+Once authenticated as **Sandeep**, the isolated shell provides full end-to-end functionality across three dedicated views:
 
-### Allowed Frontend Views
-- **Public Requirement Board** (`/`):
-  - View verified requirements showing Title, Description, Quantity Goal, and **Target Date / Deadline**.
-  - Pledge physical goods or contribute monetary funds.
-  - Complete pledge confirmation modals and view Section 80G verification receipts.
-- **Reviewer Portal / Donor Dashboard** (`/portal`):
-  - View donor profile and total contribution metrics.
-  - Complete donation history (physical and monetary).
-  - Walkable Chain-of-Custody timeline and Section 80G tax receipt viewer.
-- **Public Ledger Explorer** (`/verify`):
-  - SHA-256 block-by-block tamper-evident verification.
-  - Verification pass/fail status banner and total block count.
+### A. Campaigns & Needs (`REQUIREMENTS`)
+- **Requirements Listing**: Displays active verified childcare needs with Category, Urgency, Authenticity Score, Target Goal, and **Fulfillment Deadline Date**.
+- **Post Childcare Need**: Institutional modal allowing creation of needs with title, description, category, quantity goal, unit, urgency, and **deadline date** (`input type="date"`). Submits directly to the backend.
+- **Physical Goods Pledging**: Interactive pledge modal specifying quantity and pickup hub address $\rightarrow$ mints genesis cryptographic ledger block and generates Section 80G sample receipt.
+- **Direct Monetary Contributions (₹)**: Contribution modal supporting round rupee amounts (₹500, ₹1000, ₹2500, ₹5000, etc.) $\rightarrow$ instant Section 80G tax receipt with ledger verification QR code.
 
-### Blocked Features (Gated for `REVIEWER_DEMO`)
-- **ML Analytics Engine**: Demand forecasting, K-means clusters, retention risk scores, fulfillment predictions (`/api/analytics`).
-- **Courier Logistics Portal**: Courier dispatch manifests, GPS simulated routes, transit checkpoints (`/api/pickup`, `/api/delivery`, `/api/transit`).
-- **Administrative Risk & Scoring Dashboard**: Fraud anomaly inspection, admin system overrides (`/api/admin`).
-- **Live Transit GPS Telemetry**: Real-time simulated map routes on the donor dashboard are hidden.
+### B. Contributions & 80G Receipts (`HISTORY`)
+- Displays Sandeep's verified contribution records.
+- **Walkable Chain-of-Custody Timeline**: Inspects the 4-stage custody trail from matching to final handover.
+- **Section 80G Tax Exemption Receipt**: Viewable modal with cryptographic signature and verification QR.
+- **Direct Ledger Verification Button**: One-click jump to inspect the donation's block on the public ledger.
 
-### Backend API Route Enforcement
-The backend enforces this restriction in `reviewerRoleGate` middleware (`packages/backend/src/middleware/roleGate.ts`), mounted across `/api`:
-- Any request made with a `REVIEWER_DEMO` JWT token attempting to reach `/api/analytics`, `/api/pickup`, `/api/delivery`, `/api/transit`, or `/api/admin` is intercepted and immediately rejected with `403 Forbidden` (`REVIEWER_DEMO_RESTRICTED`).
+### C. Cryptographic Ledger Verification (`LEDGER`)
+- Standalone read-only SHA-256 block explorer:
+  - Cryptographic integrity pass/fail verification banner (`Status: VALID`).
+  - Total block count and chain head hash.
+  - Interactive block-by-block inspection (block index, timestamp, signatory actor, SHA-256 hash, previous-hash link, and payload hash).
 
 ---
 
-## 4. Reversibility & Rollback Instructions
+## 4. Backend Gateway Protection
 
-This implementation was developed on the dedicated branch:
+The backend enforces this restriction in `reviewerRoleGate` middleware ([`packages/backend/src/middleware/roleGate.ts`](file:///g:/main%20project%2026/packages/backend/src/middleware/roleGate.ts)):
+- Even if direct API calls or deep links are attempted with Sandeep's `REVIEWER_DEMO` JWT token, endpoints for ML analytics (`/api/analytics`), courier dispatch (`/api/pickup`, `/api/delivery`, `/api/transit`), and admin dashboards (`/api/admin`) are intercepted and rejected with `403 Forbidden` (`FEATURE_RESTRICTED_REVIEWER_DEMO`).
+
+---
+
+## 5. Main Portal Cleanliness Check
+
+- Main navbar (`Navbar.tsx`): Has **no** "Reviewer Portal" tab (shows standard "Operations Portal").
+- Public persona switcher: `/personas` endpoint returns only standard demo accounts (`Ajith R`, `Akash Kumar`, `Sakthivel S`, `Sandeep R`).
+- Portal landing cards: Has **no** reviewer or academic persona cards.
+
+---
+
+## 6. One-Step Rollback Instructions
+
+All code for this feature resides exclusively on the isolated branch:
 ```bash
 git checkout feature/reviewer-demo-mode
 ```
 
-### Complete One-Step Rollback (Without Merging)
-Because this work is on an isolated branch, you can revert the entire change without altering `main`:
+To permanently roll back and leave zero footprint on your production codebase:
 ```bash
 git checkout main
 git branch -D feature/reviewer-demo-mode
 ```
-
-### Additive Files Introduced
-If you wish to remove reviewer demo mode while staying on the branch:
-1. Delete the new migration: `packages/backend/src/db/migrations/20261005_add_deadline_to_requirements.ts`
-2. Delete the gate middleware: `packages/backend/src/middleware/roleGate.ts`
-3. Delete the frontend gate: `packages/web/src/components/RoleGate.tsx`
-4. Delete this documentation file: `docs/REVIEWER_DEMO_MODE.md`
-5. Remove `'REVIEWER_DEMO'` from `UserRole` in `packages/shared/src/types/index.ts` and recompile.
+No files from this branch are merged into `main`.

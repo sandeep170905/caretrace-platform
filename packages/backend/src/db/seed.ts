@@ -15,7 +15,7 @@ export async function seedReviewerUser(): Promise<void> {
   const demoPasswordHash = AuthService.hashPassword('caretrace123');
   const reviewerUser: User = {
     id: 'user-reviewer-demo',
-    name: 'Academic Reviewer',
+    name: 'Sandeep',
     email: 'reviewer@demo.local',
     role: 'REVIEWER_DEMO',
     phone: '+91 99999 00000',
@@ -23,6 +23,57 @@ export async function seedReviewerUser(): Promise<void> {
     passwordHash: demoPasswordHash
   };
   await db.upsertUser(reviewerUser);
+
+  // If Sandeep doesn't have an initial donation yet, seed a confirmed contribution
+  const existingDonations = db.getDonations().filter(d => d.donorId === reviewerUser.id);
+  if (existingDonations.length === 0) {
+    const inst = db.getInstitutionById('inst-anbu') || db.getInstitutions()[0];
+    const req = db.getRequirements().find(r => r.institutionId === inst?.id) || db.getRequirements()[0];
+    if (inst && req) {
+      const donationId = 'CT-2026-7701';
+      const sampleDonation: Donation = {
+        id: donationId,
+        donorId: reviewerUser.id,
+        donorName: reviewerUser.name,
+        donorEmail: reviewerUser.email,
+        requirementId: req.id,
+        requirementTitle: req.title,
+        institutionId: inst.id,
+        institutionName: inst.name,
+        type: 'PHYSICAL_GOODS',
+        items: [
+          { name: 'Pure Cotton Bedsheets & Warm Blankets', quantity: 20, unit: 'sets', estimatedValueInr: 14000 }
+        ],
+        status: 'CONFIRMED',
+        pickupAddress: 'T. Nagar Logistics Center, Chennai 600017',
+        destinationAddress: `${inst.address}, ${inst.city}, ${inst.state}`,
+        pickupCoordinates: { latitude: 13.0418, longitude: 80.2341 },
+        destinationCoordinates: { latitude: inst.latitude, longitude: inst.longitude },
+        qrCodePayload: QRService.createPayloadString(donationId, reviewerUser.id, inst.id),
+        pickupTimestamp: '2026-03-01T10:00:00.000Z',
+        deliveryTimestamp: '2026-03-01T14:30:00.000Z',
+        createdAt: '2026-03-01T09:00:00.000Z',
+        updatedAt: '2026-03-01T14:30:00.000Z'
+      };
+      await db.upsertDonation(sampleDonation);
+
+      await LedgerService.recordCheckpoint(
+        sampleDonation.id,
+        'DONATION_MATCHED',
+        { id: reviewerUser.id, role: 'DONOR', name: reviewerUser.name },
+        `Donor Sandeep pledged 20 sets of cotton bedsheets for ${inst.name}. Genesis block anchored.`,
+        { donationId: sampleDonation.id, items: sampleDonation.items }
+      );
+
+      await LedgerService.recordCheckpoint(
+        sampleDonation.id,
+        'DELIVERY_CONFIRMED',
+        { id: 'user-inst-akash', role: 'INSTITUTION', name: 'Akash Kumar' },
+        `Sanctuary Director Akash Kumar inspected and verified consignment handover at ${inst.name}.`,
+        { donationId: sampleDonation.id, recipient: 'Akash Kumar', verified: true }
+      );
+    }
+  }
 }
 
 export async function runSeed(includeReviewer: boolean = false): Promise<void> {
