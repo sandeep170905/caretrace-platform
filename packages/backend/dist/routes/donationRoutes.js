@@ -185,6 +185,16 @@ exports.donationRouter.post('/monetary', async (req, res) => {
         receiptNumber,
         transactionRef
     });
+    // Generate Public Ledger Verification URL and QR Code
+    const clientOrigin = req.get('origin') || (req.get('referer') ? new URL(req.get('referer')).origin : null) || 'https://caretrace-web.onrender.com';
+    const verificationUrl = `${clientOrigin}/ledger?id=${encodeURIComponent(donationId)}`;
+    let qrDataUrl = '';
+    try {
+        qrDataUrl = await qrService_1.QRService.generateQRDataUrl(verificationUrl);
+    }
+    catch (qrErr) {
+        console.error('Failed to generate verification QR code:', qrErr);
+    }
     // Build Section 80G Digital Tax Exemption Receipt (Demo Sample)
     const receipt = {
         receiptNumber,
@@ -204,7 +214,9 @@ exports.donationRouter.post('/monetary', async (req, res) => {
         upiTransactionId: transactionRef,
         ledgerBlockHash: ledgerBlock.blockHash,
         ledgerBlockIndex: ledgerBlock.index,
-        isDemoSample: true
+        isDemoSample: true,
+        verificationUrl,
+        qrDataUrl
     };
     // Update requirement fulfilled quantity
     requirement.fulfilledQuantity = Math.min(requirement.targetQuantity, requirement.fulfilledQuantity + 1);
@@ -230,7 +242,7 @@ exports.donationRouter.post('/monetary', async (req, res) => {
     });
 });
 // Retrieve Section 80G Tax Exemption Receipt for any monetary donation
-exports.donationRouter.get('/:id/receipt', (req, res) => {
+exports.donationRouter.get('/:id/receipt', async (req, res) => {
     const donation = database_1.db.getDonationById(req.params.id);
     if (!donation) {
         return res.status(404).json({ success: false, error: 'Donation not found' });
@@ -244,6 +256,15 @@ exports.donationRouter.get('/:id/receipt', (req, res) => {
     }
     const blocks = database_1.db.getLedgerBlocksForDonation(donation.id);
     const monetaryBlock = blocks.find(b => b.eventType === 'MONETARY_DONATION_CONFIRMED') || blocks[0];
+    const clientOrigin = req.get('origin') || (req.get('referer') ? new URL(req.get('referer')).origin : null) || 'https://caretrace-web.onrender.com';
+    const verificationUrl = `${clientOrigin}/ledger?id=${encodeURIComponent(donation.id)}`;
+    let qrDataUrl = '';
+    try {
+        qrDataUrl = await qrService_1.QRService.generateQRDataUrl(verificationUrl);
+    }
+    catch (qrErr) {
+        console.error('Failed to generate verification QR code:', qrErr);
+    }
     const receipt = {
         receiptNumber: donation.receiptNumber || `REC-80G-2026-${donation.id.replace(/\D/g, '')}`,
         donationId: donation.id,
@@ -262,7 +283,9 @@ exports.donationRouter.get('/:id/receipt', (req, res) => {
         upiTransactionId: donation.upiTransactionId || `TXN-2026-${donation.id.replace(/\D/g, '')}`,
         ledgerBlockHash: monetaryBlock ? monetaryBlock.blockHash : (donation.ledgerBlockHash || '0'.repeat(64)),
         ledgerBlockIndex: monetaryBlock ? monetaryBlock.index : 0,
-        isDemoSample: true
+        isDemoSample: true,
+        verificationUrl,
+        qrDataUrl
     };
     res.json({ success: true, receipt });
 });

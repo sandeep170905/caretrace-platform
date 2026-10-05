@@ -251,6 +251,8 @@ export interface TaxExemptionReceipt {
   ledgerBlockHash: string;
   ledgerBlockIndex: number;
   isDemoSample: true;
+  verificationUrl?: string;
+  qrDataUrl?: string;
 }
 
 export type AnnouncementUrgency = 'GENERAL' | 'URGENT';

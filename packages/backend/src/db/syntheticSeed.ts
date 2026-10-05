@@ -724,7 +724,7 @@ export async function seedSynthetic(): Promise<void> {
         pickupTimestamp,
         deliveryTimestamp,
         confirmationNotes: status === 'CONFIRMED'
-          ? `Consignment inspected and received in good condition at ${inst.name}. Stocked in child-care store room.`
+          ? `${inst.name} Reception Director - ${items[0].quantity} ${items[0].unit} of ${items[0].name} inspected and stocked in pantry.`
           : undefined,
         recipientSignature: status === 'CONFIRMED'
           ? `DIGITAL_SIG:${inst.id.toUpperCase()}:${donationId}`

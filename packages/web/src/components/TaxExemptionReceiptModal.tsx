@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { TaxExemptionReceipt, formatIndianCurrency, formatRelativeTime } from '@caretrace/shared';
+import QRCode from 'qrcode';
 import {
   FileCheck2,
   Printer,
@@ -11,7 +12,8 @@ import {
   Calendar,
   AlertTriangle,
   QrCode,
-  CheckCircle2
+  CheckCircle2,
+  ExternalLink
 } from 'lucide-react';
 
 interface TaxExemptionReceiptModalProps {
@@ -23,6 +25,41 @@ export const TaxExemptionReceiptModal: React.FC<TaxExemptionReceiptModalProps> =
   receipt,
   onClose
 }) => {
+  const [qrCodeDataUrl, setQrCodeDataUrl] = useState<string>(receipt.qrDataUrl || '');
+
+  // Live Public Ledger Verification URL (pre-filled with donation ID)
+  const liveVerificationUrl = receipt.verificationUrl || (typeof window !== 'undefined'
+    ? `${window.location.origin}/ledger?id=${encodeURIComponent(receipt.donationId)}`
+    : `https://caretrace-web.onrender.com/ledger?id=${encodeURIComponent(receipt.donationId)}`);
+
+  useEffect(() => {
+    if (receipt.qrDataUrl) {
+      setQrCodeDataUrl(receipt.qrDataUrl);
+      return;
+    }
+
+    let isMounted = true;
+    QRCode.toDataURL(liveVerificationUrl, {
+      errorCorrectionLevel: 'H',
+      margin: 2,
+      width: 250,
+      color: {
+        dark: '#0F766E', // Trust Teal
+        light: '#FFFFFF'
+      }
+    })
+      .then((url) => {
+        if (isMounted) setQrCodeDataUrl(url);
+      })
+      .catch((err) => {
+        console.error('Failed to generate verification QR code:', err);
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [receipt.qrDataUrl, liveVerificationUrl]);
+
   const handlePrint = () => {
     window.print();
   };
@@ -165,8 +202,8 @@ export const TaxExemptionReceiptModal: React.FC<TaxExemptionReceiptModalProps> =
             </div>
           </div>
 
-          {/* Cryptographic Proof & Ledger Stamp */}
-          <div className="mt-5 p-4.5 rounded-xl bg-surface-card border border-surface-border shadow-sm text-xs space-y-3">
+          {/* Cryptographic Proof & Ledger Stamp with Verification QR */}
+          <div className="mt-5 p-4.5 rounded-xl bg-surface-card border border-surface-border shadow-sm text-xs space-y-4">
             <div className="flex items-center justify-between text-slate-700 font-sans font-bold border-b border-surface-border pb-3">
               <span className="flex items-center space-x-1.5 text-teal-900">
                 <Hash className="w-4 h-4 text-teal-700" />
@@ -178,14 +215,70 @@ export const TaxExemptionReceiptModal: React.FC<TaxExemptionReceiptModalProps> =
               </span>
             </div>
 
-            <div className="font-mono text-xs bg-surface-canvas p-3 rounded-xl border border-surface-border break-all text-slate-800 shadow-inner">
-              <span className="text-[10px] uppercase font-sans font-bold tracking-wider text-slate-500 block mb-1">SHA-256 Block Hash</span>
-              {receipt.ledgerBlockHash}
-            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 items-center">
+              {/* Left 2 Cols: Hash, Block & Event Details */}
+              <div className="sm:col-span-2 space-y-3">
+                <div className="font-mono text-xs bg-surface-canvas p-3 rounded-xl border border-surface-border break-all text-slate-800 shadow-inner">
+                  <span className="text-[10px] uppercase font-sans font-bold tracking-wider text-slate-500 block mb-1">SHA-256 Block Hash</span>
+                  {receipt.ledgerBlockHash}
+                </div>
 
-            <div className="flex items-center justify-between text-xs font-sans text-slate-600 pt-1">
-              <span>Event: <strong className="text-slate-900 bg-slate-100 px-1.5 py-0.5 rounded font-mono text-[10px]">MONETARY_DONATION_CONFIRMED</strong></span>
-              <span>Requirement: <strong className="text-slate-900 font-bold truncate max-w-[200px]">{receipt.requirementTitle}</strong></span>
+                <div className="space-y-1.5 text-xs font-sans text-slate-600">
+                  <div className="flex items-center justify-between">
+                    <span>Event Type:</span>
+                    <strong className="text-slate-900 bg-slate-100 px-2 py-0.5 rounded font-mono text-[10px]">MONETARY_DONATION_CONFIRMED</strong>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span>Requirement:</span>
+                    <strong className="text-slate-900 font-bold truncate max-w-[200px]" title={receipt.requirementTitle}>{receipt.requirementTitle}</strong>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span>Consignment Ref:</span>
+                    <span className="font-mono font-bold text-teal-900 bg-teal-50 px-2 py-0.5 rounded border border-teal-100">{receipt.donationId}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Right Col: Ledger-Verification QR Code (Verification Only, Never Payment) */}
+              <div className="flex flex-col items-center justify-center p-3 rounded-xl bg-surface-canvas border border-teal-200/80 shadow-xs text-center">
+                <div className="relative p-1.5 bg-white rounded-xl border border-slate-200 shadow-sm">
+                  {qrCodeDataUrl ? (
+                    <img
+                      src={qrCodeDataUrl}
+                      alt={`Ledger Verification QR for donation ${receipt.donationId}`}
+                      className="w-24 h-24 sm:w-28 sm:h-28 object-contain"
+                    />
+                  ) : (
+                    <div className="w-24 h-24 sm:w-28 sm:h-28 flex items-center justify-center bg-slate-50 text-slate-400">
+                      <QrCode className="w-8 h-8 animate-pulse text-teal-700" />
+                    </div>
+                  )}
+                </div>
+
+                <div className="mt-2 space-y-0.5">
+                  <span className="text-[10px] font-sans font-black uppercase tracking-wider text-teal-950 block">
+                    Ledger Verification QR
+                  </span>
+                  <p className="text-[9px] font-sans text-slate-500 leading-tight">
+                    Scan to verify on public explorer
+                  </p>
+                </div>
+
+                <a
+                  href={liveVerificationUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-2 inline-flex items-center space-x-1 text-[10px] font-sans font-bold text-teal-700 hover:text-teal-900 bg-teal-50 hover:bg-teal-100 border border-teal-200 px-2.5 py-1 rounded-lg transition-colors print:hidden"
+                  title="Open live ledger explorer with this donation pre-filled"
+                >
+                  <span>Verify on Ledger</span>
+                  <ExternalLink className="w-3 h-3" />
+                </a>
+
+                <span className="text-[8px] font-mono text-slate-400 block mt-1 truncate max-w-[140px]" title={liveVerificationUrl}>
+                  {liveVerificationUrl}
+                </span>
+              </div>
             </div>
           </div>
 

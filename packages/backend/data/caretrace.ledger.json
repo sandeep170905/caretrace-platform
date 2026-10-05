@@ -11418,5 +11418,56 @@
       "estimatedValueInr": 10856
     },
     "isSynthetic": true
+  },
+  {
+    "index": 609,
+    "timestamp": "2026-10-05T03:40:01.197Z",
+    "donationId": "CT-2026-5875",
+    "eventType": "DONATION_MATCHED",
+    "actorId": "user-donor-ajith",
+    "actorRole": "DONOR",
+    "actorName": "Ajith R",
+    "details": "Donation initiated and matched to verified requirement: \"Sanitary Hygiene Care Multi-Packs\"",
+    "payloadHash": "64f74e26315ac349c816491e5e9ea7edfe55ab1f3fb6d00ae059947761383c4e",
+    "previousHash": "ede4f567a734d309e6df0b7fe90ca10212216b54afb1667e3d5c5e15182bf8fd",
+    "blockHash": "83b5a7102a88ceb58e86ed15fc5ce38dd9ca0b20d25afc79b29985c4a2da36ce",
+    "nonce": 0,
+    "payload": {
+      "items": [
+        {
+          "name": "Sanitary Hygiene Care Multi-Packs",
+          "quantity": 44,
+          "unit": "packs"
+        }
+      ],
+      "type": "PHYSICAL_GOODS",
+      "institution": "Amudham Children's Illam",
+      "pickupAddress": "Anna Nagar West Logistics Hub, Chennai 600040"
+    },
+    "isSynthetic": false
+  },
+  {
+    "index": 610,
+    "timestamp": "2026-10-05T09:08:07.544Z",
+    "donationId": "CT-2026-9917",
+    "eventType": "MONETARY_DONATION_CONFIRMED",
+    "actorId": "user-donor-ajith",
+    "actorRole": "DONOR",
+    "actorName": "Ajith R",
+    "details": "Monetary contribution of ₹2,451 confirmed for Nambikkai Youth Shelter (Receipt #REC-80G-2026-97575)",
+    "payloadHash": "3e7a9a39e53f4cf8ee1885cabdd1a3339bdba45eadce0b36bed92b64e4761f7f",
+    "previousHash": "83b5a7102a88ceb58e86ed15fc5ce38dd9ca0b20d25afc79b29985c4a2da36ce",
+    "blockHash": "eef49ab1efb572f60ca2150d188ddea064f521188ecd6ec44b8e95e2d2c2e787",
+    "nonce": 0,
+    "payload": {
+      "amountInr": 2451,
+      "donorId": "user-donor-ajith",
+      "donorName": "Ajith R",
+      "institutionId": "syn-inst-nambikkai",
+      "institutionName": "Nambikkai Youth Shelter",
+      "receiptNumber": "REC-80G-2026-97575",
+      "transactionRef": "TXN-2026-3601"
+    },
+    "isSynthetic": false
   }
 ]

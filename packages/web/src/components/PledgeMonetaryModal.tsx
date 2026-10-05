@@ -168,9 +168,12 @@ export const PledgeMonetaryModal: React.FC<PledgeMonetaryModalProps> = ({
               <input
                 type="number"
                 min="1"
-                step="50"
+                step="1"
                 value={amount || ''}
-                onChange={(e) => setAmount(Number(e.target.value))}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  setAmount(val === '' ? 0 : Math.max(0, parseInt(val, 10) || 0));
+                }}
                 placeholder="Enter contribution amount in INR"
                 required
                 className="w-full pl-10 pr-4 py-3 text-sm border border-surface-border rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-600 focus:border-transparent font-mono font-bold text-slate-900 transition-all placeholder:font-sans placeholder:font-normal placeholder:text-slate-400 bg-surface-canvas shadow-inner"
