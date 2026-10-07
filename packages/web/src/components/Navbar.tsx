@@ -17,7 +17,8 @@ import {
   Menu,
   X,
   ChevronRight,
-  Check
+  Check,
+  BookOpen
 } from 'lucide-react';
 
 interface NavbarProps {

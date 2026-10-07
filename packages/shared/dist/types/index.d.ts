@@ -1,7 +1,7 @@
 /**
  * CareTrace Core TypeScript Interfaces and Types
  */
-export type UserRole = 'DONOR' | 'INSTITUTION' | 'PICKUP_AGENT' | 'ADMIN';
+export type UserRole = 'DONOR' | 'INSTITUTION' | 'PICKUP_AGENT' | 'ADMIN' | 'REVIEWER_DEMO';
 export interface User {
     id: string;
     name: string;
@@ -63,6 +63,7 @@ export interface Requirement {
     mlRiskTier?: 'LOW' | 'MEDIUM' | 'HIGH';
     riskFlags: RiskFlag[];
     documents: RequirementDocument[];
+    deadline?: string;
     createdAt: string;
     updatedAt: string;
     isSynthetic?: boolean;

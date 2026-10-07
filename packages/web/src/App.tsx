@@ -9,6 +9,8 @@ import { InstitutionDashboard } from './pages/InstitutionDashboard';
 import { AgentPortal } from './pages/AgentPortal';
 import { AdminDashboard } from './pages/AdminDashboard';
 import { PublicLedgerExplorer } from './pages/PublicLedgerExplorer';
+import { ExistingSystemDashboard } from './pages/ExistingSystemDashboard';
+import { RoleGate } from './components/RoleGate';
 import { Bell, CheckCircle2, ShieldCheck, X, HeartHandshake, Building2, Truck, Lock, LogIn, UserPlus, ArrowRight } from 'lucide-react';
 
 export const App: React.FC = () => {
@@ -20,6 +22,21 @@ export const App: React.FC = () => {
   const [refreshKey, setRefreshKey] = useState<number>(0);
   const [isResetting, setIsResetting] = useState<boolean>(false);
   const [toastMessage, setToastMessage] = useState<{ title: string; body: string } | null>(null);
+  const [isBasePaperRoute, setIsBasePaperRoute] = useState<boolean>(() => {
+    if (typeof window === 'undefined') return false;
+    const p = window.location.pathname.toLowerCase();
+    const h = window.location.hash.toLowerCase();
+    return (
+      p.startsWith('/existing') ||
+      p.startsWith('/base-paper') ||
+      p.startsWith('/academic-review-2026') ||
+      p.startsWith('/sandeep-access') ||
+      h === '#existing' ||
+      h === '#base-paper' ||
+      h === '#academic-review-2026' ||
+      h === '#sandeep-access'
+    );
+  });
 
   // Auth modal state
   const [isAuthModalOpen, setIsAuthModalOpen] = useState<boolean>(false);
@@ -144,15 +161,29 @@ export const App: React.FC = () => {
       const search = new URLSearchParams(window.location.search);
       const hash = window.location.hash.toLowerCase();
 
+      const isBasePaper = (
+        path.startsWith('/existing') ||
+        path.startsWith('/base-paper') ||
+        path.startsWith('/academic-review-2026') ||
+        path.startsWith('/sandeep-access') ||
+        hash === '#existing' ||
+        hash === '#base-paper' ||
+        hash === '#academic-review-2026' ||
+        hash === '#sandeep-access'
+      );
+      setIsBasePaperRoute(isBasePaper);
+
       const queryDonationId = search.get('id') || search.get('verify') || search.get('donationId');
       if (queryDonationId) {
         setVerifyDonationId(queryDonationId);
       }
 
-      if (path.startsWith('/verify') || path.startsWith('/ledger') || hash === '#verify' || hash === '#ledger' || search.has('verify') || search.has('id')) {
-        setActiveNavTab('VERIFY');
-      } else if (path.startsWith('/portal') || hash === '#portal') {
-        setActiveNavTab('PORTAL');
+      if (!isBasePaper) {
+        if (path.startsWith('/verify') || path.startsWith('/ledger') || hash === '#verify' || hash === '#ledger' || search.has('verify') || search.has('id')) {
+          setActiveNavTab('VERIFY');
+        } else if (path.startsWith('/portal') || hash === '#portal') {
+          setActiveNavTab('PORTAL');
+        }
       }
     };
 
@@ -190,12 +221,23 @@ export const App: React.FC = () => {
     setIsAuthenticated(false);
     setCurrentPersona(null);
     setPendingPledgeReq(null);
+    setIsBasePaperRoute(false);
+    window.history.pushState({}, '', '/');
     handleSelectNavTab('PUBLIC_BOARD');
     setToastMessage({
       title: 'Signed Out',
-      body: 'You are now viewing the public board as a guest.'
+      body: 'You have exited the session. Welcome back to CareTrace.'
     });
   };
+
+  if (isBasePaperRoute || currentPersona?.role === 'REVIEWER_DEMO') {
+    return (
+      <ExistingSystemDashboard
+        user={currentPersona}
+        onSignOut={handleLogout}
+      />
+    );
+  }
 
   return (
     <div className="min-h-screen flex flex-col bg-[#FBFBF9] text-slate-900 overflow-x-hidden w-full">
@@ -275,10 +317,14 @@ export const App: React.FC = () => {
                   <InstitutionDashboard user={currentPersona} refreshKey={refreshKey} />
                 )}
                 {currentPersona.role === 'PICKUP_AGENT' && (
-                  <AgentPortal user={currentPersona} refreshKey={refreshKey} />
+                  <RoleGate currentRole={currentPersona.role} blockedRoles={['REVIEWER_DEMO']} featureTitle="Logistics Courier Dispatch Portal">
+                    <AgentPortal user={currentPersona} refreshKey={refreshKey} />
+                  </RoleGate>
                 )}
                 {currentPersona.role === 'ADMIN' && (
-                  <AdminDashboard user={currentPersona} refreshKey={refreshKey} />
+                  <RoleGate currentRole={currentPersona.role} blockedRoles={['REVIEWER_DEMO']} featureTitle="Executive Risk & ML Analytics Dashboard">
+                    <AdminDashboard user={currentPersona} refreshKey={refreshKey} />
+                  </RoleGate>
                 )}
               </>
             ) : (

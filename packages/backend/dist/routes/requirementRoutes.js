@@ -36,7 +36,7 @@ exports.requirementRouter.get('/:id', (req, res) => {
 // Post a new requirement (Institutions)
 exports.requirementRouter.post('/', async (req, res) => {
     try {
-        const { institutionId, category, title, description, targetQuantity, unit, urgency, documents } = req.body;
+        const { institutionId, category, title, description, targetQuantity, unit, urgency, deadline, documents } = req.body;
         if (!institutionId || !category || !title || !targetQuantity) {
             return res.status(400).json({ success: false, error: 'Missing required fields' });
         }
@@ -88,6 +88,7 @@ exports.requirementRouter.post('/', async (req, res) => {
             mlRiskTier: mlPrediction.mlRiskTier,
             riskFlags: scoringResult.flags,
             documents: documents || [],
+            deadline: deadline ? String(deadline) : undefined,
             createdAt: now,
             updatedAt: now
         };
@@ -132,7 +133,7 @@ exports.requirementRouter.put('/:id', async (req, res) => {
         if (!requirement) {
             return res.status(404).json({ success: false, error: 'Requirement not found' });
         }
-        const { title, description, targetQuantity, unit, urgency, category } = req.body;
+        const { title, description, targetQuantity, unit, urgency, category, deadline } = req.body;
         if (title)
             requirement.title = title.trim();
         if (description !== undefined)
@@ -145,6 +146,8 @@ exports.requirementRouter.put('/:id', async (req, res) => {
             requirement.urgency = urgency;
         if (category)
             requirement.category = category;
+        if (deadline !== undefined)
+            requirement.deadline = deadline ? String(deadline) : undefined;
         requirement.updatedAt = new Date().toISOString();
         await database_1.db.upsertRequirement(requirement);
         notificationService_1.NotificationService.broadcast('REQUIREMENT_UPDATED', { requirement });

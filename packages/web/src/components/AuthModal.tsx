@@ -252,6 +252,20 @@ export const AuthModal: React.FC<AuthModalProps> = ({
             >
               {isLoading ? 'Signing In...' : 'Sign In with Credentials'}
             </button>
+
+            <div className="pt-2 text-center">
+              <button
+                type="button"
+                onClick={() => {
+                  setEmail('reviewer.basepaper@gmail.com');
+                  setPassword('existing123');
+                }}
+                className="text-[11px] font-sans text-slate-500 hover:text-teal-700 underline underline-offset-2 transition-colors inline-flex items-center space-x-1"
+              >
+                <span>📜 Review II: Fill Base Paper Account</span>
+                <span className="font-mono text-[10px] text-slate-400">(reviewer.basepaper@gmail.com)</span>
+              </button>
+            </div>
           </form>
         )}
 

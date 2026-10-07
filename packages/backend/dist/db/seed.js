@@ -1,11 +1,71 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.seedReviewerUser = seedReviewerUser;
 exports.runSeed = runSeed;
 const database_1 = require("./database");
 const ledgerService_1 = require("../services/ledgerService");
 const qrService_1 = require("../services/qrService");
 const authService_1 = require("../services/authService");
-async function runSeed() {
+async function seedReviewerUser() {
+    const demoPasswordHash = authService_1.AuthService.hashPassword('existing123');
+    const reviewerGmailUser = {
+        id: 'user-reviewer-gmail',
+        name: 'Prof. Reviewer (IEEE Base Paper)',
+        email: 'reviewer.basepaper@gmail.com',
+        role: 'REVIEWER_DEMO',
+        phone: '+91 99999 00000',
+        avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
+        passwordHash: demoPasswordHash
+    };
+    await database_1.db.upsertUser(reviewerGmailUser);
+    const reviewerUser = {
+        id: 'user-reviewer-demo',
+        name: 'Prof. Reviewer',
+        email: 'reviewer@demo.local',
+        role: 'REVIEWER_DEMO',
+        phone: '+91 99999 00000',
+        avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
+        passwordHash: demoPasswordHash
+    };
+    await database_1.db.upsertUser(reviewerUser);
+    // If Sandeep doesn't have an initial donation yet, seed a confirmed contribution
+    const existingDonations = database_1.db.getDonations().filter(d => d.donorId === reviewerUser.id);
+    if (existingDonations.length === 0) {
+        const inst = database_1.db.getInstitutionById('inst-anbu') || database_1.db.getInstitutions()[0];
+        const req = database_1.db.getRequirements().find(r => r.institutionId === inst?.id) || database_1.db.getRequirements()[0];
+        if (inst && req) {
+            const donationId = 'CT-2026-7701';
+            const sampleDonation = {
+                id: donationId,
+                donorId: reviewerUser.id,
+                donorName: reviewerUser.name,
+                donorEmail: reviewerUser.email,
+                requirementId: req.id,
+                requirementTitle: req.title,
+                institutionId: inst.id,
+                institutionName: inst.name,
+                type: 'PHYSICAL_GOODS',
+                items: [
+                    { name: 'Pure Cotton Bedsheets & Warm Blankets', quantity: 20, unit: 'sets', estimatedValueInr: 14000 }
+                ],
+                status: 'CONFIRMED',
+                pickupAddress: 'T. Nagar Logistics Center, Chennai 600017',
+                destinationAddress: `${inst.address}, ${inst.city}, ${inst.state}`,
+                pickupCoordinates: { latitude: 13.0418, longitude: 80.2341 },
+                destinationCoordinates: { latitude: inst.latitude, longitude: inst.longitude },
+                qrCodePayload: qrService_1.QRService.createPayloadString(donationId, reviewerUser.id, inst.id),
+                pickupTimestamp: '2026-03-01T10:00:00.000Z',
+                deliveryTimestamp: '2026-03-01T14:30:00.000Z',
+                createdAt: '2026-03-01T09:00:00.000Z',
+                updatedAt: '2026-03-01T14:30:00.000Z'
+            };
+            await database_1.db.upsertDonation(sampleDonation);
+            await ledgerService_1.LedgerService.recordCheckpoint(sampleDonation.id, 'DONATION_MATCHED', { id: reviewerUser.id, role: 'DONOR', name: reviewerUser.name }, `Donor Sandeep pledged 20 sets of cotton bedsheets for ${inst.name}. Genesis block anchored.`, { donationId: sampleDonation.id, items: sampleDonation.items });
+            await ledgerService_1.LedgerService.recordCheckpoint(sampleDonation.id, 'DELIVERY_CONFIRMED', { id: 'user-inst-akash', role: 'INSTITUTION', name: 'Akash Kumar' }, `Sanctuary Director Akash Kumar inspected and verified consignment handover at ${inst.name}.`, { donationId: sampleDonation.id, recipient: 'Akash Kumar', verified: true });
+        }
+    }
+}
+async function runSeed(includeReviewer = false) {
     console.log('🌱 Seeding CareTrace India/Chennai-localized demo dataset...');
     await database_1.db.reset();
     const demoPasswordHash = authService_1.AuthService.hashPassword('caretrace123');
@@ -76,6 +136,9 @@ async function runSeed() {
     await database_1.db.upsertUser(institutionDirector);
     await database_1.db.upsertUser(pickupAgent);
     await database_1.db.upsertUser(adminUser);
+    if (includeReviewer) {
+        await seedReviewerUser();
+    }
     // 2. Institutions (Chennai-area, plausible fictional child shelters)
     const anbuIllam = {
         id: 'inst-anbu',
@@ -505,5 +568,5 @@ async function runSeed() {
 }
 // Run if called directly
 if (require.main === module) {
-    runSeed().catch(console.error);
+    runSeed(true).catch(console.error);
 }

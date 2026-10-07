@@ -16,7 +16,9 @@ import {
   PackageCheck,
   SlidersHorizontal,
   TrendingUp,
-  Zap
+  Zap,
+  Clock,
+  Calendar
 } from 'lucide-react';
 
 interface PublicRequestBoardProps {
@@ -66,7 +68,7 @@ export const PublicRequestBoard: React.FC<PublicRequestBoardProps> = ({
   const [activeReceipt, setActiveReceipt] = useState<TaxExemptionReceipt | null>(null);
 
   const handleMonetaryClick = (req: Requirement) => {
-    if (currentUser && isAuthenticated && currentUser.role === 'DONOR') {
+    if (currentUser && isAuthenticated && (currentUser.role === 'DONOR' || currentUser.role === 'REVIEWER_DEMO')) {
       setMonetaryRequirement(req);
     } else {
       onRequireAuth(req);
@@ -117,7 +119,7 @@ export const PublicRequestBoard: React.FC<PublicRequestBoardProps> = ({
     .sort((a, b) => (URGENCY_ORDER[a.urgency] ?? 9) - (URGENCY_ORDER[b.urgency] ?? 9));
 
   const handleDonateClick = (req: Requirement) => {
-    if (currentUser && isAuthenticated && currentUser.role === 'DONOR') {
+    if (currentUser && isAuthenticated && (currentUser.role === 'DONOR' || currentUser.role === 'REVIEWER_DEMO')) {
       setPledgingReq(req);
       setPledgeQuantity(Math.max(1, req.targetQuantity - req.fulfilledQuantity));
     } else {
@@ -373,6 +375,15 @@ export const PublicRequestBoard: React.FC<PublicRequestBoardProps> = ({
                           Urgent
                         </span>
                       )}
+                      {featuredReq.deadline && (
+                        <>
+                          <span className="text-slate-200">·</span>
+                          <span className="flex items-center gap-1 text-[11px] font-mono font-bold text-amber-700 bg-amber-50 px-2 py-0.5 rounded-sm border border-amber-200">
+                            <Calendar className="w-3 h-3 text-amber-600" />
+                            Target Date: {new Date(featuredReq.deadline).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })}
+                          </span>
+                        </>
+                      )}
                     </div>
 
                     <h2 className="text-2xl sm:text-3xl font-display font-bold text-slate-900 leading-tight tracking-[-0.01em] mb-3">
@@ -464,6 +475,12 @@ export const PublicRequestBoard: React.FC<PublicRequestBoardProps> = ({
                         <span className="text-[10px] font-mono text-slate-400 uppercase tracking-wider">{req.category}</span>
                         {req.urgency === 'CRITICAL' && (
                           <span className="text-[10px] font-mono font-bold text-rose-600 bg-rose-50 px-1.5 rounded-sm">Critical</span>
+                        )}
+                        {req.deadline && (
+                          <span className="flex items-center gap-1 text-[10px] font-mono text-amber-700 bg-amber-50 px-1.5 rounded-sm border border-amber-200">
+                            <Calendar className="w-2.5 h-2.5 text-amber-600" />
+                            Due: {new Date(req.deadline).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+                          </span>
                         )}
                       </div>
                       <p className="text-sm font-sans font-bold text-slate-900 leading-snug truncate">{req.title}</p>

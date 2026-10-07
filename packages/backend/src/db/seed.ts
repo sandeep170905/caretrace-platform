@@ -11,7 +11,83 @@ import { QRService } from '../services/qrService';
 import { TransitService } from '../services/transitService';
 import { AuthService } from '../services/authService';
 
-export async function runSeed(): Promise<void> {
+export async function seedReviewerUser(): Promise<void> {
+  const demoPasswordHash = AuthService.hashPassword('existing123');
+  const reviewerGmailUser: User = {
+    id: 'user-reviewer-gmail',
+    name: 'Prof. Reviewer (IEEE Base Paper)',
+    email: 'reviewer.basepaper@gmail.com',
+    role: 'REVIEWER_DEMO',
+    phone: '+91 99999 00000',
+    avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
+    passwordHash: demoPasswordHash
+  };
+  await db.upsertUser(reviewerGmailUser);
+
+  const reviewerUser: User = {
+    id: 'user-reviewer-demo',
+    name: 'Prof. Reviewer',
+    email: 'reviewer@demo.local',
+    role: 'REVIEWER_DEMO',
+    phone: '+91 99999 00000',
+    avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
+    passwordHash: demoPasswordHash
+  };
+  await db.upsertUser(reviewerUser);
+
+  // If Sandeep doesn't have an initial donation yet, seed a confirmed contribution
+  const existingDonations = db.getDonations().filter(d => d.donorId === reviewerUser.id);
+  if (existingDonations.length === 0) {
+    const inst = db.getInstitutionById('inst-anbu') || db.getInstitutions()[0];
+    const req = db.getRequirements().find(r => r.institutionId === inst?.id) || db.getRequirements()[0];
+    if (inst && req) {
+      const donationId = 'CT-2026-7701';
+      const sampleDonation: Donation = {
+        id: donationId,
+        donorId: reviewerUser.id,
+        donorName: reviewerUser.name,
+        donorEmail: reviewerUser.email,
+        requirementId: req.id,
+        requirementTitle: req.title,
+        institutionId: inst.id,
+        institutionName: inst.name,
+        type: 'PHYSICAL_GOODS',
+        items: [
+          { name: 'Pure Cotton Bedsheets & Warm Blankets', quantity: 20, unit: 'sets', estimatedValueInr: 14000 }
+        ],
+        status: 'CONFIRMED',
+        pickupAddress: 'T. Nagar Logistics Center, Chennai 600017',
+        destinationAddress: `${inst.address}, ${inst.city}, ${inst.state}`,
+        pickupCoordinates: { latitude: 13.0418, longitude: 80.2341 },
+        destinationCoordinates: { latitude: inst.latitude, longitude: inst.longitude },
+        qrCodePayload: QRService.createPayloadString(donationId, reviewerUser.id, inst.id),
+        pickupTimestamp: '2026-03-01T10:00:00.000Z',
+        deliveryTimestamp: '2026-03-01T14:30:00.000Z',
+        createdAt: '2026-03-01T09:00:00.000Z',
+        updatedAt: '2026-03-01T14:30:00.000Z'
+      };
+      await db.upsertDonation(sampleDonation);
+
+      await LedgerService.recordCheckpoint(
+        sampleDonation.id,
+        'DONATION_MATCHED',
+        { id: reviewerUser.id, role: 'DONOR', name: reviewerUser.name },
+        `Donor Sandeep pledged 20 sets of cotton bedsheets for ${inst.name}. Genesis block anchored.`,
+        { donationId: sampleDonation.id, items: sampleDonation.items }
+      );
+
+      await LedgerService.recordCheckpoint(
+        sampleDonation.id,
+        'DELIVERY_CONFIRMED',
+        { id: 'user-inst-akash', role: 'INSTITUTION', name: 'Akash Kumar' },
+        `Sanctuary Director Akash Kumar inspected and verified consignment handover at ${inst.name}.`,
+        { donationId: sampleDonation.id, recipient: 'Akash Kumar', verified: true }
+      );
+    }
+  }
+}
+
+export async function runSeed(includeReviewer: boolean = false): Promise<void> {
   console.log('🌱 Seeding CareTrace India/Chennai-localized demo dataset...');
   await db.reset();
 
@@ -90,6 +166,10 @@ export async function runSeed(): Promise<void> {
   await db.upsertUser(institutionDirector);
   await db.upsertUser(pickupAgent);
   await db.upsertUser(adminUser);
+
+  if (includeReviewer) {
+    await seedReviewerUser();
+  }
 
   // 2. Institutions (Chennai-area, plausible fictional child shelters)
   const anbuIllam: Institution = {
@@ -625,5 +705,5 @@ export async function runSeed(): Promise<void> {
 
 // Run if called directly
 if (require.main === module) {
-  runSeed().catch(console.error);
+  runSeed(true).catch(console.error);
 }
