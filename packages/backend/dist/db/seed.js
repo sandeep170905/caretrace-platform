@@ -7,10 +7,20 @@ const ledgerService_1 = require("../services/ledgerService");
 const qrService_1 = require("../services/qrService");
 const authService_1 = require("../services/authService");
 async function seedReviewerUser() {
-    const demoPasswordHash = authService_1.AuthService.hashPassword('caretrace123');
+    const demoPasswordHash = authService_1.AuthService.hashPassword('existing123');
+    const reviewerGmailUser = {
+        id: 'user-reviewer-gmail',
+        name: 'Prof. Reviewer (IEEE Base Paper)',
+        email: 'reviewer.basepaper@gmail.com',
+        role: 'REVIEWER_DEMO',
+        phone: '+91 99999 00000',
+        avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
+        passwordHash: demoPasswordHash
+    };
+    await database_1.db.upsertUser(reviewerGmailUser);
     const reviewerUser = {
         id: 'user-reviewer-demo',
-        name: 'Sandeep',
+        name: 'Prof. Reviewer',
         email: 'reviewer@demo.local',
         role: 'REVIEWER_DEMO',
         phone: '+91 99999 00000',

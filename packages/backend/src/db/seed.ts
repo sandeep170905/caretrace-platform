@@ -12,10 +12,21 @@ import { TransitService } from '../services/transitService';
 import { AuthService } from '../services/authService';
 
 export async function seedReviewerUser(): Promise<void> {
-  const demoPasswordHash = AuthService.hashPassword('caretrace123');
+  const demoPasswordHash = AuthService.hashPassword('existing123');
+  const reviewerGmailUser: User = {
+    id: 'user-reviewer-gmail',
+    name: 'Prof. Reviewer (IEEE Base Paper)',
+    email: 'reviewer.basepaper@gmail.com',
+    role: 'REVIEWER_DEMO',
+    phone: '+91 99999 00000',
+    avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
+    passwordHash: demoPasswordHash
+  };
+  await db.upsertUser(reviewerGmailUser);
+
   const reviewerUser: User = {
     id: 'user-reviewer-demo',
-    name: 'Sandeep',
+    name: 'Prof. Reviewer',
     email: 'reviewer@demo.local',
     role: 'REVIEWER_DEMO',
     phone: '+91 99999 00000',

@@ -9,7 +9,7 @@ import { InstitutionDashboard } from './pages/InstitutionDashboard';
 import { AgentPortal } from './pages/AgentPortal';
 import { AdminDashboard } from './pages/AdminDashboard';
 import { PublicLedgerExplorer } from './pages/PublicLedgerExplorer';
-import { BasePaperReviewPortal } from './pages/BasePaperReviewPortal';
+import { ExistingSystemDashboard } from './pages/ExistingSystemDashboard';
 import { RoleGate } from './components/RoleGate';
 import { Bell, CheckCircle2, ShieldCheck, X, HeartHandshake, Building2, Truck, Lock, LogIn, UserPlus, ArrowRight } from 'lucide-react';
 
@@ -26,7 +26,16 @@ export const App: React.FC = () => {
     if (typeof window === 'undefined') return false;
     const p = window.location.pathname.toLowerCase();
     const h = window.location.hash.toLowerCase();
-    return p.startsWith('/academic-review-2026') || p.startsWith('/sandeep-access') || h === '#academic-review-2026' || h === '#sandeep-access';
+    return (
+      p.startsWith('/existing') ||
+      p.startsWith('/base-paper') ||
+      p.startsWith('/academic-review-2026') ||
+      p.startsWith('/sandeep-access') ||
+      h === '#existing' ||
+      h === '#base-paper' ||
+      h === '#academic-review-2026' ||
+      h === '#sandeep-access'
+    );
   });
 
   // Auth modal state
@@ -153,8 +162,12 @@ export const App: React.FC = () => {
       const hash = window.location.hash.toLowerCase();
 
       const isBasePaper = (
+        path.startsWith('/existing') ||
+        path.startsWith('/base-paper') ||
         path.startsWith('/academic-review-2026') ||
         path.startsWith('/sandeep-access') ||
+        hash === '#existing' ||
+        hash === '#base-paper' ||
         hash === '#academic-review-2026' ||
         hash === '#sandeep-access'
       );
@@ -208,20 +221,20 @@ export const App: React.FC = () => {
     setIsAuthenticated(false);
     setCurrentPersona(null);
     setPendingPledgeReq(null);
+    setIsBasePaperRoute(false);
+    window.history.pushState({}, '', '/');
     handleSelectNavTab('PUBLIC_BOARD');
     setToastMessage({
       title: 'Signed Out',
-      body: 'You are now viewing the public board as a guest.'
+      body: 'You have exited the session. Welcome back to CareTrace.'
     });
   };
 
-  if (isBasePaperRoute) {
+  if (isBasePaperRoute || currentPersona?.role === 'REVIEWER_DEMO') {
     return (
-      <BasePaperReviewPortal
-        onExitToMain={() => {
-          window.history.pushState({}, '', '/');
-          setIsBasePaperRoute(false);
-        }}
+      <ExistingSystemDashboard
+        user={currentPersona}
+        onSignOut={handleLogout}
       />
     );
   }
@@ -292,7 +305,7 @@ export const App: React.FC = () => {
           <>
             {currentPersona ? (
               <>
-                {(currentPersona.role === 'DONOR' || currentPersona.role === 'REVIEWER_DEMO') && (
+                {currentPersona.role === 'DONOR' && (
                   <DonorDashboard
                     user={currentPersona}
                     refreshKey={refreshKey}
